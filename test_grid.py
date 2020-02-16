@@ -14,3 +14,15 @@ def test_create_from_2darray():
     assert grid.shape == (2, 2)
     assert grid[0, 0] == 1
     assert grid[1, 0] == 3
+
+
+def test_equality():
+    a = Grid([[1, 2], [3, 4]])
+    b = Grid([[1, 2], [3, 4]])
+    assert a == b
+
+
+def test_inequality():
+    a = Grid([[1, 2], [3, 4]])
+    b = Grid([[0, 2], [3, 4]])
+    assert a != b

@@ -15,3 +15,10 @@ class Grid:
 
     def __getitem__(self, *args, **kwargs):
         return self.state.__getitem__(*args, **kwargs)
+
+    def __hash__(self):
+        # only consider state for hash
+        return hash(self.state.tobytes())
+
+    def __eq__(self, other):
+        return hash(self) == hash(other)
