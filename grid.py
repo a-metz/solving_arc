@@ -28,3 +28,9 @@ class Grid:
 
     def __eq__(self, other):
         return hash(self) == hash(other)
+
+    def __str__(self):
+        return "\n".join([" ".join([str(char) for char in row]) for row in self.state])
+
+    def __repr__(self):
+        return "Grid({})".format(repr(self.state.tolist()))

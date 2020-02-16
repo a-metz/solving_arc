@@ -38,3 +38,10 @@ def test_inequality():
     a = Grid([[1, 2], [3, 4]])
     b = Grid([[0, 2], [3, 4]])
     assert a != b
+
+
+def test_string_representation():
+    grid = Grid([[1, 2], [3, 4]])
+    expected_string = "1 2\n3 4"
+
+    assert str(grid) == expected_string
