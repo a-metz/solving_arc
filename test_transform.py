@@ -11,3 +11,8 @@ def example_grid():
 
 def test_noop(example_grid):
     assert noop(example_grid) == example_grid
+
+
+def test_extract_rect(example_grid):
+    extracted_grid = Grid([[1, 2], [4, 5], [7, 8]])
+    assert extract_rect(example_grid, origin=(0, 0), shape=(3, 2)) == extracted_grid
