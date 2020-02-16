@@ -1,3 +1,5 @@
+import pytest
+
 from grid import *
 
 
@@ -14,6 +16,16 @@ def test_create_from_2darray():
     assert grid.shape == (2, 2)
     assert grid.state[0, 0] == 1
     assert grid.state[1, 0] == 3
+
+
+def test_create_from_2darray__1darray():
+    with pytest.raises(ValueError):
+        grid = Grid([1, 2])
+
+
+def test_create_from_2darray__ndarray():
+    with pytest.raises(ValueError):
+        grid = Grid([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])
 
 
 def test_equality():

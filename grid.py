@@ -5,6 +5,12 @@ class Grid:
     def __init__(self, state):
         self.state = np.array(state, copy=True)
 
+        if len(self.state.shape) != 2:
+            raise ValueError(
+                "state needs to be 2d array, "
+                "but insead is {}d array".format(len(self.state.shape))
+            )
+
     @classmethod
     def empty(cls, shape):
         return cls(np.zeros(shape=shape))
