@@ -3,7 +3,7 @@ import numpy as np
 
 class Grid:
     def __init__(self, state):
-        self.state = np.array(state)
+        self.state = np.array(state, copy=True)
 
     @classmethod
     def empty(cls, shape):
@@ -14,7 +14,7 @@ class Grid:
         return self.state.shape
 
     def __getitem__(self, *args, **kwargs):
-        return self.state.__getitem__(*args, **kwargs)
+        return self.__class__(self.state.__getitem__(*args, **kwargs))
 
     def __hash__(self):
         # only consider state for hash
