@@ -1,14 +1,14 @@
 from grid import *
 
 
-def test_create_empty_grid():
+def test_create_empty():
     grid = Grid.empty(shape=(5, 5))
 
     assert grid.shape == (5, 5)
     assert grid[0, 0] == 0
 
 
-def test_create_grid_from_2darray():
+def test_create_from_2darray():
     grid = Grid([[1, 2], [3, 4]])
 
     assert grid.shape == (2, 2)

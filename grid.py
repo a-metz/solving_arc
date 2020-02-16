@@ -2,8 +2,8 @@ import numpy as np
 
 
 class Grid:
-    def __init__(self, array):
-        self.array = np.array(array)
+    def __init__(self, state):
+        self.state = np.array(state)
 
     @classmethod
     def empty(cls, shape):
@@ -11,7 +11,7 @@ class Grid:
 
     @property
     def shape(self):
-        return self.array.shape
+        return self.state.shape
 
     def __getitem__(self, *args, **kwargs):
-        return self.array.__getitem__(*args, **kwargs)
+        return self.state.__getitem__(*args, **kwargs)
