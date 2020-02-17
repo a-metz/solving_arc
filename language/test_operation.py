@@ -1,7 +1,7 @@
 import pytest
 
-from grid import Grid
-from operation import *
+from .grid import Grid
+from .operation import *
 
 
 @pytest.fixture

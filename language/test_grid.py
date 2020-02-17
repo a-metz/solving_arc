@@ -1,6 +1,6 @@
 import pytest
 
-from grid import *
+from .grid import *
 
 
 def test_create_empty():

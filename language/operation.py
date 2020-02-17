@@ -1,6 +1,6 @@
 import numpy as np
 
-from grid import Grid
+from .grid import Grid
 
 
 def noop(grid):
