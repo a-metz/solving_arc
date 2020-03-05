@@ -10,7 +10,7 @@ def test_create_empty():
     assert grid.state[0, 0] == 0
 
 
-def test_create_from_2darray():
+def test_create():
     grid = Grid([[1, 2], [3, 4]])
 
     assert grid.shape == (2, 2)
@@ -18,14 +18,24 @@ def test_create_from_2darray():
     assert grid.state[1, 0] == 3
 
 
-def test_create_from_2darray__1darray():
+def test_create__1darray():
     with pytest.raises(ValueError):
         grid = Grid([1, 2])
 
 
-def test_create_from_2darray__ndarray():
+def test_create__ndarray():
     with pytest.raises(ValueError):
         grid = Grid([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])
+
+
+def test_create_from_string():
+    string = """
+    1 2
+    3 4
+    """
+    grid = Grid.from_string(string)
+
+    assert grid == Grid([[1, 2], [3, 4]])
 
 
 def test_equality():

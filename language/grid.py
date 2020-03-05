@@ -15,6 +15,12 @@ class Grid:
     def empty(cls, shape):
         return cls(np.zeros(shape=shape))
 
+    @classmethod
+    def from_string(cls, string):
+        lines = [line.strip() for line in string.splitlines() if len(line.strip()) > 0]
+        elements = [[int(element) for element in line.split()] for line in lines]
+        return Grid(elements)
+
     @property
     def shape(self):
         return self.state.shape
