@@ -28,16 +28,6 @@ def test_create__ndarray():
         grid = Grid([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])
 
 
-def test_create_from_string():
-    string = """
-    1 2
-    3 4
-    """
-    grid = Grid.from_string(string)
-
-    assert grid == Grid([[1, 2], [3, 4]])
-
-
 def test_equality():
     a = Grid([[1, 2], [3, 4]])
     b = Grid([[1, 2], [3, 4]])
@@ -50,8 +40,28 @@ def test_inequality():
     assert a != b
 
 
+def test_create_from_string():
+    string = """
+    1 2
+    3 4
+    """
+    grid = Grid.from_string(string)
+
+    assert grid == Grid([[1, 2], [3, 4]])
+
+
 def test_string_representation():
     grid = Grid([[1, 2], [3, 4]])
     expected_string = "1 2\n3 4"
 
     assert str(grid) == expected_string
+
+
+def test_copy():
+    grid = Grid([[1, 2], [3, 4]])
+
+    copy = grid.copy()
+    assert copy == grid
+
+    grid.state[0, 0] = 9
+    assert copy != grid

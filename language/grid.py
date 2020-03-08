@@ -21,6 +21,9 @@ class Grid:
         elements = [[int(element) for element in line.split()] for line in lines]
         return Grid(elements)
 
+    def copy(self):
+        return self.__class__(self.state)
+
     @property
     def shape(self):
         return self.state.shape
