@@ -3,10 +3,6 @@ import numpy as np
 from .grid import Grid
 
 
-def noop(grid):
-    return grid
-
-
 def _check_shape_equals(a, b):
     if a.shape != b.shape:
         raise ValueError(
