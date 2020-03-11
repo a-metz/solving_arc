@@ -24,6 +24,9 @@ class Grid:
     def copy(self):
         return self.__class__(self.state)
 
+    def enumerate(self):
+        return np.ndenumerate(self.state)
+
     @property
     def shape(self):
         return self.state.shape

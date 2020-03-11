@@ -22,7 +22,7 @@ def _neighbors(index):
 
 
 def extract_islands(grid, water=0):
-    unassigned = {index for index, value in np.ndenumerate(grid.state) if value != water}
+    unassigned = {index for index, value in grid.enumerate() if value != water}
 
     def discover_island_bounds(index):
         top, left = index
@@ -31,18 +31,18 @@ def extract_islands(grid, water=0):
         for neighbor in _neighbors(index):
             if neighbor in unassigned:
                 unassigned.remove(neighbor)
-                top_, left_, bottom_, right_ = discover_island_bounds(neighbor)
+                top_, bottom_, left_, right_ = discover_island_bounds(neighbor)
                 top = min(top, top_)
-                left = min(left, left_)
                 bottom = max(bottom, bottom_)
+                left = min(left, left_)
                 right = max(right, right_)
 
-        return top, left, bottom, right
+        return top, bottom, left, right
 
     islands = []
     while len(unassigned) > 0:
-        top, left, bottom, right = discover_island_bounds(unassigned.pop())
-        island = Grid(grid.state[top:bottom, left:right])
+        top, bottom, left, right = discover_island_bounds(unassigned.pop())
+        island = grid[top:bottom, left:right]
         islands.append(island)
 
     return islands

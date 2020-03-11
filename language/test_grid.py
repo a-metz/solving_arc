@@ -65,3 +65,11 @@ def test_copy():
 
     grid[0, 0] = 9
     assert copy != grid
+
+
+def test_enumerate():
+    grid = Grid([[1, 2], [3, 4]])
+
+    assert len(list(grid.enumerate())) == 4
+    for index, value in grid.enumerate():
+        assert grid[index] == value
