@@ -68,3 +68,13 @@ def test_extract_islands(islands_grid):
         )
         in islands
     )
+
+
+def test_parameterize():
+    grid = Grid([[0, 1, 1]])
+    extract_island_functions = parameterize(grid)
+
+    assert len(extract_island_functions) == 2
+
+    islands = {island for func in extract_island_functions for island in func(grid)}
+    assert islands == {Grid([[0]]), Grid([[1, 1]])}

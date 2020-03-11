@@ -1,3 +1,5 @@
+from functools import partial
+
 import numpy as np
 
 from .grid import Grid
@@ -46,3 +48,8 @@ def extract_islands(grid, water=0):
         islands.append(island)
 
     return islands
+
+
+def parameterize(grid):
+    """partially apply segmentation functions with sensible parameter combinations"""
+    return [partial(extract_islands, water=color) for color in grid.used_colors()]
