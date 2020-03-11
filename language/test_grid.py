@@ -63,7 +63,7 @@ def test_copy():
     copy = grid.copy()
     assert copy == grid
 
-    grid[0, 0] = 9
+    grid.state[0, 0] = 9
     assert copy != grid
 
 
