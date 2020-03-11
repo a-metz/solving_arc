@@ -73,3 +73,12 @@ def test_enumerate():
     assert len(list(grid.enumerate())) == 4
     for index, value in grid.enumerate():
         assert grid[index] == value
+
+
+def test_used_colors():
+    grid = Grid([[1, 2], [1, 4]])
+
+    used_colors = grid.used_colors()
+    expected_used_colors = {1, 2, 4}
+    assert len(used_colors) == len(expected_used_colors)
+    assert set(used_colors) == expected_used_colors

@@ -27,6 +27,10 @@ class Grid:
     def enumerate(self):
         return np.ndenumerate(self.state)
 
+    def used_colors(self):
+        """returns list of colors used in grid"""
+        return np.unique(self.state)
+
     @property
     def shape(self):
         return self.state.shape
