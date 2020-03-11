@@ -29,7 +29,13 @@ class Grid:
         return self.state.shape
 
     def __getitem__(self, *args, **kwargs):
-        return self.__class__(self.state.__getitem__(*args, **kwargs))
+        substate = self.state.__getitem__(*args, **kwargs)
+
+        if np.isscalar(substate):
+            return substate
+
+        # return new grid for nonscalar values
+        return self.__class__(substate)
 
     def __hash__(self):
         # only consider state for hash
