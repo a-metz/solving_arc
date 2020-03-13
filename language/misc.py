@@ -22,7 +22,14 @@ def switch_color(grid, a, b):
 
 def _parameterize_switch_color(grid):
     """partially apply switch color with sensible parameter combinations"""
+    if hasattr(grid, "__len__"):
+        if len(grid) == 1:
+            (grid,) = grid
+        else:
+            return []
+
     valid_colors = range(10)
+
     parameterized = []
     for source_color in grid.used_colors():
         for target_color in valid_colors:

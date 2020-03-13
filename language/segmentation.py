@@ -52,6 +52,12 @@ def extract_islands(grid, water=0):
 
 def _parameterize_extract_islands(grid):
     """partially apply extract_islands with sensible parameter combinations"""
+    if hasattr(grid, "__len__"):
+        if len(grid) == 1:
+            (grid,) = grid
+        else:
+            return []
+
     return [partial(extract_islands, grid, water=color) for color in grid.used_colors()]
 
 

@@ -30,8 +30,11 @@ def _elementwise_eand(a, b):
 
 
 def elementwise_eand(a, b):
-    _check_shape_equals(a, b)
-    return Grid(_elementwise_eand(a.state, b.state))
+    try:
+        _check_shape_equals(a, b)
+        return Grid(_elementwise_eand(a.state, b.state))
+    except ValueError:
+        return None
 
 
 @np.vectorize
@@ -50,8 +53,11 @@ def _elementwise_eor(a, b):
 
 
 def elementwise_eor(a, b):
-    _check_shape_equals(a, b)
-    return Grid(_elementwise_eor(a.state, b.state))
+    try:
+        _check_shape_equals(a, b)
+        return Grid(_elementwise_eor(a.state, b.state))
+    except ValueError:
+        return None
 
 
 @np.vectorize
@@ -65,11 +71,17 @@ def _elementwise_xor(a, b):
 
 
 def elementwise_xor(a, b):
-    _check_shape_equals(a, b)
-    return Grid(_elementwise_xor(a.state, b.state))
+    try:
+        _check_shape_equals(a, b)
+        return Grid(_elementwise_xor(a.state, b.state))
+    except ValueError:
+        return None
 
 
-def parameterize(grids):
+def _parameterize_logic(grids):
+    if not hasattr(grids, "__len__") or len(grids) != 2:
+        return []
+
     a, b = grids
 
     return [
@@ -77,3 +89,6 @@ def parameterize(grids):
         partial(elementwise_eor, a, b),
         partial(elementwise_xor, a, b),
     ]
+
+
+parameterize = _parameterize_logic
