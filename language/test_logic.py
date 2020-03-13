@@ -52,3 +52,15 @@ def test_elementwise_xor():
     b = Grid([[0, 2], [0, 4]])
 
     assert elementwise_xor(a, b) == Grid([[0, 2], [3, 0]])
+
+
+def test_parameterize():
+    grids = [Grid([[0, 0, 1, 1]]), Grid([[0, 1, 0, 1]])]
+
+    logic_functions = parameterize(grids)
+
+    assert len(logic_functions) == 3
+
+    results = {func() for func in logic_functions}
+
+    assert results == {Grid([[0, 0, 0, 1]]), Grid([[0, 1, 1, 1]]), Grid([[0, 1, 1, 0]])}

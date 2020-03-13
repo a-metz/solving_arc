@@ -1,3 +1,5 @@
+from functools import partial
+
 import numpy as np
 
 from .grid import Grid
@@ -32,7 +34,8 @@ def elementwise_eand(a, b):
     return Grid(_elementwise_eand(a.state, b.state))
 
 
-def _eor(a, b):
+@np.vectorize
+def _elementwise_eor(a, b):
     if a == 0:
         return b
     elif b == 0:
@@ -46,15 +49,13 @@ def _eor(a, b):
         )
 
 
-_elementwise_eor = np.vectorize(_eor)
-
-
 def elementwise_eor(a, b):
     _check_shape_equals(a, b)
     return Grid(_elementwise_eor(a.state, b.state))
 
 
-def _xor(a, b):
+@np.vectorize
+def _elementwise_xor(a, b):
     if a == 0:
         return b
     elif b == 0:
@@ -63,9 +64,16 @@ def _xor(a, b):
         return 0
 
 
-_elementwise_xor = np.vectorize(_xor)
-
-
 def elementwise_xor(a, b):
     _check_shape_equals(a, b)
     return Grid(_elementwise_xor(a.state, b.state))
+
+
+def parameterize(grids):
+    a, b = grids
+
+    return [
+        partial(elementwise_eand, a, b),
+        partial(elementwise_eor, a, b),
+        partial(elementwise_xor, a, b),
+    ]
