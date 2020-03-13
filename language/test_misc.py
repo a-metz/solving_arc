@@ -32,7 +32,7 @@ def test_switch_color_parameterize():
     # for each source color (1 and 3) to all 9 other colors
     assert len(switch_color_functions) == 2 * 9
 
-    results = {func(grid) for func in switch_color_functions}
+    results = {func() for func in switch_color_functions}
 
     assert results == {
         Grid([[0, 3]]),
