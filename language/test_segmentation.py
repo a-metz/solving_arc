@@ -70,9 +70,9 @@ def test_extract_islands(islands_grid):
     )
 
 
-def test_parameterize():
+def test_extract_islands_parameterize():
     grid = Grid([[0, 1, 1]])
-    extract_island_functions = parameterize(grid)
+    extract_island_functions = extract_islands.parameterize(grid)
 
     assert len(extract_island_functions) == 2
 

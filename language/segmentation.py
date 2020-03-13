@@ -50,6 +50,9 @@ def extract_islands(grid, water=0):
     return islands
 
 
-def parameterize(grid):
-    """partially apply segmentation functions with sensible parameter combinations"""
+def _parameterize_extract_islands(grid):
+    """partially apply extract_islands with sensible parameter combinations"""
     return [partial(extract_islands, water=color) for color in grid.used_colors()]
+
+
+extract_islands.parameterize = _parameterize_extract_islands
