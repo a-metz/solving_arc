@@ -6,6 +6,15 @@ from ..language import *
 # logging.getLogger().setLevel(logging.DEBUG)
 
 
+def test_solution():
+    a = lambda x: x + "l"
+    b = lambda x: x + "e"
+    c = lambda x: x + "x"
+
+    solution = Solution([a, b, c])
+    assert solution("a") == "alex"
+
+
 def test_solve_nop():
     source = Grid([[1, 2, 3]])
     target = source
@@ -31,7 +40,7 @@ def test_solve_simple_colorswap():
 
     solution = solve(source, target, max_depth=1)
 
-    assert len(solution) > 0
+    assert solution is not None
     assert solution[0](source) == target
 
 
@@ -41,4 +50,15 @@ def test_solve_complex():
 
     solution = solve(source, target, max_depth=3)
 
-    assert len(solution) == 3
+    assert solution is not None
+    assert solution(source) == target
+
+
+def test_solve_and_transfer():
+    source = Grid([[0, 0, 1], [2, 2, 2], [1, 0, 1]])
+    target = Grid([[3, 0, 3]])
+
+    solution = solve(source, target, max_depth=3)
+
+    test = Grid([[1, 1, 0], [2, 2, 2], [1, 0, 0]])
+    assert solution(test) == Grid([[3, 3, 0]])

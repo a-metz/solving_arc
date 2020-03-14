@@ -1,5 +1,5 @@
 from itertools import chain
-import functools
+from functools import partial
 import logging
 
 from ..language import *
@@ -10,6 +10,13 @@ logger = logging.getLogger(__name__)
 MAX_DEPTH = 4
 
 parameterizers = [extract_islands.parameterize, logic.parameterize, switch_color.parameterize]
+
+
+class Solution(list):
+    def __call__(self, arg):
+        for function in self:
+            arg = function(arg)
+        return arg
 
 
 def solve(source, target, max_depth):
@@ -41,13 +48,17 @@ def solve(source, target, max_depth):
 
         return None
 
-    return solve_recursive(source, target, applied_functions=[])
+    applied_functions = solve_recursive(source, target, applied_functions=[])
+    if applied_functions is not None:
+        return Solution(applied_functions)
+    else:
+        return None
 
 
 def format_function(function, result, depth):
     indent = "  " * (depth + 1)
 
-    if isinstance(function, functools.partial):
+    if isinstance(function, partial):
         return format_partial(function, result, indent)
 
     return "{}{}() = {}".format(indent, function.__name__, repr(result))
