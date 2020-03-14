@@ -60,5 +60,5 @@ def test_solve_and_transfer():
 
     solution = solve(source, target, max_depth=3)
 
-    test = Grid([[1, 1, 0], [2, 2, 2], [1, 0, 0]])
-    assert solution(test) == Grid([[3, 3, 0]])
+    test = Grid([[1, 1, 0, 0], [2, 2, 2, 2], [1, 0, 0, 1]])
+    assert solution(test) == Grid([[3, 3, 0, 3]])
