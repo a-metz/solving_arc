@@ -1,6 +1,6 @@
 import pytest
 
-from ..utilities.arc_loader import train_and_test_subtasks
+from ..dataset.arc_loader import train_and_test_subtasks
 from ..language import *
 
 

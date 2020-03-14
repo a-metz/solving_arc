@@ -3,7 +3,7 @@ import warnings
 
 import pytest
 
-from ..utilities.arc_loader import train_and_test_subtasks
+from ..dataset.arc_loader import train_and_test_subtasks
 
 # parameterize subtasks using test name
 def pytest_generate_tests(metafunc):

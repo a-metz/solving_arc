@@ -1,4 +1,4 @@
-from ..utilities.dataset import load_dir
+from .dataset import load_dir
 
 _tasks = None
 
@@ -7,7 +7,7 @@ def arc_tasks():
     # use singleton to avoid reloading dataset (which takes long)
     global _tasks
     if _tasks is None:
-        _tasks = load_dir("arc_dataset/data/training")
+        _tasks = load_dir("dataset/arc/data/training")
 
     return _tasks
 
