@@ -52,9 +52,9 @@ def test_elementwise_xor():
 
 
 def test_parameterize():
-    grids = [Grid([[0, 0, 1, 1]]), Grid([[0, 1, 0, 1]])]
+    args = [Grid([[0, 0, 1, 1]]), Grid([[0, 1, 0, 1]])]
 
-    logic_functions = parameterize(grids)
+    logic_functions = parameterize(args)
 
     assert len(logic_functions) == 3
     results = {func() for func in logic_functions}
@@ -62,8 +62,16 @@ def test_parameterize():
 
 
 def test_parameterize__different_shapes():
-    grids = [Grid([[0, 1]]), Grid([[1, 0, 1]])]
+    args = [Grid([[0, 1]]), Grid([[1, 0, 1]])]
 
-    logic_functions = parameterize(grids)
+    logic_functions = parameterize(args)
+
+    assert len(logic_functions) == 0
+
+
+def test_parameterize__wrong_number_of_arguments():
+    args = [Grid([[0, 1]])]
+
+    logic_functions = parameterize(args)
 
     assert len(logic_functions) == 0
