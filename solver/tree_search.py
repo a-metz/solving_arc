@@ -12,9 +12,9 @@ parameterizers = [extract_islands.parameterize, logic.parameterize, switch_color
 
 
 def solve(source, target, max_depth):
-    def solve_recursive(args, target, applied_functions):
+    def solve_recursive(argument, target, applied_functions):
         try:
-            grid = extract_scalar(args)
+            grid = extract_scalar(argument)
             if grid == target:
                 return applied_functions
         except ArgumentError:
@@ -22,9 +22,11 @@ def solve(source, target, max_depth):
 
         depth = len(applied_functions)
         if depth < max_depth:
-            functions = chain.from_iterable(parameterize(args) for parameterize in parameterizers)
+            functions = chain.from_iterable(
+                parameterize(argument) for parameterize in parameterizers
+            )
             for function in functions:
-                result = function()
+                result = function(argument)
 
                 logger.debug(format_partial(function, result, depth))
                 if result is None:

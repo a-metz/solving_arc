@@ -96,12 +96,14 @@ def elementwise_xor(*args):
 
 def parameterize(*args):
     try:
-        a, b = _extract_operands(args)
+        # just check whether they can be extracted
+        _extract_operands(args)
     except ArgumentError:
         return []
 
     return [
-        partial(elementwise_equal_and, [a, b]),
-        partial(elementwise_equal_or, [a, b]),
-        partial(elementwise_xor, [a, b]),
+        # wrap in partial for better log output (for now)
+        partial(elementwise_equal_and),
+        partial(elementwise_equal_or),
+        partial(elementwise_xor),
     ]

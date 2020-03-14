@@ -29,10 +29,10 @@ def test_solve_simple_colorswap():
     source = Grid([[1, 2]])
     target = Grid([[2, 1]])
 
-    solution = solve(source, target, max_depth=2)
+    solution = solve(source, target, max_depth=1)
 
     assert len(solution) > 0
-    assert solution[-1]() == target
+    assert solution[0](source) == target
 
 
 def test_solve_complex():

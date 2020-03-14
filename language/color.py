@@ -40,7 +40,7 @@ def _parameterize_switch_color(args):
         for target_color in valid_colors:
             if source_color == target_color:
                 continue
-            parameterized.append(partial(switch_color, grid, a=source_color, b=target_color))
+            parameterized.append(partial(switch_color, a=source_color, b=target_color))
 
     return parameterized
 

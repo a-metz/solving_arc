@@ -67,7 +67,7 @@ def _parameterize_extract_islands(args):
     except ArgumentError:
         return []
 
-    return [partial(extract_islands, grid, water=color) for color in grid.used_colors()]
+    return [partial(extract_islands, water=color) for color in grid.used_colors()]
 
 
 extract_islands.parameterize = _parameterize_extract_islands
