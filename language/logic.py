@@ -102,8 +102,7 @@ def parameterize(*args):
         return []
 
     return [
-        # wrap in partial for better log output (for now)
-        partial(elementwise_equal_and),
-        partial(elementwise_equal_or),
-        partial(elementwise_xor),
+        elementwise_equal_and,
+        elementwise_equal_or,
+        elementwise_xor,
     ]

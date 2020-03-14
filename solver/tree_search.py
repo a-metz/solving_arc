@@ -1,4 +1,5 @@
 from itertools import chain
+import functools
 import logging
 
 from ..language import *
@@ -28,7 +29,9 @@ def solve(source, target, max_depth):
             for function in functions:
                 result = function(argument)
 
-                logger.debug(format_partial(function, result, depth))
+                logger.debug(format_function(function, result, depth))
+
+                # no result, end this branch
                 if result is None:
                     continue
 
@@ -41,12 +44,20 @@ def solve(source, target, max_depth):
     return solve_recursive(source, target, applied_functions=[])
 
 
-def format_partial(function, result, depth):
+def format_function(function, result, depth):
+    indent = "  " * (depth + 1)
+
+    if isinstance(function, functools.partial):
+        return format_partial(function, result, indent)
+
+    return "{}{}() = {}".format(indent, function.__name__, repr(result))
+
+
+def format_partial(function, result, indent):
     """format partial applied function created with functools.partial"""
 
-    indent = "  " * (depth + 1)
-    args = ", ".join(repr(arg) for arg in function.args)
-    keywords = ", ".join(
-        ["{}={}".format(key, repr(value)) for key, value in function.keywords.items()]
-    )
-    return "{}{}({}, {}) = {}".format(indent, function.func.__name__, args, keywords, repr(result))
+    positional_args = [repr(arg) for arg in function.args]
+    keyword_args = ["{}={}".format(key, repr(value)) for key, value in function.keywords.items()]
+    args = ", ".join(positional_args + keyword_args)
+
+    return "{}{}({}) = {}".format(indent, function.func.__name__, args, repr(result))
