@@ -1,4 +1,4 @@
-from ..utilities.comparable_partial import partial
+from ..utilities.hashable_partial import partial
 
 import numpy as np
 

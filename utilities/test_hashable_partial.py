@@ -1,4 +1,4 @@
-from .comparable_partial import partial
+from .hashable_partial import partial
 
 
 def test_partial__inner_function_equality():

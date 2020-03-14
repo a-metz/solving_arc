@@ -1,4 +1,4 @@
-from ..utilities.comparable_partial import partial
+from ..utilities.hashable_partial import partial
 
 from .grid import Grid
 from .argument import extract_scalar, ArgumentError
