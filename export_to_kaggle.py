@@ -10,14 +10,14 @@ for input_path in Path.cwd().joinpath("solve_arc").glob("**/*.py"):
     relative_path = input_path.relative_to(Path.cwd())
     output.write("\n")
     output.write("# {}\n".format(relative_path))
-    output.write("print('{}')\n".format(relative_path))
     output.write(
         "Path.cwd().joinpath('{}').mkdir(parents=True, exist_ok=True)\n".format(
             relative_path.parent
         )
     )
-    output.write("open('{}', 'w').write('''\n".format(relative_path))
-    output.write(input_path.read_text())
-    output.write("    ''')\n")
+    output.write("open('{}', 'w').write(".format(relative_path))
+    output.write(repr(input_path.read_text()))
+    output.write(")\n")
 
-output.write("\nimport solve_arc\n")
+output.write("\n\nfrom solve_arc.kaggle.submission import generate_submission\n")
+output.write("generate_submission('/kaggle/input/abstraction-and-reasoning-challenge/test')\n")

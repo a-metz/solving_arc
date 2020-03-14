@@ -25,7 +25,7 @@ def main(task_ids):
         start = time.time()
         # iterative deepening
         for max_depth in range(5):
-            if time.time() > start + 0.5:
+            if time.time() > start + 1:
                 print("timeout")
                 break
 
@@ -38,9 +38,8 @@ def main(task_ids):
                 if valid:
                     score += 1
                     print("found valid solution")
-                print(
-                    "found", "valid" if valid else "invalid", "solution",
-                )
+                else:
+                    print("found invalid solution",)
                 print(solution)
                 break
         else:
