@@ -12,17 +12,6 @@ MAX_DEPTH = 4
 parameterizers = [extract_islands.parameterize, logic.parameterize, switch_color.parameterize]
 
 
-class Solution(list):
-    def __call__(self, arg):
-        for function in self:
-            arg = function(arg)
-        return arg
-
-    @classmethod
-    def chain(cls, func, solution):
-        return Solution([func] + solution)
-
-
 def solve(source, target, max_depth):
     def solve_recursive(argument, depth):
         # no solution
@@ -51,6 +40,17 @@ def solve(source, target, max_depth):
         return None
 
     return solve_recursive(source, depth=0)
+
+
+class Solution(list):
+    def __call__(self, arg):
+        for function in self:
+            arg = function(arg)
+        return arg
+
+    @classmethod
+    def chain(cls, func, solution):
+        return Solution([func] + solution)
 
 
 def format_function(function, result, depth):
