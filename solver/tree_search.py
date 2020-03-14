@@ -20,7 +20,7 @@ class Solution(list):
 
 
 def solve(source, target, max_depth):
-    def solve_recursive(argument, target, applied_functions):
+    def solve_recursive(argument, target, applied_functions, depth):
         try:
             grid = extract_scalar(argument)
             if grid == target:
@@ -28,7 +28,6 @@ def solve(source, target, max_depth):
         except ArgumentError:
             pass
 
-        depth = len(applied_functions)
         if depth < max_depth:
             functions = chain.from_iterable(
                 parameterize(argument) for parameterize in parameterizers
@@ -42,13 +41,15 @@ def solve(source, target, max_depth):
                 if result is None:
                     continue
 
-                solution = solve_recursive(result, target, applied_functions + [function])
+                solution = solve_recursive(
+                    result, target, applied_functions + [function], depth + 1
+                )
                 if solution is not None:
                     return solution
 
         return None
 
-    return solve_recursive(source, target, applied_functions=[])
+    return solve_recursive(source, target, applied_functions=[], depth=0)
 
 
 def format_function(function, result, depth):
