@@ -4,10 +4,6 @@ from .grid import Grid
 from .argument import extract_scalar, ArgumentError
 
 
-def noop(grid):
-    return grid
-
-
 def map_color(grid, from_, to):
     mapped = grid.copy()
     mapped.state[mapped.state == from_] = to
