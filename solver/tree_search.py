@@ -18,38 +18,39 @@ class Solution(list):
             arg = function(arg)
         return arg
 
+    @classmethod
+    def chain(cls, func, solution):
+        return Solution([func] + solution)
+
 
 def solve(source, target, max_depth):
-    def solve_recursive(argument, target, applied_functions, depth):
+    def solve_recursive(argument, depth):
+        # no solution
+        if argument is None:
+            return None
+
+        # check if solved
         try:
             grid = extract_scalar(argument)
             if grid == target:
-                return Solution(applied_functions)
+                return Solution()
         except ArgumentError:
             pass
 
         if depth < max_depth:
-            functions = chain.from_iterable(
-                parameterize(argument) for parameterize in parameterizers
-            )
-            for function in functions:
+            functions = [parameterize(argument) for parameterize in parameterizers]
+            for function in chain.from_iterable(functions):
                 result = function(argument)
-
                 logger.debug(format_function(function, result, depth))
 
-                # no result, end this branch
-                if result is None:
-                    continue
-
-                solution = solve_recursive(
-                    result, target, applied_functions + [function], depth + 1
-                )
-                if solution is not None:
-                    return solution
+                sub_solution = solve_recursive(result, depth + 1)
+                # check if found solution
+                if sub_solution is not None:
+                    return Solution.chain(function, sub_solution)
 
         return None
 
-    return solve_recursive(source, target, applied_functions=[], depth=0)
+    return solve_recursive(source, depth=0)
 
 
 def format_function(function, result, depth):
