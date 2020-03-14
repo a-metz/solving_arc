@@ -1,6 +1,7 @@
 from functools import partial
 
 from .grid import Grid
+from .argument import extract_scalar, ArgumentError
 
 
 def noop(grid):
@@ -13,20 +14,28 @@ def map_color(grid, from_, to):
     return mapped
 
 
-def switch_color(grid, a, b):
+def _switch_color(grid, a, b):
     mapped = grid.copy()
     mapped.state[grid.state == a] = b
     mapped.state[grid.state == b] = a
     return mapped
 
 
-def _parameterize_switch_color(grid):
+def switch_color(args, a, b):
+    try:
+        grid = extract_scalar(args)
+    except ArgumentError:
+        return None
+
+    return _switch_color(grid, a, b)
+
+
+def _parameterize_switch_color(args):
     """partially apply switch color with sensible parameter combinations"""
-    if hasattr(grid, "__len__"):
-        if len(grid) == 1:
-            (grid,) = grid
-        else:
-            return []
+    try:
+        grid = extract_scalar(args)
+    except ArgumentError:
+        return []
 
     valid_colors = range(10)
 

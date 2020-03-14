@@ -3,6 +3,7 @@ from functools import partial
 import numpy as np
 
 from .grid import Grid
+from .argument import extract_tuple, ArgumentError
 
 
 @np.vectorize
@@ -16,7 +17,7 @@ def _elementwise_eand(a, b):
     else:
         raise ValueError(
             "elements need to be equal or at least one of them needs to be 0, "
-            "but instead are a[...]={} and b[...]={}".format(a, b)
+            "but instead are {} and {}".format(a, b)
         )
 
 
@@ -31,7 +32,7 @@ def _elementwise_eor(a, b):
     else:
         raise ValueError(
             "elements need to be equal or at least one of them needs to be 0, "
-            "but instead are a[...]={} and b[...]={}".format(a, b)
+            "but instead are {} and {}".format(a, b)
         )
 
 
@@ -45,12 +46,11 @@ def _elementwise_xor(a, b):
         return 0
 
 
-def _extract_operands(grids):
-    # if not unpackable, will raise ValueError
-    a, b = grids
+def _extract_operands(*args):
+    a, b = extract_tuple(args, length=2)
 
     if a.shape != b.shape:
-        raise ValueError(
+        raise ArgumentError(
             "arguments need to have the same shape, "
             "but instead are a.shape={} and b.shape={}".format(a.shape, b.shape)
         )
@@ -58,34 +58,46 @@ def _extract_operands(grids):
     return a, b
 
 
-def elementwise_equal_and(grids):
+def elementwise_equal_and(*args):
     try:
-        a, b = _extract_operands(grids)
+        a, b = _extract_operands(args)
+    except ArgumentError:
+        return None
+
+    try:
         return Grid(_elementwise_eand(a.state, b.state))
     except ValueError:
         return None
 
 
-def elementwise_equal_or(grids):
+def elementwise_equal_or(*args):
     try:
-        a, b = _extract_operands(grids)
+        a, b = _extract_operands(args)
+    except ArgumentError:
+        return None
+
+    try:
         return Grid(_elementwise_eor(a.state, b.state))
     except ValueError:
         return None
 
 
-def elementwise_xor(grids):
+def elementwise_xor(*args):
     try:
-        a, b = _extract_operands(grids)
+        a, b = _extract_operands(args)
+    except ArgumentError:
+        return None
+
+    try:
         return Grid(_elementwise_xor(a.state, b.state))
     except ValueError:
         return None
 
 
-def parameterize(grids):
+def parameterize(*args):
     try:
-        a, b = _extract_operands(grids)
-    except ValueError:
+        a, b = _extract_operands(args)
+    except ArgumentError:
         return []
 
     return [

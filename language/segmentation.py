@@ -3,8 +3,9 @@ from functools import partial
 import numpy as np
 
 from .grid import Grid
+from .argument import extract_scalar, ArgumentError
 
-
+# unused
 def extract_rectangle(grid, origin, shape):
     return grid[origin[0] : shape[0] - origin[0], origin[1] : shape[1] - origin[1]]
 
@@ -23,7 +24,7 @@ def _neighbors(index):
     ]
 
 
-def extract_islands(grid, water=0):
+def _extract_islands(grid, water):
     unassigned = {index for index, value in grid.enumerate() if value != water}
 
     def discover_island_bounds(index):
@@ -50,13 +51,21 @@ def extract_islands(grid, water=0):
     return islands
 
 
-def _parameterize_extract_islands(grid):
+def extract_islands(args, water=0):
+    try:
+        grid = extract_scalar(args)
+    except ArgumentError:
+        return None
+
+    return _extract_islands(grid, water)
+
+
+def _parameterize_extract_islands(args):
     """partially apply extract_islands with sensible parameter combinations"""
-    if hasattr(grid, "__len__"):
-        if len(grid) == 1:
-            (grid,) = grid
-        else:
-            return []
+    try:
+        grid = extract_scalar(args)
+    except ArgumentError:
+        return []
 
     return [partial(extract_islands, grid, water=color) for color in grid.used_colors()]
 
