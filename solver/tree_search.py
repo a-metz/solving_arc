@@ -2,6 +2,7 @@ from itertools import chain
 import logging
 
 from ..language import *
+from ..language.argument import extract_scalar, ArgumentError
 
 logger = logging.getLogger(__name__)
 
@@ -11,16 +12,17 @@ parameterizers = [extract_islands.parameterize, logic.parameterize, switch_color
 
 
 def solve(source, target, max_depth):
-    def solve_recursive(grid, target, applied_functions):
-        if hasattr(grid, "__len__") and len(grid) == 1:
-            (grid,) = grid
-
-        if not hasattr(grid, "__len__") and grid == target:
-            return applied_functions
+    def solve_recursive(args, target, applied_functions):
+        try:
+            grid = extract_scalar(args)
+            if grid == target:
+                return applied_functions
+        except ArgumentError:
+            pass
 
         depth = len(applied_functions)
         if depth < max_depth:
-            functions = chain.from_iterable(parameterize(grid) for parameterize in parameterizers)
+            functions = chain.from_iterable(parameterize(args) for parameterize in parameterizers)
             for function in functions:
                 result = function()
 
