@@ -3,13 +3,14 @@ from itertools import islice
 from .solver.tree_search import solve, Constraint
 from .dataset.arc_loader import arc_tasks
 
-tasks = islice(arc_tasks().items(), 10)
+tasks = arc_tasks().items()
 
 for task_id, (train_subtasks, test_subtasks) in tasks:
-    print(".")
+    print(task_id, end=": ", flush=True)
     constraints = [Constraint(*subtask) for subtask in train_subtasks]
-    solution = solve(constraints, max_depth=4)
+    solution = solve(constraints, max_depth=3)
     if solution is not None:
         valid = all([solution(subtask.input) == subtask.output for subtask in test_subtasks])
-        if valid:
-            print("found valid solution for task {}".format(task_id))
+        print("found", "valid" if valid else "invalid", "solution")
+    else:
+        print("no solution")
