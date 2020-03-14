@@ -24,7 +24,7 @@ def solve(source, target, max_depth):
         try:
             grid = extract_scalar(argument)
             if grid == target:
-                return applied_functions
+                return Solution(applied_functions)
         except ArgumentError:
             pass
 
@@ -48,11 +48,7 @@ def solve(source, target, max_depth):
 
         return None
 
-    applied_functions = solve_recursive(source, target, applied_functions=[])
-    if applied_functions is not None:
-        return Solution(applied_functions)
-    else:
-        return None
+    return solve_recursive(source, target, applied_functions=[])
 
 
 def format_function(function, result, depth):
