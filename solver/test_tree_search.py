@@ -62,3 +62,16 @@ def test_solve_and_transfer():
 
     test = Grid([[1, 1, 0, 0], [2, 2, 2, 2], [1, 0, 0, 1]])
     assert solution(test) == Grid([[3, 3, 0, 3]])
+
+
+def test_multi_constraint_solve_and_transfer():
+    # undefined / no color swap
+    constraint_1 = Constraint(source=Grid([[1, 0], [2, 2], [1, 0]]), target=Grid([[0, 0]]))
+
+    # undefined logical operation (or|xor)
+    constraint_2 = Constraint(source=Grid([[1, 0], [2, 2], [0, 0]]), target=Grid([[3, 0]]))
+
+    solution = solve_multi([constraint_1, constraint_2], max_depth=3)
+
+    test = Grid([[1, 1], [2, 2], [1, 0]])
+    assert solution(test) == Grid([[0, 3]])
