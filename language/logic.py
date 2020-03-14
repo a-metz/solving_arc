@@ -78,7 +78,7 @@ def elementwise_xor(a, b):
         return None
 
 
-def _parameterize_logic(grids):
+def parameterize(grids):
     if not hasattr(grids, "__len__") or len(grids) != 2:
         return []
 
@@ -89,6 +89,3 @@ def _parameterize_logic(grids):
         partial(elementwise_eor, a, b),
         partial(elementwise_xor, a, b),
     ]
-
-
-parameterize = _parameterize_logic
