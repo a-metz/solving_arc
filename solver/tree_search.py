@@ -16,7 +16,7 @@ parameterizers = [extract_islands.parameterize, logic.parameterize, switch_color
 Constraint = namedtuple("Constraint", ["source", "target"])
 
 
-def solve_multi(constraints, max_depth):
+def solve(constraints, max_depth):
     sources, targets = zip(*constraints)
 
     def solve_recursive(arguments, depth):
@@ -33,7 +33,7 @@ def solve_multi(constraints, max_depth):
         common_valid_functions = set.intersection(*[valid_functions(arg) for arg in arguments])
         for function in common_valid_functions:
             results = [function(arg) for arg in arguments]
-            logger.debug(format_function(function, results, depth))
+            # logger.debug(format_function(function, results, depth))
 
             sub_solution = solve_recursive(results, depth + 1)
             # check if found solution
@@ -54,36 +54,6 @@ def solve_multi(constraints, max_depth):
 
 def valid_functions(argument):
     return set(chain.from_iterable(parameterize(argument) for parameterize in parameterizers))
-
-
-def solve(source, target, max_depth):
-    def solve_recursive(argument, depth):
-        # no solution
-        if argument is None:
-            return None
-
-        # check if solved
-        try:
-            grid = extract_scalar(argument)
-            if grid == target:
-                return Solution()
-        except ArgumentError:
-            pass
-
-        if depth < max_depth:
-            functions = [parameterize(argument) for parameterize in parameterizers]
-            for function in chain.from_iterable(functions):
-                result = function(argument)
-                logger.debug(format_function(function, result, depth))
-
-                sub_solution = solve_recursive(result, depth + 1)
-                # check if found solution
-                if sub_solution is not None:
-                    return Solution.chain(function, sub_solution)
-
-        return None
-
-    return solve_recursive(source, depth=0)
 
 
 class Solution(list):
