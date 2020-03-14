@@ -1,4 +1,4 @@
-from functools import partial
+from ..utilities.comparable_partial import partial
 
 import numpy as np
 
