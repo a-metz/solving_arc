@@ -66,15 +66,20 @@ class Solution(list):
     def chain(cls, func, solution):
         return Solution([func] + solution)
 
+    def __str__(self):
+        return " | ".join(format_function(func) for func in self)
 
-def format_function(function, result, depth):
-    if isinstance(function, partial):
-        function_string = format_partial(function)
-    else:
-        function_string = function.__name__ + "()"
 
+def format_function_call(function, result, depth):
     indent = "    " * depth
-    return "{}{} = {}".format(indent, function_string, repr(result))
+    return "{}{} = {}".format(indent, format_function(function), repr(result))
+
+
+def format_function(function):
+    if isinstance(function, partial):
+        return format_partial(function)
+    else:
+        return function.__name__ + "()"
 
 
 def format_partial(function):
