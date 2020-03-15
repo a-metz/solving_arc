@@ -10,6 +10,7 @@ def load_tasks(path):
         file_root, file_extension = os.path.splitext(file)
 
         if file_extension == ".json":
+            # load json as dict as kaggle does not support schema
             tasks[file_root] = json.load(open(os.path.join(path, file), "r"))
 
     return tasks

@@ -1,18 +1,18 @@
-from .arc_loader import *
+from .loader import *
 from ..language.grid import Grid
 
 
 def test_dimensions():
-    tasks = arc_tasks()
+    arc_tasks = tasks()
 
     # 400 tasks in training set
-    assert len(tasks) == 400
+    assert len(arc_tasks) == 400
 
-    for task_id in tasks.keys():
+    for task_id in arc_tasks.keys():
         # 8-digit hex as string
         assert len(task_id) == 8
 
-    for task in tasks.values():
+    for task in arc_tasks.values():
         num_train_subtasks = len(task.train)
         assert num_train_subtasks > 0
 

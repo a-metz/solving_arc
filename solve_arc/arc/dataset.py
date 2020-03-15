@@ -19,7 +19,7 @@ task_schema = Schema(
 )
 
 
-def load_dir(path):
+def load_tasks(path):
     files_in_path = sorted(os.listdir(path))
 
     tasks = {}

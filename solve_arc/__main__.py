@@ -3,8 +3,8 @@ import time
 
 import click
 
+from . import arc
 from .solver.tree_search import solve, Constraint
-from .dataset.arc_loader import arc_tasks
 from .language.argument import extract_scalar
 
 
@@ -13,9 +13,9 @@ from .language.argument import extract_scalar
 def main(task_ids):
 
     if not task_ids:
-        tasks = arc_tasks().items()
+        tasks = arc.loader.tasks().items()
     else:
-        tasks = [(task_id, arc_tasks()[task_id]) for task_id in task_ids]
+        tasks = [(task_id, arc.loader.tasks()[task_id]) for task_id in task_ids]
 
     score = 0
     for task_id, (train_subtasks, test_subtasks) in tasks:
