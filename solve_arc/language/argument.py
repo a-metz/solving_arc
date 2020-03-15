@@ -7,8 +7,8 @@ class ArgumentError(Exception):
 
 
 def expect_scalar(on_error_return, expected_type=Grid):
-    """return decorator which safely extracts a scalar input of expected_type
-    from first argument or returns on_error_return on error
+    """return decorator which safely extracts a scalar input of <expected_type>
+    from first argument or returns <on_error_return> on error
     """
 
     def decorator(func):
@@ -37,8 +37,8 @@ def extract_scalar(argument, expected_type=Grid):
 
 
 def expect_tuple(length, on_error_return, expected_type=Grid):
-    """return decorator which safely extracts a tuple input of expected_type
-    from first argument or returns on_error_return on error
+    """return decorator which safely extracts a tuple input of <expected_type>
+    from first <length> arguments or returns <on_error_return> on error
     """
 
     def decorator(func):
@@ -64,3 +64,22 @@ def extract_tuple(argument, length, expected_type=Grid):
         return extract_tuple(argument[0], length)
 
     raise ArgumentError("expected correct number of elements of correct type")
+
+
+def expect_same_shape(length, on_error_return):
+    """return decorator which safely checks that the first <length> arguments
+    have the same value for their .shape property, otherwise returns <on_error_return>
+    """
+
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            expected_shape = args[0].shape
+            to_be_checked = args[1:length]
+            if not all([arg.shape == expected_shape for arg in to_be_checked]):
+                return on_error_return
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
