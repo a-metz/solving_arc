@@ -1,15 +1,12 @@
 from ..utilities.hashable_partial import partial
 
 from .grid import Grid
-from .argument import extract_scalar, ArgumentError
+from .argument import expect_scalar
 
 
-def parameterize(args):
+@expect_scalar(on_error_return=[])
+def parameterize(grid):
     """partially apply switch color with sensible parameter combinations"""
-    try:
-        grid = extract_scalar(args)
-    except ArgumentError:
-        return []
 
     valid_colors = range(10)
 
@@ -23,32 +20,16 @@ def parameterize(args):
     return parameterized
 
 
-def switch_color(args, a, b):
-    try:
-        grid = extract_scalar(args)
-    except ArgumentError:
-        return None
-
-    return _switch_color(grid, a, b)
-
-
-def map_color(args, from_, to):
-    try:
-        grid = extract_scalar(args)
-    except ArgumentError:
-        return None
-
-    return _map_color(grid, from_, to)
-
-
-def _switch_color(grid, a, b):
+@expect_scalar(on_error_return=None)
+def switch_color(grid, a, b):
     mapped = grid.copy()
     mapped.state[grid.state == a] = b
     mapped.state[grid.state == b] = a
     return mapped
 
 
-def _map_color(grid, from_, to):
+@expect_scalar(on_error_return=None)
+def map_color(grid, from_, to):
     mapped = grid.copy()
     mapped.state[mapped.state == from_] = to
     return mapped

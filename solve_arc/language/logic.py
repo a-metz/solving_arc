@@ -3,14 +3,14 @@ from ..utilities.hashable_partial import partial
 import numpy as np
 
 from .grid import Grid
-from .argument import extract_tuple, ArgumentError
+from .argument import expect_tuple
 
 
-def parameterize(*args):
+@expect_tuple(length=2, on_error_return=[])
+def parameterize(a, b):
     try:
-        # just check whether they can be extracted
-        _extract_operands(args)
-    except ArgumentError:
+        _check_shape(a, b)
+    except ValueError:
         return []
 
     return [
@@ -20,40 +20,39 @@ def parameterize(*args):
     ]
 
 
-def elementwise_equal_and(*args):
+@expect_tuple(length=2, on_error_return=None)
+def elementwise_equal_and(a, b):
     try:
-        a, b = _extract_operands(args)
-    except ArgumentError:
-        return None
-
-    try:
+        _check_shape(a, b)
         return Grid(_elementwise_eand(a.state, b.state))
     except ValueError:
         return None
 
 
-def elementwise_equal_or(*args):
+@expect_tuple(length=2, on_error_return=None)
+def elementwise_equal_or(a, b):
     try:
-        a, b = _extract_operands(args)
-    except ArgumentError:
-        return None
-
-    try:
+        _check_shape(a, b)
         return Grid(_elementwise_eor(a.state, b.state))
     except ValueError:
         return None
 
 
-def elementwise_xor(*args):
+@expect_tuple(length=2, on_error_return=None)
+def elementwise_xor(a, b):
     try:
-        a, b = _extract_operands(args)
-    except ArgumentError:
-        return None
-
-    try:
+        _check_shape(a, b)
         return Grid(_elementwise_xor(a.state, b.state))
     except ValueError:
         return None
+
+
+def _check_shape(a, b):
+    if a.shape != b.shape:
+        raise ValueError(
+            "arguments need to have the same shape, "
+            "but instead are a.shape={} and b.shape={}".format(a.shape, b.shape)
+        )
 
 
 @np.vectorize
@@ -94,15 +93,3 @@ def _elementwise_xor(a, b):
         return a
     else:
         return 0
-
-
-def _extract_operands(*args):
-    a, b = extract_tuple(args, length=2)
-
-    if a.shape != b.shape:
-        raise ArgumentError(
-            "arguments need to have the same shape, "
-            "but instead are a.shape={} and b.shape={}".format(a.shape, b.shape)
-        )
-
-    return a, b

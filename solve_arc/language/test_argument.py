@@ -28,15 +28,15 @@ def test_extract_scalar(grid, another_grid):
 
 
 def test_extract_tuple(grid, another_grid):
-    assert extract_tuple([grid, another_grid]) == (grid, another_grid)
-    assert extract_tuple([[grid, another_grid]]) == (grid, another_grid)
-    assert extract_tuple([[grid], another_grid]) == (grid, another_grid)
+    assert extract_tuple([grid, another_grid], length=2) == (grid, another_grid)
+    assert extract_tuple([[grid, another_grid]], length=2) == (grid, another_grid)
+    assert extract_tuple([[grid], another_grid], length=2) == (grid, another_grid)
 
     with pytest.raises(ArgumentError):
-        extract_tuple(None)
+        extract_tuple(None, length=2)
     with pytest.raises(ArgumentError):
-        extract_tuple([])
+        extract_tuple([], length=2)
     with pytest.raises(ArgumentError):
-        extract_tuple([grid])
+        extract_tuple([grid], length=2)
     with pytest.raises(ArgumentError):
-        extract_tuple([grid, None])
+        extract_tuple([grid, None], length=2)

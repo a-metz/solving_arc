@@ -3,15 +3,12 @@ from ..utilities.hashable_partial import partial
 import numpy as np
 
 from .grid import Grid
-from .argument import extract_scalar, ArgumentError
+from .argument import expect_scalar
 
 
-def parameterize(args):
+@expect_scalar(on_error_return=[])
+def parameterize(grid):
     """partially apply segmentation with sensible parameter combinations"""
-    try:
-        grid = extract_scalar(args)
-    except ArgumentError:
-        return []
 
     extract_islands_functions = [
         partial(extract_islands, ignore=color) for color in grid.used_colors()
@@ -24,25 +21,20 @@ def parameterize(args):
     return extract_islands_functions + extract_color_patches_functions
 
 
-def extract_islands(args, ignore=0):
-    try:
-        grid = extract_scalar(args)
-    except ArgumentError:
-        return None
-
-    return _extract_islands(grid, ignore)
-
-
-def extract_color_patches(args, ignore=0):
-    try:
-        grid = extract_scalar(args)
-    except ArgumentError:
-        return None
-
-    return _extract_color_patches(grid, ignore)
+@expect_scalar(on_error_return=None)
+def extract_color_patches(grid, ignore=0):
+    color_patches = []
+    for color in grid.used_colors():
+        if color != ignore:
+            indices = np.argwhere(grid.state == color)
+            top, left = np.min(indices, axis=0)
+            bottom, right = np.max(indices, axis=0) + 1
+            color_patches.append(grid[top:bottom, left:right])
+    return color_patches
 
 
-def _extract_islands(grid, ignore):
+@expect_scalar(on_error_return=None)
+def extract_islands(grid, ignore=0):
     unassigned = {tuple(index) for index in np.argwhere(grid.state != ignore)}
 
     islands = []
@@ -81,14 +73,3 @@ def _neighbors(index):
         (y + 1, x),
         (y + 1, x + 1),
     ]
-
-
-def _extract_color_patches(grid, ignore):
-    color_patches = []
-    for color in grid.used_colors():
-        if color != ignore:
-            indices = np.argwhere(grid.state == color)
-            top, left = np.min(indices, axis=0)
-            bottom, right = np.max(indices, axis=0) + 1
-            color_patches.append(grid[top:bottom, left:right])
-    return color_patches
