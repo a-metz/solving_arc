@@ -30,7 +30,7 @@ def generate_submission(data_path, max_depth=4):
                 solution = solve(constraints, depth)
 
                 if solution is not None:
-                    print(solution)
+                    print(solution, end=" -> ")
                     results = [solution(Grid(subtask["input"])) for subtask in task["test"]]
                     results_valid = all([result is not None for result in results])
                     if results_valid:
@@ -55,10 +55,6 @@ def format_results(task_id, results):
             result = [result]
 
         assert len(result) <= 3
-
-        # extend with empties if there are to few attempts
-        zeros = Grid.empty(result[0].shape)
-        result += [zeros] * (3 - len(result))
 
         result_string = " ".join(format_grid(grid) for grid in result)
         row_strings.append("{}_{},{}".format(task_id, index, result_string))
