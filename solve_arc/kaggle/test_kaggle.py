@@ -1,5 +1,6 @@
 from ..language import *
-from .kaggle import *
+from .dataset import *
+from .submission import *
 
 
 def test_format_grid():
@@ -19,3 +20,7 @@ def test_format_results():
     results_string = format_results(task_id, results)
     assert results_string[0] == "0520fde7_0,|101|011| |000|000| |000|000|"
     assert results_string[1] == "0520fde7_1,|12|34| |56|78| |00|00|"
+
+
+def test_generate_submission_smoketest():
+    generate_submission("solve_arc/kaggle/test_data", max_depth=2)

@@ -18,7 +18,7 @@ def generate_submission(data_path, max_depth=4):
 
         score = 0
         for task_id, task in tasks.items():
-            print(task_id)
+            print(task_id, end=": ")
             subtasks = task["train"]
             constraints = [
                 Constraint(Grid(subtask["input"]), Grid(subtask["output"]))
@@ -32,9 +32,15 @@ def generate_submission(data_path, max_depth=4):
                 if solution is not None:
                     print(solution)
                     results = [solution(Grid(subtask["input"])) for subtask in task["test"]]
-                    for row_string in format_results(task_id, results):
-                        submission.write(row_string + "\n")
-                    break
+                    results_valid = all([result is not None for result in results])
+                    if results_valid:
+                        print("valid")
+                        score += 1
+                        for row_string in format_results(task_id, results):
+                            submission.write(row_string + "\n")
+                        break
+                    else:
+                        print("invalid")
             else:
                 print("no solution")
 

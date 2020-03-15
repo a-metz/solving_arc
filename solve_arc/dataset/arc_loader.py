@@ -7,7 +7,7 @@ def arc_tasks():
     # use singleton to avoid reloading dataset (which takes long)
     global _tasks
     if _tasks is None:
-        _tasks = load_dir("dataset/data/test")
+        _tasks = load_dir("dataset/data/training")
 
     return _tasks
 
