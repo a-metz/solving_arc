@@ -6,23 +6,22 @@ from .grid import Grid
 from .argument import extract_scalar, ArgumentError
 
 
-def extract_islands(args, water=0):
+def extract_islands(args, ignore=0):
     try:
         grid = extract_scalar(args)
     except ArgumentError:
         return None
 
-    return _extract_islands(grid, water)
+    return _extract_islands(grid, ignore)
 
 
-def _extract_islands(grid, water):
-    unassigned = {index for index, value in grid.enumerate() if value != water}
+def _extract_islands(grid, ignore):
+    unassigned = {tuple(index) for index in np.argwhere(grid.state != ignore)}
 
     islands = []
     while len(unassigned) > 0:
         top, bottom, left, right, unassigned = _neighbor_bounds(unassigned.pop(), unassigned)
-        island = grid[top:bottom, left:right]
-        islands.append(island)
+        islands.append(grid[top:bottom, left:right])
 
     return islands
 
@@ -57,14 +56,39 @@ def _neighbors(index):
     ]
 
 
-def _parameterize_extract_islands(args):
-    """partially apply extract_islands with sensible parameter combinations"""
+def extract_color_patches(args, ignore=0):
+    try:
+        grid = extract_scalar(args)
+    except ArgumentError:
+        return None
+
+    return _extract_color_patches(grid, ignore)
+
+
+def _extract_color_patches(grid, ignore):
+    color_patches = []
+    for color in grid.used_colors():
+        if color != ignore:
+            indices = np.argwhere(grid.state == color)
+            top, left = np.min(indices, axis=0)
+            bottom, right = np.max(indices, axis=0) + 1
+            color_patches.append(grid[top:bottom, left:right])
+    return color_patches
+
+
+def parameterize(args):
+    """partially apply segmentation with sensible parameter combinations"""
     try:
         grid = extract_scalar(args)
     except ArgumentError:
         return []
 
-    return [partial(extract_islands, water=color) for color in grid.used_colors()]
+    extract_islands_functions = [
+        partial(extract_islands, ignore=color) for color in grid.used_colors()
+    ]
 
+    extract_color_patches_functions = [
+        partial(extract_color_patches, ignore=color) for color in grid.used_colors()
+    ]
 
-extract_islands.parameterize = _parameterize_extract_islands
+    return extract_islands_functions + extract_color_patches_functions
