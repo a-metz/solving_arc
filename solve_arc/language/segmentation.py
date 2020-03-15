@@ -5,9 +5,42 @@ import numpy as np
 from .grid import Grid
 from .argument import extract_scalar, ArgumentError
 
-# unused
-def extract_rectangle(grid, origin, shape):
-    return grid[origin[0] : shape[0] - origin[0], origin[1] : shape[1] - origin[1]]
+
+def extract_islands(args, water=0):
+    try:
+        grid = extract_scalar(args)
+    except ArgumentError:
+        return None
+
+    return _extract_islands(grid, water)
+
+
+def _extract_islands(grid, water):
+    unassigned = {index for index, value in grid.enumerate() if value != water}
+
+    islands = []
+    while len(unassigned) > 0:
+        top, bottom, left, right, unassigned = _neighbor_bounds(unassigned.pop(), unassigned)
+        island = grid[top:bottom, left:right]
+        islands.append(island)
+
+    return islands
+
+
+def _neighbor_bounds(start, candidates):
+    top, left = start
+    bottom, right = start[0] + 1, start[1] + 1
+
+    for neighbor in _neighbors(start):
+        if neighbor in candidates:
+            candidates.remove(neighbor)
+            top_, bottom_, left_, right_, candidates = _neighbor_bounds(neighbor, candidates)
+            top = min(top, top_)
+            bottom = max(bottom, bottom_)
+            left = min(left, left_)
+            right = max(right, right_)
+
+    return top, bottom, left, right, candidates
 
 
 def _neighbors(index):
@@ -22,42 +55,6 @@ def _neighbors(index):
         (y + 1, x),
         (y + 1, x + 1),
     ]
-
-
-def _extract_islands(grid, water):
-    unassigned = {index for index, value in grid.enumerate() if value != water}
-
-    def discover_island_bounds(index):
-        top, left = index
-        bottom, right = index[0] + 1, index[1] + 1
-
-        for neighbor in _neighbors(index):
-            if neighbor in unassigned:
-                unassigned.remove(neighbor)
-                top_, bottom_, left_, right_ = discover_island_bounds(neighbor)
-                top = min(top, top_)
-                bottom = max(bottom, bottom_)
-                left = min(left, left_)
-                right = max(right, right_)
-
-        return top, bottom, left, right
-
-    islands = []
-    while len(unassigned) > 0:
-        top, bottom, left, right = discover_island_bounds(unassigned.pop())
-        island = grid[top:bottom, left:right]
-        islands.append(island)
-
-    return islands
-
-
-def extract_islands(args, water=0):
-    try:
-        grid = extract_scalar(args)
-    except ArgumentError:
-        return None
-
-    return _extract_islands(grid, water)
 
 
 def _parameterize_extract_islands(args):
