@@ -8,9 +8,7 @@ from .argument import expect_tuple
 
 @expect_tuple(length=2, on_error_return=[])
 def parameterize(a, b):
-    try:
-        _check_shape(a, b)
-    except ValueError:
+    if a.shape != b.shape:
         return []
 
     return [
@@ -22,8 +20,10 @@ def parameterize(a, b):
 
 @expect_tuple(length=2, on_error_return=None)
 def elementwise_equal_and(a, b):
+    if a.shape != b.shape:
+        return None
+
     try:
-        _check_shape(a, b)
         return Grid(_elementwise_eand(a.state, b.state))
     except ValueError:
         return None
@@ -31,8 +31,10 @@ def elementwise_equal_and(a, b):
 
 @expect_tuple(length=2, on_error_return=None)
 def elementwise_equal_or(a, b):
+    if a.shape != b.shape:
+        return None
+
     try:
-        _check_shape(a, b)
         return Grid(_elementwise_eor(a.state, b.state))
     except ValueError:
         return None
@@ -40,19 +42,13 @@ def elementwise_equal_or(a, b):
 
 @expect_tuple(length=2, on_error_return=None)
 def elementwise_xor(a, b):
+    if a.shape != b.shape:
+        return None
+
     try:
-        _check_shape(a, b)
         return Grid(_elementwise_xor(a.state, b.state))
     except ValueError:
         return None
-
-
-def _check_shape(a, b):
-    if a.shape != b.shape:
-        raise ValueError(
-            "arguments need to have the same shape, "
-            "but instead are a.shape={} and b.shape={}".format(a.shape, b.shape)
-        )
 
 
 @np.vectorize
