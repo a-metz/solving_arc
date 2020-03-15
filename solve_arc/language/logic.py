@@ -6,6 +6,56 @@ from .grid import Grid
 from .argument import extract_tuple, ArgumentError
 
 
+def parameterize(*args):
+    try:
+        # just check whether they can be extracted
+        _extract_operands(args)
+    except ArgumentError:
+        return []
+
+    return [
+        elementwise_equal_and,
+        elementwise_equal_or,
+        elementwise_xor,
+    ]
+
+
+def elementwise_equal_and(*args):
+    try:
+        a, b = _extract_operands(args)
+    except ArgumentError:
+        return None
+
+    try:
+        return Grid(_elementwise_eand(a.state, b.state))
+    except ValueError:
+        return None
+
+
+def elementwise_equal_or(*args):
+    try:
+        a, b = _extract_operands(args)
+    except ArgumentError:
+        return None
+
+    try:
+        return Grid(_elementwise_eor(a.state, b.state))
+    except ValueError:
+        return None
+
+
+def elementwise_xor(*args):
+    try:
+        a, b = _extract_operands(args)
+    except ArgumentError:
+        return None
+
+    try:
+        return Grid(_elementwise_xor(a.state, b.state))
+    except ValueError:
+        return None
+
+
 @np.vectorize
 def _elementwise_eand(a, b):
     if a == 0:
@@ -56,53 +106,3 @@ def _extract_operands(*args):
         )
 
     return a, b
-
-
-def elementwise_equal_and(*args):
-    try:
-        a, b = _extract_operands(args)
-    except ArgumentError:
-        return None
-
-    try:
-        return Grid(_elementwise_eand(a.state, b.state))
-    except ValueError:
-        return None
-
-
-def elementwise_equal_or(*args):
-    try:
-        a, b = _extract_operands(args)
-    except ArgumentError:
-        return None
-
-    try:
-        return Grid(_elementwise_eor(a.state, b.state))
-    except ValueError:
-        return None
-
-
-def elementwise_xor(*args):
-    try:
-        a, b = _extract_operands(args)
-    except ArgumentError:
-        return None
-
-    try:
-        return Grid(_elementwise_xor(a.state, b.state))
-    except ValueError:
-        return None
-
-
-def parameterize(*args):
-    try:
-        # just check whether they can be extracted
-        _extract_operands(args)
-    except ArgumentError:
-        return []
-
-    return [
-        elementwise_equal_and,
-        elementwise_equal_or,
-        elementwise_xor,
-    ]

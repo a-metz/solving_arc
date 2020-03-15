@@ -6,6 +6,24 @@ from .grid import Grid
 from .argument import extract_scalar, ArgumentError
 
 
+def parameterize(args):
+    """partially apply segmentation with sensible parameter combinations"""
+    try:
+        grid = extract_scalar(args)
+    except ArgumentError:
+        return []
+
+    extract_islands_functions = [
+        partial(extract_islands, ignore=color) for color in grid.used_colors()
+    ]
+
+    extract_color_patches_functions = [
+        partial(extract_color_patches, ignore=color) for color in grid.used_colors()
+    ]
+
+    return extract_islands_functions + extract_color_patches_functions
+
+
 def extract_islands(args, ignore=0):
     try:
         grid = extract_scalar(args)
@@ -13,6 +31,15 @@ def extract_islands(args, ignore=0):
         return None
 
     return _extract_islands(grid, ignore)
+
+
+def extract_color_patches(args, ignore=0):
+    try:
+        grid = extract_scalar(args)
+    except ArgumentError:
+        return None
+
+    return _extract_color_patches(grid, ignore)
 
 
 def _extract_islands(grid, ignore):
@@ -56,15 +83,6 @@ def _neighbors(index):
     ]
 
 
-def extract_color_patches(args, ignore=0):
-    try:
-        grid = extract_scalar(args)
-    except ArgumentError:
-        return None
-
-    return _extract_color_patches(grid, ignore)
-
-
 def _extract_color_patches(grid, ignore):
     color_patches = []
     for color in grid.used_colors():
@@ -74,21 +92,3 @@ def _extract_color_patches(grid, ignore):
             bottom, right = np.max(indices, axis=0) + 1
             color_patches.append(grid[top:bottom, left:right])
     return color_patches
-
-
-def parameterize(args):
-    """partially apply segmentation with sensible parameter combinations"""
-    try:
-        grid = extract_scalar(args)
-    except ArgumentError:
-        return []
-
-    extract_islands_functions = [
-        partial(extract_islands, ignore=color) for color in grid.used_colors()
-    ]
-
-    extract_color_patches_functions = [
-        partial(extract_color_patches, ignore=color) for color in grid.used_colors()
-    ]
-
-    return extract_islands_functions + extract_color_patches_functions

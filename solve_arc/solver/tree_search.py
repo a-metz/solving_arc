@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 MAX_DEPTH = 4
 
-parameterizers = [segmentation.parameterize, logic.parameterize, switch_color.parameterize]
+parameterizers = [segmentation.parameterize, logic.parameterize, color.parameterize]
 
 
 Constraint = namedtuple("Constraint", ["source", "target"])

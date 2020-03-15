@@ -21,14 +21,14 @@ def test_switch_color(example_grid):
     assert switch_color(example_grid, 1, 2) == expected_grid
 
 
-def test_switch_color_parameterize():
+def test_color_parameterize():
     grid = Grid([[1, 3]])
-    switch_color_functions = switch_color.parameterize(grid)
+    color_functions = parameterize(grid)
 
     # for each source color (1 and 3) to all 9 other colors
-    assert len(switch_color_functions) == 2 * 9
+    assert len(color_functions) == 2 * 9
 
-    results = {func(grid) for func in switch_color_functions}
+    results = {func(grid) for func in color_functions}
 
     assert results == {
         Grid([[0, 3]]),
