@@ -5,7 +5,7 @@ import click
 
 from . import loader
 from ..solver.tree_search import solve, Constraint
-from ..language.argument import extract_scalar
+from ..language import extract_scalar
 
 
 @click.command()

@@ -1,6 +1,5 @@
 from .hashable_partial import partial
 from ..language import *
-from ..language.argument import expect_scalar, expect_tuple
 
 
 @expect_scalar(on_error_return=[])
