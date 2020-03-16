@@ -29,7 +29,8 @@ def extract_color_patches(grid, ignore=0):
             indices = np.argwhere(grid.state == color)
             top, left = np.min(indices, axis=0)
             bottom, right = np.max(indices, axis=0) + 1
-            color_patches.append(grid[top:bottom, left:right])
+            if (bottom - top, right, left) != grid.shape:
+                color_patches.append(grid[top:bottom, left:right])
     return color_patches
 
 
@@ -40,7 +41,8 @@ def extract_islands(grid, ignore=0):
     islands = []
     while len(unassigned) > 0:
         top, bottom, left, right, unassigned = _neighbor_bounds(unassigned.pop(), unassigned)
-        islands.append(grid[top:bottom, left:right])
+        if (bottom - top, right, left) != grid.shape:
+            islands.append(grid[top:bottom, left:right])
 
     return islands
 
