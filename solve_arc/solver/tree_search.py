@@ -18,12 +18,12 @@ def solve(constraints, max_depth):
     sources, targets = zip(*constraints)
 
     def solve_recursive(arguments, depth):
-        # no solution along this branch for at least one argument
+        # no valid program along this branch for at least one argument
         if not all(arguments):
             return None
 
         if is_solved(arguments):
-            return Solution()
+            return Program()
 
         if depth == max_depth:
             return None
@@ -33,10 +33,10 @@ def solve(constraints, max_depth):
             results = [function(arg) for arg in arguments]
             # logger.debug(format_function(function, results, depth))
 
-            sub_solution = solve_recursive(results, depth + 1)
+            sub_program = solve_recursive(results, depth + 1)
             # check if found solution
-            if sub_solution is not None:
-                return Solution.chain(function, sub_solution)
+            if sub_program is not None:
+                return Program.chain(function, sub_program)
 
         return None
 
@@ -54,15 +54,15 @@ def valid_functions(argument):
     return set(chain.from_iterable(parameterize(argument) for parameterize in parameterizers))
 
 
-class Solution(list):
+class Program(list):
     def __call__(self, arg):
         for function in self:
             arg = function(arg)
         return arg
 
     @classmethod
-    def chain(cls, func, solution):
-        return Solution([func] + solution)
+    def chain(cls, func, sub_program):
+        return Program([func] + sub_program)
 
     def __str__(self):
         return " | ".join(format_function(func) for func in self)

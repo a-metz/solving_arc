@@ -11,7 +11,7 @@ def test_solution():
     b = lambda x: x + "e"
     c = lambda x: x + "x"
 
-    solution = Solution([a, b, c])
+    solution = Program([a, b, c])
     assert solution("a") == "alex"
 
 
