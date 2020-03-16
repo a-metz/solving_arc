@@ -37,3 +37,22 @@ def test_1cf80156(input_, expected):
     islands = extract_islands(input_, ignore=0)
     (result,) = islands
     assert result == expected
+
+
+def test_8d5021e8(input_, expected):
+    # extend flip_horizontal left
+    # extend identity bottom
+    # extend identity bottom
+    pass
+
+
+def test_11852cab(input_, expected):
+    # selection = select_islands(input_, ignore=0)
+    # selection = eor(selection, rotate_ccw(selection))
+    # selection = eor(selection, rotate_180(selection))
+    pass
+
+
+# def test_31d5ba1a(input_, expected):
+#     patches = extract_color_patches(input_, ignore=0)
+#     pass

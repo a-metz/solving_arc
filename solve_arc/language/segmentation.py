@@ -1,24 +1,6 @@
-from ..utilities.hashable_partial import partial
-
 import numpy as np
 
-from .grid import Grid
 from .argument import expect_scalar
-
-
-@expect_scalar(on_error_return=[])
-def parameterize(grid):
-    """partially apply segmentation with sensible parameter combinations"""
-
-    extract_islands_functions = [
-        partial(extract_islands, ignore=color) for color in grid.used_colors()
-    ]
-
-    extract_color_patches_functions = [
-        partial(extract_color_patches, ignore=color) for color in grid.used_colors()
-    ]
-
-    return extract_islands_functions + extract_color_patches_functions
 
 
 @expect_scalar(on_error_return=None)

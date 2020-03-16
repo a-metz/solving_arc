@@ -1,21 +1,7 @@
-from ..utilities.hashable_partial import partial
-
 import numpy as np
 
 from .grid import Grid
 from .argument import expect_tuple
-
-
-@expect_tuple(length=2, on_error_return=[])
-def parameterize(a, b):
-    if a.shape != b.shape:
-        return []
-
-    return [
-        elementwise_equal_and,
-        elementwise_equal_or,
-        elementwise_xor,
-    ]
 
 
 @expect_tuple(length=2, on_error_return=None)

@@ -113,11 +113,3 @@ def test_extract_color_patches(patches_grid):
         )
         in patches
     )
-
-
-def test_parameterize():
-    grid = Grid([[1, 1, 0]])
-    segmentation_functions = parameterize(grid)
-
-    assert len(segmentation_functions) == 4
-    assert all([func(grid) is not None for func in segmentation_functions])

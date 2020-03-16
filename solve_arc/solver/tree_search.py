@@ -5,12 +5,11 @@ import logging
 
 from ..language import *
 from ..language.argument import extract_scalar, ArgumentError
+from .parameterize import parameterizers
 
 logger = logging.getLogger(__name__)
 
 MAX_DEPTH = 4
-
-parameterizers = [segmentation.parameterize, logic.parameterize, color.parameterize]
 
 
 Constraint = namedtuple("Constraint", ["source", "target"])
