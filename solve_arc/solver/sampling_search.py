@@ -230,25 +230,3 @@ def get_item(index):
     function = lambda container: container[index]
     function.__name__ = "get_item_{}".format(index)
     return function
-
-
-def format_function_call(function, result, depth):
-    indent = "    " * depth
-    return "{}{} = {}".format(indent, format_function(function), repr(result))
-
-
-def format_function(function):
-    if isinstance(function, partial):
-        return format_partial(function)
-    else:
-        return function.__name__ + "()"
-
-
-def format_partial(function):
-    """format partial applied function created with functools.partial"""
-
-    positional_args = [repr(arg) for arg in function.args]
-    keyword_args = ["{}={}".format(key, repr(value)) for key, value in function.keywords.items()]
-    args = ", ".join(positional_args + keyword_args)
-
-    return "{}({})".format(function.func.__name__, args)
