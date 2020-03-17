@@ -5,19 +5,25 @@ from .argument import expect_scalar
 
 @expect_scalar(on_error_return=None)
 def extract_color_patches(grid, ignore=0):
-    color_patches = []
+    patches = []
     for color in grid.used_colors():
         if color != ignore:
-            indices = np.argwhere(grid.state == color)
-            top, left = np.min(indices, axis=0)
-            bottom, right = np.max(indices, axis=0) + 1
-            if (bottom - top, right, left) != grid.shape:
-                color_patches.append(grid[top:bottom, left:right])
+            patch = extract_color_patch(grid, color)
+            if patch.shape != grid.shape:
+                patches.append(patch)
 
     if len(patches) == 1:
         return patches[0]
     else:
         return patches
+
+
+@expect_scalar(on_error_return=None)
+def extract_color_patch(grid, color):
+    indices = np.argwhere(grid.state == color)
+    top, left = np.min(indices, axis=0)
+    bottom, right = np.max(indices, axis=0) + 1
+    return grid[top:bottom, left:right]
 
 
 @expect_scalar(on_error_return=None)
