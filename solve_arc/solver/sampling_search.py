@@ -134,95 +134,95 @@ class Solution:
         return "Solution({}, {})".format(repr(self.function), repr(self.source))
 
 
-def valid_functions(leafs, target):
+def valid_functions(args, target):
     return (
-        map_color_functions(leafs, target)
-        + swap_color_functions(leafs, target)
-        + extract_islands_functions(leafs, target)
-        + extract_color_patches_functions(leafs, target)
-        + extract_color_patch_functions(leafs, target)
-        + logic_functions(leafs, target)
+        map_color_functions(args, target)
+        + swap_color_functions(args, target)
+        + extract_islands_functions(args, target)
+        + extract_color_patches_functions(args, target)
+        + extract_color_patch_functions(args, target)
+        + logic_functions(args, target)
     )
 
 
-def map_color_functions(leafs, target):
+def map_color_functions(args, target):
     return [
-        Function(map_color, leaf, from_color, to_color)
-        for leaf in scalar_grids(leafs)
+        Function(map_color, arg, from_color, to_color)
+        for arg in scalar_grids(args)
         for from_color, to_color in product(
-            used_colors(leaf.result),
+            used_colors(arg.result),
             used_colors(target),  # heuristic: only map to colors used in target
         )
     ]
 
 
-def swap_color_functions(leafs, target):
+def swap_color_functions(args, target):
     return [
-        Function(switch_color, leaf, a, b)
-        for leaf in scalar_grids(leafs)
-        for a, b in combinations(used_colors(leaf.result), 2)
+        Function(switch_color, arg, a, b)
+        for arg in scalar_grids(args)
+        for a, b in combinations(used_colors(arg.result), 2)
     ]
 
 
-def extract_islands_functions(leafs, target):
+def extract_islands_functions(args, target):
     return [
-        Function(extract_islands, leaf, ignore=color)
-        for leaf in scalar_grids(leafs)
-        if leaf.result.shape != target.shape  # heuristic: if target has different shape
-        for color in used_colors(leaf.result)
+        Function(extract_islands, arg, ignore=color)
+        for arg in scalar_grids(args)
+        if arg.result.shape != target.shape  # heuristic: if target has different shape
+        for color in used_colors(arg.result)
     ]
 
 
-def extract_color_patches_functions(leafs, target):
+def extract_color_patches_functions(args, target):
     return [
-        Function(extract_color_patches, leaf, ignore=color)
-        for leaf in scalar_grids(leafs)
-        if leaf.result.shape != target.shape  # heuristic: if target has different shape
-        for color in used_colors(leaf.result)
+        Function(extract_color_patches, arg, ignore=color)
+        for arg in scalar_grids(args)
+        if arg.result.shape != target.shape  # heuristic: if target has different shape
+        for color in used_colors(arg.result)
     ]
 
 
-def extract_color_patch_functions(leafs, target):
+def extract_color_patch_functions(args, target):
     return [
-        Function(extract_color_patch, leaf, color)
-        for leaf in scalar_grids(leafs)
-        if leaf.result.shape != target.shape  # heuristic: if target has different shape
-        for color in used_colors(leaf.result)
+        Function(extract_color_patch, arg, color)
+        for arg in scalar_grids(args)
+        if arg.result.shape != target.shape  # heuristic: if target has different shape
+        for color in used_colors(arg.result)
     ]
 
 
-def logic_functions(leafs, _):
+def logic_functions(args, _):
     functions = []
-    for a, b in unpack(shape_matching_grid_pairs(leafs), 2):
+    for a, b in unpack(shape_matching_grid_pairs(args), 2):
         functions.append(Function(elementwise_equal_and, a, b))
         functions.append(Function(elementwise_equal_or, a, b))
         functions.append(Function(elementwise_xor, a, b))
     return functions
 
 
-def scalar_grids(leafs):
-    return [leaf for leaf in leafs if isinstance(leaf.result, Grid)]
+def scalar_grids(args):
+    return [arg for arg in args if isinstance(arg.result, Grid)]
 
 
 def used_colors(grid):
     return [Constant(color) for color in grid.used_colors()]
 
 
-def shape_matching_grid_pairs(leafs):
+def shape_matching_grid_pairs(args):
     # TODO: also enumerate all combinations of two scalar grids with same shape
     return [
-        leaf
-        for leaf in leafs
-        if hasattr(leaf.result, "__len__")
-        and len(leaf.result) == 2
-        and isinstance(leaf.result[0], Grid)
-        and isinstance(leaf.result[1], Grid)
-        and leaf.result[0].shape == leaf.result[1].shape
+        arg
+        for arg in args
+        if hasattr(arg.result, "__len__")
+        and len(arg.result) == 2
+        and isinstance(arg.result[0], Grid)
+        and isinstance(arg.result[1], Grid)
+        and arg.result[0].shape == arg.result[1].shape
     ]
 
 
-def unpack(leafs, num_elements):
-    return [[Function(get_item(index), leaf) for index in range(num_elements)] for leaf in leafs]
+def unpack(args, num_elements):
+    return [[Function(get_item(index), arg) for index in range(num_elements)] for arg in args]
 
 
 def get_item(index):
