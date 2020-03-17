@@ -16,14 +16,14 @@ def solve(constraints, max_depth):
     source, target = constraints[0]
 
     source_function = Source(source)
-    if source_function.cached_result == target:
+    if source_function.result == target:
         return Solution(source_function, source_function)
 
     leafs = [source_function]
     for step in range(max_depth):
         leafs = valid_functions(leafs, target)
         for leaf in leafs:
-            if not hasattr(leaf.cached_result, "__len__") and leaf.cached_result == target:
+            if not hasattr(leaf.result, "__len__") and leaf.result == target:
                 return Solution(leaf, source_function)
 
 
@@ -36,16 +36,16 @@ class Function:
         self.kwargs = kwargs
 
     @property
-    def cached_result(self):
+    def result(self):
         """evaluate function with cached args and update cache"""
 
-        cached_args = [arg.cached_result for arg in self.args]
-        cached_kwargs = {key: arg.cached_result for key, arg in self.kwargs.items()}
+        cached_args = [arg.result for arg in self.args]
+        cached_kwargs = {key: arg.result for key, arg in self.kwargs.items()}
         result = self.operation(*cached_args, **cached_kwargs)
 
-        # implement caching by overwriting property cached_result for next call
+        # implement caching by overwriting property result for next call
         # (cached_property package is not available on kaggle docker image)
-        self.__dict__["cached_result"] = result
+        self.__dict__["result"] = result
 
         return result
 
@@ -82,7 +82,7 @@ class Source:
 
     def __init__(self, value=None):
         self.value = value
-        self.cached_result = value
+        self.result = value
 
     def load(self, value):
         self.value = value
@@ -104,7 +104,7 @@ class Constant:
 
     def __init__(self, value=None):
         self.value = value
-        self.cached_result = value
+        self.result = value
 
     def __call__(self):
         """reevaluate input after loading"""
@@ -150,8 +150,8 @@ def map_color_functions(leafs, target):
         Function(map_color, leaf, from_color, to_color)
         for leaf in scalar_grids(leafs)
         for from_color, to_color in product(
-            used_color_constants(leaf.cached_result),
-            used_color_constants(target),  # heuristic: only map to colors used in target
+            used_colors(leaf.result),
+            used_colors(target),  # heuristic: only map to colors used in target
         )
     ]
 
@@ -160,7 +160,7 @@ def swap_color_functions(leafs, target):
     return [
         Function(switch_color, leaf, a, b)
         for leaf in scalar_grids(leafs)
-        for a, b in combinations(used_color_constants(leaf.cached_result), 2)
+        for a, b in combinations(used_colors(leaf.result), 2)
     ]
 
 
@@ -168,8 +168,8 @@ def extract_islands_functions(leafs, target):
     return [
         Function(extract_islands, leaf, ignore=color)
         for leaf in scalar_grids(leafs)
-        if leaf.cached_result.shape != target.shape  # heuristic: if target has different shape
-        for color in used_color_constants(leaf.cached_result)
+        if leaf.result.shape != target.shape  # heuristic: if target has different shape
+        for color in used_colors(leaf.result)
     ]
 
 
@@ -177,8 +177,8 @@ def extract_color_patches_functions(leafs, target):
     return [
         Function(extract_color_patches, leaf, ignore=color)
         for leaf in scalar_grids(leafs)
-        if leaf.cached_result.shape != target.shape  # heuristic: if target has different shape
-        for color in used_color_constants(leaf.cached_result)
+        if leaf.result.shape != target.shape  # heuristic: if target has different shape
+        for color in used_colors(leaf.result)
     ]
 
 
@@ -186,8 +186,8 @@ def extract_color_patch_functions(leafs, target):
     return [
         Function(extract_color_patch, leaf, color)
         for leaf in scalar_grids(leafs)
-        if leaf.cached_result.shape != target.shape  # heuristic: if target has different shape
-        for color in used_color_constants(leaf.cached_result)
+        if leaf.result.shape != target.shape  # heuristic: if target has different shape
+        for color in used_colors(leaf.result)
     ]
 
 
@@ -201,10 +201,10 @@ def logic_functions(leafs, _):
 
 
 def scalar_grids(leafs):
-    return [leaf for leaf in leafs if isinstance(leaf.cached_result, Grid)]
+    return [leaf for leaf in leafs if isinstance(leaf.result, Grid)]
 
 
-def used_color_constants(grid):
+def used_colors(grid):
     return [Constant(color) for color in grid.used_colors()]
 
 
@@ -213,11 +213,11 @@ def shape_matching_grid_pairs(leafs):
     return [
         leaf
         for leaf in leafs
-        if hasattr(leaf.cached_result, "__len__")
-        and len(leaf.cached_result) == 2
-        and isinstance(leaf.cached_result[0], Grid)
-        and isinstance(leaf.cached_result[1], Grid)
-        and leaf.cached_result[0].shape == leaf.cached_result[1].shape
+        if hasattr(leaf.result, "__len__")
+        and len(leaf.result) == 2
+        and isinstance(leaf.result[0], Grid)
+        and isinstance(leaf.result[1], Grid)
+        and leaf.result[0].shape == leaf.result[1].shape
     ]
 
 
