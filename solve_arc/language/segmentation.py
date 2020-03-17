@@ -13,7 +13,11 @@ def extract_color_patches(grid, ignore=0):
             bottom, right = np.max(indices, axis=0) + 1
             if (bottom - top, right, left) != grid.shape:
                 color_patches.append(grid[top:bottom, left:right])
-    return color_patches
+
+    if len(patches) == 1:
+        return patches[0]
+    else:
+        return patches
 
 
 @expect_scalar(on_error_return=None)
@@ -26,7 +30,10 @@ def extract_islands(grid, ignore=0):
         if (bottom - top, right, left) != grid.shape:
             islands.append(grid[top:bottom, left:right])
 
-    return islands
+    if len(islands) == 1:
+        return islands[0]
+    else:
+        return islands
 
 
 def _neighbor_bounds(start, candidates):
