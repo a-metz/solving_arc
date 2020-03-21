@@ -16,14 +16,14 @@ def solve(constraints, max_depth):
     source, target = constraints[0]
 
     source_function = Source(source)
-    if source_function.result == target:
+    if source_function.value == target:
         return Solution(source_function, source_function)
 
     leafs = [source_function]
     for step in range(max_depth):
         leafs = valid_functions(leafs, target)
         for leaf in leafs:
-            if not hasattr(leaf.result, "__len__") and leaf.result == target:
+            if not hasattr(leaf.value, "__len__") and leaf.value == target:
                 return Solution(leaf, source_function)
 
 
@@ -36,18 +36,18 @@ class Function:
         self.kwargs = kwargs
 
     @property
-    def result(self):
+    def value(self):
         """evaluate function with cached args and update cache"""
 
-        cached_args = [arg.result for arg in self.args]
-        cached_kwargs = {key: arg.result for key, arg in self.kwargs.items()}
-        result = self.operation(*cached_args, **cached_kwargs)
+        arg_values = [arg.value for arg in self.args]
+        kwarg_values = {key: arg.value for key, arg in self.kwargs.items()}
+        value = self.operation(*arg_values, **kwarg_values)
 
-        # implement caching by overwriting property result for next call
+        # implement caching by overwriting property value for next call
         # (cached_property package is not available on kaggle docker image)
-        self.__dict__["result"] = result
+        self.__dict__["value"] = value
 
-        return result
+        return value
 
     def __call__(self):
         """evaluate function with real args"""
@@ -82,7 +82,6 @@ class Source:
 
     def __init__(self, value=None):
         self.value = value
-        self.result = value
 
     def load(self, value):
         self.value = value
@@ -98,13 +97,18 @@ class Source:
         # return str(self)
         return "Source({})".format(repr(self.value))
 
+    # def __eq__(self, other):
+    #     return hash(self) == hash(other)
+
+    # def __hash__(self):
+    #     return hash(self.value)
+
 
 class Constant:
-    """cached value source"""
+    """cached value constant"""
 
     def __init__(self, value=None):
         self.value = value
-        self.result = value
 
     def __call__(self):
         """reevaluate input after loading"""
@@ -116,6 +120,12 @@ class Constant:
     def __repr__(self):
         # return str(self)
         return "Constant({})".format(repr(self.value))
+
+    def __eq__(self, other):
+        return hash(self) == hash(other)
+
+    def __hash__(self):
+        return hash(self.value)
 
 
 class Solution:
@@ -150,7 +160,7 @@ def map_color_functions(args, target):
         Function(map_color, arg, from_color, to_color)
         for arg in scalar_grids(args)
         for from_color, to_color in product(
-            used_colors(arg.result),
+            used_colors(arg.value),
             used_colors(target),  # heuristic: only map to colors used in target
         )
     ]
@@ -160,7 +170,7 @@ def swap_color_functions(args, target):
     return [
         Function(switch_color, arg, a, b)
         for arg in scalar_grids(args)
-        for a, b in combinations(used_colors(arg.result), 2)
+        for a, b in combinations(used_colors(arg.value), 2)
     ]
 
 
@@ -168,8 +178,8 @@ def extract_islands_functions(args, target):
     return [
         Function(extract_islands, arg, ignore=color)
         for arg in scalar_grids(args)
-        if arg.result.shape != target.shape  # heuristic: if target has different shape
-        for color in used_colors(arg.result)
+        if arg.value.shape != target.shape  # heuristic: if target has different shape
+        for color in used_colors(arg.value)
     ]
 
 
@@ -177,8 +187,8 @@ def extract_color_patches_functions(args, target):
     return [
         Function(extract_color_patches, arg, ignore=color)
         for arg in scalar_grids(args)
-        if arg.result.shape != target.shape  # heuristic: if target has different shape
-        for color in used_colors(arg.result)
+        if arg.value.shape != target.shape  # heuristic: if target has different shape
+        for color in used_colors(arg.value)
     ]
 
 
@@ -186,8 +196,8 @@ def extract_color_patch_functions(args, target):
     return [
         Function(extract_color_patch, arg, color)
         for arg in scalar_grids(args)
-        if arg.result.shape != target.shape  # heuristic: if target has different shape
-        for color in used_colors(arg.result)
+        if arg.value.shape != target.shape  # heuristic: if target has different shape
+        for color in used_colors(arg.value)
     ]
 
 
@@ -201,7 +211,7 @@ def logic_functions(args, _):
 
 
 def scalar_grids(args):
-    return [arg for arg in args if isinstance(arg.result, Grid)]
+    return [arg for arg in args if isinstance(arg.value, Grid)]
 
 
 def used_colors(grid):
@@ -213,11 +223,11 @@ def shape_matching_grid_pairs(args):
     return [
         arg
         for arg in args
-        if hasattr(arg.result, "__len__")
-        and len(arg.result) == 2
-        and isinstance(arg.result[0], Grid)
-        and isinstance(arg.result[1], Grid)
-        and arg.result[0].shape == arg.result[1].shape
+        if hasattr(arg.value, "__len__")
+        and len(arg.value) == 2
+        and isinstance(arg.value[0], Grid)
+        and isinstance(arg.value[1], Grid)
+        and arg.value[0].shape == arg.value[1].shape
     ]
 
 
