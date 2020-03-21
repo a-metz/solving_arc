@@ -23,11 +23,11 @@ def solve(constraints, max_depth):
     for step in range(max_depth):
         leafs = valid_functions(leafs, targets)
         for leaf in leafs:
-            print(leaf.value)
+            # print(leaf, "->", leaf.value)
             if leaf.value == targets:
                 return Solution(leaf, source_function)
 
-    print("No Solution")
+    # print("No Solution")
     return None
 
 
@@ -38,7 +38,6 @@ class Function:
         self.operation = operation
         self.args = args
         self.kwargs = kwargs
-        print(repr(self))
 
     @property
     def value(self):
@@ -50,7 +49,6 @@ class Function:
         # implement caching by overwriting property value for next call
         # (cached_property package is not available on kaggle docker image)
         self.__dict__["value"] = value
-
         return value
 
     def __call__(self):
@@ -71,36 +69,6 @@ class Function:
 
     # def __hash__(self):
     #     return hash(operation) ^ hash(tuple(self.args)) ^ hash(tuple(self.kwargs.items()))
-
-
-# class GridTuple(tuple):
-#     """wraps grids into tuple for solving multiple contraints
-
-#     tuple elements are of type Grid, optionally packed in nested lists [Grid, [Grid],...]
-#     """
-
-#     def is_scalar(self):
-#         """all value tuple elements are not nested in containers"""
-#         return all(isinstance(value, Grid) for value in self)
-
-#     def used_colors(self):
-#         """intersection of used colors in value tuple elements"""
-#         used_colors = (set(grid.used_colors()) for grid in walk(self))
-#         return tuple([set.intersection(*used_colors)] * len(self))
-
-#     @property
-#     def shape(self):
-#         assert self.is_scalar()
-#         return tuple(grid.shape for grid in self)
-
-
-# def walk(root):
-#     """depth first walk through nested iterables"""
-#     if hasattr(root, "__len__"):
-#         for child in root:
-#             yield from walk(child)
-#     else:
-#         yield root
 
 
 def vectorize(func):
@@ -190,7 +158,7 @@ def valid_functions(args, target):
         + extract_islands_functions(args, target)
         + extract_color_patches_functions(args, target)
         + extract_color_patch_functions(args, target)
-        # + logic_functions(args, target)
+        + logic_functions(args, target)
     )
 
 
@@ -240,13 +208,13 @@ def extract_color_patch_functions(args, target):
     ]
 
 
-# def logic_functions(args, _):
-#     functions = []
-#     for a, b in unpack(shape_matching_grid_pairs(args), 2):
-#         functions.append(Function(vectorize(elementwise_equal_and), a, b))
-#         functions.append(Function(vectorize(elementwise_equal_or), a, b))
-#         functions.append(Function(vectorize(elementwise_xor), a, b))
-#     return functions
+def logic_functions(args, _):
+    functions = []
+    for a, b in unpack(shape_matching_grid_pairs(args), 2):
+        functions.append(Function(vectorize(elementwise_equal_and), a, b))
+        functions.append(Function(vectorize(elementwise_equal_or), a, b))
+        functions.append(Function(vectorize(elementwise_xor), a, b))
+    return functions
 
 
 def scalar_grids(args):
@@ -269,25 +237,28 @@ def shape(grid):
     return grid.shape
 
 
-# def shape_matching_grid_pairs(args):
-#     # TODO: also enumerate all combinations of two scalar grids with same shape
-#     return [
-#         arg
-#         for arg in args
-#         if hasattr(arg.value, "__len__")
-#         and len(arg.value) == 2
-#         and is_scalar(arg.value[0], Grid)
-#         and is_scalar(arg.value[1], Grid)
-#         and arg.value[0].shape == arg.value[1].shape
-#     ]
+def shape_matching_grid_pairs(args):
+    # TODO: also enumerate all combinations of two scalar grids with same shape
+    return [arg for arg in args if is_matching_shape_pair(arg.value)]
 
 
-# def unpack(args, num_elements):
-#     return [[Function(get_item(index), arg) for index in range(num_elements)] for arg in args]
+def is_matching_shape_pair(grids_tuple):
+    return all(
+        hasattr(grids, "__len__")
+        and len(grids) == 2
+        and isinstance(grids[0], Grid)
+        and isinstance(grids[1], Grid)
+        and grids[0].shape == grids[1].shape
+        for grids in grids_tuple
+    )
 
 
-# def get_item(index):
-#     # TODO: implement as class with hash function dependent on only on argument
-#     function = lambda container: container[index]
-#     function.__name__ = "get_item_{}".format(index)
-#     return function
+def unpack(args, num_elements):
+    return [
+        [Function(vectorize(get_item), arg, Constant(index)) for index in range(num_elements)]
+        for arg in args
+    ]
+
+
+def get_item(grids, index):
+    return grids[index]

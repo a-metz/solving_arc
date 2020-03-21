@@ -55,7 +55,6 @@ def test_solve__single_extract_islands():
     assert solution(Grid([[1, 2, 2]])) == Grid([[2, 2]])
 
 
-@pytest.mark.skip
 def test_solve__single_xor():
     source = (Grid([[1, 0, 0]]), Grid([[1, 1, 0]]))
     target = Grid([[0, 1, 0]])
@@ -96,7 +95,6 @@ def test_solve__single_extract_islands__multiple_contraints():
     assert solution(Grid([[1, 2, 2]])) == Grid([[2, 2]])
 
 
-@pytest.mark.skip
 def test_solve__single_xor__multiple_contraints():
     constraints = [
         Constraint(source=(Grid([[1, 0, 0]]), Grid([[1, 1, 0]])), target=Grid([[0, 1, 0]])),
@@ -111,7 +109,6 @@ def test_solve__single_xor__multiple_contraints():
     assert solution((Grid([[1, 0, 1]]), Grid([[1, 1, 0]]))) == Grid([[0, 1, 1]])
 
 
-@pytest.mark.skip
 def test_solve__complex():
     source = Grid([[0, 0, 1], [2, 2, 2], [1, 0, 1]])
     target = Grid([[3, 0, 3]])
@@ -125,16 +122,17 @@ def test_solve__complex():
     assert solution(Grid([[1, 1, 0, 0], [2, 2, 2, 2], [1, 0, 0, 1]])) == Grid([[3, 3, 0, 3]])
 
 
-@pytest.mark.skip
 def test_solve__complex__multiple_constraints():
-    # undefined / no color swap
-    constraint_1 = Constraint(source=Grid([[1, 0], [2, 2], [1, 0]]), target=Grid([[0, 0]]))
+    constraints = [
+        # undefined / no color swap
+        Constraint(source=Grid([[1, 0], [2, 2], [1, 1]]), target=Grid([[0, 3]])),
+        # undefined logical operation (or|xor)
+        Constraint(source=Grid([[1, 0], [2, 2], [0, 0]]), target=Grid([[3, 0]])),
+    ]
 
-    # undefined logical operation (or|xor)
-    constraint_2 = Constraint(source=Grid([[1, 0], [2, 2], [0, 0]]), target=Grid([[3, 0]]))
+    solution = solve(constraints, max_depth=3)
 
-    solution = solve([constraint_1, constraint_2], max_depth=3)
-
-    test = Grid([[1, 1], [2, 2], [1, 0]])
-    print(solution)
-    assert solution(test) == Grid([[0, 3]])
+    assert solution is not None
+    for source, target in constraints:
+        assert solution(source) == target
+    assert solution(Grid([[1, 1], [2, 2], [1, 0]])) == Grid([[0, 3]])
