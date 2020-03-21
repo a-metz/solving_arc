@@ -43,6 +43,18 @@ def test_solve__single_colorswap():
     assert solution(Grid([[1, 1, 2]])) == Grid([[2, 2, 1]])
 
 
+def test_solve__single_extract_islands():
+    source = Grid([[1, 2, 1]])
+    target = Grid([[2]])
+    constraints = [Constraint(source, target)]
+
+    solution = solve(constraints, max_depth=1)
+
+    assert solution is not None
+    assert solution(source) == target
+    assert solution(Grid([[1, 2, 2]])) == Grid([[2, 2]])
+
+
 @pytest.mark.skip
 def test_solve__single_xor():
     source = (Grid([[1, 0, 0]]), Grid([[1, 1, 0]]))
@@ -65,7 +77,23 @@ def test_solve__single_colorswap__multiple_contraints():
     solution = solve(constraints, max_depth=1)
 
     assert solution is not None
+    for source, target in constraints:
+        assert solution(source) == target
     assert solution(Grid([[1, 1, 2]])) == Grid([[2, 2, 1]])
+
+
+def test_solve__single_extract_islands__multiple_contraints():
+    constraints = [
+        Constraint(source=Grid([[1, 2, 1]]), target=Grid([[2]])),
+        Constraint(source=Grid([[2, 2, 1]]), target=Grid([[2, 2]])),
+    ]
+
+    solution = solve(constraints, max_depth=1)
+
+    assert solution is not None
+    for source, target in constraints:
+        assert solution(source) == target
+    assert solution(Grid([[1, 2, 2]])) == Grid([[2, 2]])
 
 
 @pytest.mark.skip
@@ -78,6 +106,8 @@ def test_solve__single_xor__multiple_contraints():
     solution = solve(constraints, max_depth=1)
 
     assert solution is not None
+    for source, target in constraints:
+        assert solution(source) == target
     assert solution((Grid([[1, 0, 1]]), Grid([[1, 1, 0]]))) == Grid([[0, 1, 1]])
 
 
@@ -90,6 +120,8 @@ def test_solve__complex():
     solution = solve(constraints, max_depth=3)
 
     assert solution is not None
+    for source, target in constraints:
+        assert solution(source) == target
     assert solution(Grid([[1, 1, 0, 0], [2, 2, 2, 2], [1, 0, 0, 1]])) == Grid([[3, 3, 0, 3]])
 
 

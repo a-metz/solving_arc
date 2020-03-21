@@ -111,6 +111,7 @@ def vectorize(func):
     def wrapper(*arg_tuples):
         return tuple(func(*args) for args in zip(*arg_tuples))
 
+    # wrapper.__name__ = "vectorize({})".format(func.__name__)
     return wrapper
 
 
@@ -263,8 +264,9 @@ def used_colors(grid_tuple):
     return set.intersection(*used_colors)
 
 
-def shape(grid_tuple):
-    return tuple(grid.shape for grid in grid_tuple)
+@vectorize
+def shape(grid):
+    return grid.shape
 
 
 # def shape_matching_grid_pairs(args):
