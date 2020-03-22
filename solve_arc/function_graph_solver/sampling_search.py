@@ -29,7 +29,7 @@ def solve(constraints, max_depth):
 
 
 def valid_functions(args, target):
-    return (
+    functions = (
         map_color_functions(args, target)
         + swap_color_functions(args, target)
         + extract_islands_functions(args, target)
@@ -38,6 +38,7 @@ def valid_functions(args, target):
         + logic_functions(args, target)
         + symmetry_functions(args, target)
     )
+    return [func for func in functions if is_valid(func.value)]
 
 
 def map_color_functions(args, target):
@@ -271,3 +272,7 @@ def unpack(args, num_elements):
 @vectorize
 def get_item(values, index):
     return values[index]
+
+
+def is_valid(value_tuple):
+    return all(value is not None for value in value_tuple)
