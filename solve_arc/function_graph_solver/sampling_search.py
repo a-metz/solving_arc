@@ -31,10 +31,9 @@ def solve(constraints, max_depth):
 class Function:
     """cached partial application"""
 
-    def __init__(self, operation, *args, **kwargs):
+    def __init__(self, operation, *args):
         self.operation = operation
         self.args = args
-        self.kwargs = kwargs
 
     @property
     def value(self):
@@ -65,7 +64,7 @@ class Function:
     #     return hash(self) == hash(other)
 
     # def __hash__(self):
-    #     return hash(operation) ^ hash(tuple(self.args)) ^ hash(tuple(self.kwargs.items()))
+    #     return hash(operation) ^ hash(tuple(self.args))
 
 
 def vectorize(func):
