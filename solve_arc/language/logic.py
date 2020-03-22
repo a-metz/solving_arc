@@ -1,10 +1,8 @@
 import numpy as np
 
 from .grid import Grid
-from .argument import expect_tuple
 
 
-@expect_tuple(length=2, on_error_return=None)
 def elementwise_equal_and(a, b):
     if a.shape != b.shape:
         return None
@@ -15,7 +13,6 @@ def elementwise_equal_and(a, b):
         return None
 
 
-@expect_tuple(length=2, on_error_return=None)
 def elementwise_equal_or(a, b):
     if a.shape != b.shape:
         return None
@@ -26,7 +23,6 @@ def elementwise_equal_or(a, b):
         return None
 
 
-@expect_tuple(length=2, on_error_return=None)
 def elementwise_xor(a, b):
     if a.shape != b.shape:
         return None

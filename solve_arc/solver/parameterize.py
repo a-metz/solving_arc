@@ -1,17 +1,27 @@
+from .argument import expect_scalar, expect_tuple
 from .hashable_partial import partial
 from ..language import *
+
+
+_extract_islands = expect_scalar(on_error_return=None)(extract_islands)
+_extract_color_patches = expect_scalar(on_error_return=None)(extract_color_patches)
 
 
 @expect_scalar(on_error_return=[])
 def parameterize_segmentation(grid):
     """partially apply segmentation with sensible parameter combinations"""
     extract_islands_functions = [
-        partial(extract_islands, ignore=color) for color in grid.used_colors()
+        partial(_extract_islands, ignore=color) for color in grid.used_colors()
     ]
     extract_color_patches_functions = [
-        partial(extract_color_patches, ignore=color) for color in grid.used_colors()
+        partial(_extract_color_patches, ignore=color) for color in grid.used_colors()
     ]
     return extract_islands_functions + extract_color_patches_functions
+
+
+_elementwise_equal_and = expect_tuple(length=2, on_error_return=None)(elementwise_equal_and)
+_elementwise_equal_or = expect_tuple(length=2, on_error_return=None)(elementwise_equal_or)
+_elementwise_xor = expect_tuple(length=2, on_error_return=None)(elementwise_xor)
 
 
 @expect_tuple(length=2, on_error_return=[])
@@ -20,10 +30,13 @@ def parameterize_logic(a, b):
         return []
 
     return [
-        elementwise_equal_and,
-        elementwise_equal_or,
-        elementwise_xor,
+        _elementwise_equal_and,
+        _elementwise_equal_or,
+        _elementwise_xor,
     ]
+
+
+_switch_color = expect_scalar(on_error_return=None)(switch_color)
 
 
 @expect_scalar(on_error_return=[])
@@ -37,7 +50,7 @@ def parameterize_color(grid):
         for target_color in valid_colors:
             if source_color == target_color:
                 continue
-            parameterized.append(partial(switch_color, a=source_color, b=target_color))
+            parameterized.append(partial(_switch_color, a=source_color, b=target_color,))
 
     return parameterized
 

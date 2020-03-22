@@ -1,9 +1,6 @@
 import numpy as np
 
-from .argument import expect_scalar
 
-
-@expect_scalar(on_error_return=None)
 def extract_color_patches(grid, ignore=0):
     patches = []
     for color in grid.used_colors():
@@ -18,7 +15,6 @@ def extract_color_patches(grid, ignore=0):
         return patches
 
 
-@expect_scalar(on_error_return=None)
 def extract_color_patch(grid, color):
     indices = np.argwhere(grid.state == color)
     top, left = np.min(indices, axis=0)
@@ -26,7 +22,6 @@ def extract_color_patch(grid, color):
     return grid[top:bottom, left:right]
 
 
-@expect_scalar(on_error_return=None)
 def extract_islands(grid, ignore=0):
     unassigned = {tuple(index) for index in np.argwhere(grid.state != ignore)}
 

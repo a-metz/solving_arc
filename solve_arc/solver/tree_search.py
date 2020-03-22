@@ -3,7 +3,7 @@ from functools import partial
 from collections import namedtuple
 import logging
 
-from ..language import extract_scalar, ArgumentError
+from .argument import extract_scalar, ArgumentError
 from .parameterize import parameterizers
 
 logger = logging.getLogger(__name__)

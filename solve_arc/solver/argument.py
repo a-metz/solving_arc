@@ -1,5 +1,5 @@
 from functools import wraps
-from .grid import Grid
+from ..language.grid import Grid
 
 
 class ArgumentError(Exception):

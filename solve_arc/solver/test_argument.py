@@ -1,7 +1,7 @@
 import pytest
 
 from .argument import *
-from .grid import Grid
+from ..language.grid import Grid
 
 
 @pytest.fixture
