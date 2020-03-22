@@ -27,3 +27,4 @@ def test_generate_submission_smoketest():
     submission = open("submission.csv", "r").readlines()
     assert submission[0] == "output_id,output\n"
     assert submission[1] == "0520fde7_0,|202|000|000|\n"
+    assert submission[2] == "7c008303_0,|00|00|\n"  # default result because no solution found

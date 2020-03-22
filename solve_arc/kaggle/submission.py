@@ -10,6 +10,9 @@ from ..language import Grid
 from .dataset import load_tasks
 
 
+DEFAULT_RESULT = Grid.empty((2, 2))
+
+
 def generate_submission(data_path, max_depth=4):
     with open("submission.csv", "w") as submission:
         submission.write("output_id,output\n")
@@ -34,12 +37,15 @@ def generate_submission(data_path, max_depth=4):
                 if results_valid:
                     print("valid")
                     score += 1
-                    for row_string in format_results(task_id, results):
-                        submission.write(row_string + "\n")
                 else:
                     print("invalid")
             else:
+                results = [None] * len(task["test"])
                 print("no solution")
+
+            results = [result if result is not None else DEFAULT_RESULT for result in results]
+            for row_string in format_results(task_id, results):
+                submission.write(row_string + "\n")
 
     print("score: {}/{} (kaggle score: {})".format(score, len(tasks), (1 - score / len(tasks))))
 
