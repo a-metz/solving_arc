@@ -231,8 +231,8 @@ def scalar_grids(args):
     return [arg for arg in args if is_scalar(arg.value)]
 
 
-def is_scalar(grid_tuple):
-    return all(isinstance(grid, Grid) for grid in grid_tuple)
+def is_scalar(value_tuple):
+    return all(isinstance(value, Grid) for value in value_tuple)
 
 
 def used_colors(grid_tuple):
@@ -251,14 +251,14 @@ def shape_matching_grid_pairs(args):
     return [arg for arg in args if is_matching_shape_pair(arg.value)]
 
 
-def is_matching_shape_pair(grids_tuple):
+def is_matching_shape_pair(value_tuple):
     return all(
-        hasattr(grids, "__len__")
-        and len(grids) == 2
-        and isinstance(grids[0], Grid)
-        and isinstance(grids[1], Grid)
-        and grids[0].shape == grids[1].shape
-        for grids in grids_tuple
+        hasattr(value, "__len__")
+        and len(value) == 2
+        and isinstance(value[0], Grid)
+        and isinstance(value[1], Grid)
+        and value[0].shape == value[1].shape
+        for value in value_tuple
     )
 
 
@@ -269,5 +269,5 @@ def unpack(args, num_elements):
 
 
 @vectorize
-def get_item(grids, index):
-    return grids[index]
+def get_item(values, index):
+    return values[index]
