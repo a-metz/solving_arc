@@ -1,11 +1,9 @@
-from itertools import product, combinations, repeat
+import time
+from itertools import product, combinations, repeat, count
 from functools import wraps
 from collections import namedtuple
-import logging
 
 from ..language import *
-
-logger = logging.getLogger(__name__)
 
 
 Constraint = namedtuple("Constraint", ["source", "target"])
@@ -19,7 +17,7 @@ def solve(constraints, max_depth):
         return Solution(source_function, source_function)
 
     leafs = [source_function]
-    for step in range(max_depth):
+    for _ in range(max_depth):
         leafs = valid_functions(leafs, targets)
         for leaf in leafs:
             # print(leaf, "->", leaf.value)

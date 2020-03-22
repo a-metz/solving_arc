@@ -1,11 +1,10 @@
 from itertools import islice
-import time
 
+from func_timeout import func_timeout, FunctionTimedOut
 import click
 
 from . import loader
 from ..function_graph_solver.sampling_search import solve, Constraint
-from ..language import extract_scalar
 
 
 @click.command()
@@ -22,31 +21,24 @@ def evaluate(task_ids):
         print(task_id, end=" ", flush=True)
         constraints = [Constraint(*subtask) for subtask in train_subtasks]
 
-        start = time.time()
-        # iterative deepening
-        for max_depth in range(5):
-            if time.time() > start + 1:
-                print("timeout")
-                break
-
-            print(end=".", flush=True)
-
-            solution = solve(constraints, max_depth)
-
+        try:
+            solution = func_timeout(timeout=1, func=solve, args=(constraints, 5))
             if solution is not None:
                 valid = check_solution(solution, train_subtasks)
                 if valid:
                     score += 1
                     print("found valid solution")
                 else:
-                    print("found invalid solution",)
+                    print("found invalid solution")
                 print(solution)
-                break
-        else:
-            print("no solution")
+            else:
+                print("no solution")
+
+        except FunctionTimedOut:
+            print("timeout")
 
     print("score: {}/{} (score: {})".format(score, len(tasks), (1 - score / len(tasks))))
 
 
 def check_solution(solution, subtasks):
-    return all([extract_scalar(solution(subtask.input)) == subtask.output for subtask in subtasks])
+    return all(solution(subtask.input) == subtask.output for subtask in subtasks)
