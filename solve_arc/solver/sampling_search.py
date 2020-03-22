@@ -114,14 +114,15 @@ class Constant:
     """cached value constant"""
 
     def __init__(self, scalar=None):
+        self.scalar = scalar
         self.value = repeat(scalar)
 
     def __call__(self):
-        """reevaluate input after loading"""
+        """return scalar wrapped in iterator for use as arguments for vectorized operations"""
         return self.value
 
     def __str__(self):
-        return "const({})".format(str(self.value))
+        return "constant({})".format(str(self.scalar))
 
     def __repr__(self):
         # return str(self)
