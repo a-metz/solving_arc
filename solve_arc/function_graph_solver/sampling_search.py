@@ -156,6 +156,7 @@ def valid_functions(args, target):
         + extract_color_patches_functions(args, target)
         + extract_color_patch_functions(args, target)
         + logic_functions(args, target)
+        + symmetry_functions(args, target)
     )
 
 
@@ -211,6 +212,17 @@ def logic_functions(args, _):
         functions.append(Function(vectorize(elementwise_equal_and), a, b))
         functions.append(Function(vectorize(elementwise_equal_or), a, b))
         functions.append(Function(vectorize(elementwise_xor), a, b))
+    return functions
+
+
+def symmetry_functions(args, _):
+    functions = []
+    for arg in scalar_grids(args):
+        functions.append(Function(vectorize(flip_up_down), arg))
+        functions.append(Function(vectorize(flip_left_right), arg))
+        functions.append(Function(vectorize(rotate), arg, Constant(1)))
+        functions.append(Function(vectorize(rotate), arg, Constant(2)))
+        functions.append(Function(vectorize(rotate), arg, Constant(3)))
     return functions
 
 

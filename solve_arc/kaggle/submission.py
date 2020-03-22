@@ -14,7 +14,7 @@ from .timeout import timeout
 DEFAULT_RESULT = Grid.empty((2, 2))
 
 
-def generate_submission(data_path, max_depth=10, max_time=1):
+def generate_submission(data_path, max_depth=10, max_time=10):
     with open("submission.csv", "w") as submission:
         submission.write("output_id,output\n")
 

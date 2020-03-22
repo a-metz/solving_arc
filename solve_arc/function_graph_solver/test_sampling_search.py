@@ -67,6 +67,18 @@ def test_solve__single_xor():
     assert solution((Grid([[1, 0, 1]]), Grid([[1, 1, 0]]))) == Grid([[0, 1, 1]])
 
 
+def test_solve__single_flip():
+    source = Grid([[1, 2], [3, 4]])
+    target = Grid([[2, 1], [4, 3]])
+    constraints = [Constraint(source, target)]
+
+    solution = solve(constraints, max_depth=1)
+
+    assert solution is not None
+    assert solution(source) == target
+    assert solution(target) == source
+
+
 def test_solve__single_colorswap__multiple_contraints():
     constraints = [
         Constraint(source=Grid([[1, 2, 2]]), target=Grid([[2, 1, 1]])),

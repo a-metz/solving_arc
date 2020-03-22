@@ -22,7 +22,7 @@ def evaluate(task_ids):
         constraints = [Constraint(*subtask) for subtask in train_subtasks]
 
         try:
-            solution = func_timeout(timeout=1, func=solve, args=(constraints, 5))
+            solution = func_timeout(timeout=3, func=solve, args=(constraints, 5))
             if solution is not None:
                 valid = check_solution(solution, train_subtasks)
                 if valid:
