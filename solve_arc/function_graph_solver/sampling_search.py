@@ -28,126 +28,6 @@ def solve(constraints, max_depth):
     return None
 
 
-class Function:
-    """cached partial application"""
-
-    def __init__(self, operation, *args):
-        self.operation = operation
-        self.args = args
-
-    @property
-    def value(self):
-        """evaluate function with cached arg values and cache result"""
-
-        arg_values = [arg.value for arg in self.args]
-        value = self.operation(*arg_values)
-
-        # implement caching by overwriting property value for next call
-        # (cached_property package is not available on kaggle docker image)
-        self.__dict__["value"] = value
-        return value
-
-    def __call__(self):
-        """reevaluate function with reevaluated args"""
-        args = [arg() for arg in self.args]
-        return self.operation(*args)
-
-    def __str__(self):
-        return "{}({})".format(self.operation.__name__, ", ".join(str(arg) for arg in self.args))
-
-    def __repr__(self):
-        return "Function({})".format(
-            ", ".join([self.operation.__name__] + [repr(arg) for arg in self.args])
-        )
-
-    # def __eq__(self, other):
-    #     return hash(self) == hash(other)
-
-    # def __hash__(self):
-    #     return hash(operation) ^ hash(tuple(self.args))
-
-
-def vectorize(func):
-    """vectorize function for elements in tuple of first argument"""
-
-    # TODO: vectorize over multiple arguments (argument on decorator creation?)
-    @wraps(func)
-    def wrapper(*arg_tuples):
-        return tuple(func(*args) for args in zip(*arg_tuples))
-
-    # wrapper.__name__ = "vectorize({})".format(func.__name__)
-    return wrapper
-
-
-class Source:
-    """cached value source"""
-
-    def __init__(self, value=None):
-        self.value = value
-
-    def load(self, value):
-        self.value = value
-
-    def __call__(self):
-        """reevaluate input after loading"""
-        return self.value
-
-    def __str__(self):
-        return "source()"
-
-    def __repr__(self):
-        # return str(self)
-        return "Source({})".format(repr(self.value))
-
-    # def __eq__(self, other):
-    #     return hash(self) == hash(other)
-
-    # def __hash__(self):
-    #     return hash(self.value)
-
-
-class Constant:
-    """cached value constant"""
-
-    def __init__(self, scalar=None):
-        self.scalar = scalar
-        self.value = repeat(scalar)
-
-    def __call__(self):
-        """return scalar wrapped in iterator for use as arguments for vectorized operations"""
-        return self.value
-
-    def __str__(self):
-        return "constant({})".format(str(self.scalar))
-
-    def __repr__(self):
-        # return str(self)
-        return "Constant({})".format(repr(self.value))
-
-    # def __eq__(self, other):
-    #     return hash(self) == hash(other)
-
-    # def __hash__(self):
-    #     return hash(self.value)
-
-
-class Solution:
-    def __init__(self, function, source):
-        self.function = function
-        self.source = source
-
-    def __call__(self, value):
-        # run only for single element
-        self.source.load((value,))
-        return self.function()[0]
-
-    def __str__(self):
-        return str(self.function)
-
-    def __repr__(self):
-        return "Solution({}, {})".format(repr(self.function), repr(self.source))
-
-
 def valid_functions(args, target):
     return (
         map_color_functions(args, target)
@@ -224,6 +104,126 @@ def symmetry_functions(args, _):
         functions.append(Function(vectorize(rotate), arg, Constant(2)))
         functions.append(Function(vectorize(rotate), arg, Constant(3)))
     return functions
+
+
+class Function:
+    """cached partial application"""
+
+    def __init__(self, operation, *args):
+        self.operation = operation
+        self.args = args
+
+    @property
+    def value(self):
+        """evaluate function with cached arg values and cache result"""
+
+        arg_values = [arg.value for arg in self.args]
+        value = self.operation(*arg_values)
+
+        # implement caching by overwriting property value for next call
+        # (cached_property package is not available on kaggle docker image)
+        self.__dict__["value"] = value
+        return value
+
+    def __call__(self):
+        """reevaluate function with reevaluated args"""
+        args = [arg() for arg in self.args]
+        return self.operation(*args)
+
+    def __str__(self):
+        return "{}({})".format(self.operation.__name__, ", ".join(str(arg) for arg in self.args))
+
+    def __repr__(self):
+        return "Function({})".format(
+            ", ".join([self.operation.__name__] + [repr(arg) for arg in self.args])
+        )
+
+    # def __eq__(self, other):
+    #     return hash(self) == hash(other)
+
+    # def __hash__(self):
+    #     return hash(operation) ^ hash(tuple(self.args))
+
+
+class Source:
+    """cached value source"""
+
+    def __init__(self, value=None):
+        self.value = value
+
+    def load(self, value):
+        self.value = value
+
+    def __call__(self):
+        """reevaluate input after loading"""
+        return self.value
+
+    def __str__(self):
+        return "source()"
+
+    def __repr__(self):
+        # return str(self)
+        return "Source({})".format(repr(self.value))
+
+    # def __eq__(self, other):
+    #     return hash(self) == hash(other)
+
+    # def __hash__(self):
+    #     return hash(self.value)
+
+
+class Constant:
+    """cached value constant"""
+
+    def __init__(self, scalar=None):
+        self.scalar = scalar
+        self.value = repeat(scalar)
+
+    def __call__(self):
+        """return scalar wrapped in iterator for use as arguments for vectorized operations"""
+        return self.value
+
+    def __str__(self):
+        return "constant({})".format(str(self.scalar))
+
+    def __repr__(self):
+        # return str(self)
+        return "Constant({})".format(repr(self.value))
+
+    # def __eq__(self, other):
+    #     return hash(self) == hash(other)
+
+    # def __hash__(self):
+    #     return hash(self.value)
+
+
+class Solution:
+    def __init__(self, function, source):
+        self.function = function
+        self.source = source
+
+    def __call__(self, value):
+        # run only for single element
+        self.source.load((value,))
+        return self.function()[0]
+
+    def __str__(self):
+        return str(self.function)
+
+    def __repr__(self):
+        return "Solution({}, {})".format(repr(self.function), repr(self.source))
+
+
+def vectorize(func):
+    """vectorize function for elements in tuple of first argument"""
+
+    # TODO: vectorize over multiple arguments (argument on decorator creation?)
+    @wraps(func)
+    def wrapper(*arg_tuples):
+        return tuple(func(*args) for args in zip(*arg_tuples))
+
+    # wrapper.__name__ = "vectorize({})".format(func.__name__)
+    return wrapper
 
 
 def scalar_grids(args):
