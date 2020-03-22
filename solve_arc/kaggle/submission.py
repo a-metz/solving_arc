@@ -5,7 +5,7 @@ import click
 import numpy as np
 
 
-from ..solver.tree_search import solve, Constraint
+from ..function_graph_solver.sampling_search import solve, Constraint
 from ..language import Grid
 from .dataset import load_tasks
 

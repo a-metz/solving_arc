@@ -1,10 +1,9 @@
-from itertools import chain, product, combinations, repeat
-from functools import partial, wraps
+from itertools import product, combinations, repeat
+from functools import wraps
 from collections import namedtuple
 import logging
 
 from ..language import *
-from .parameterize import parameterizers
 
 logger = logging.getLogger(__name__)
 
