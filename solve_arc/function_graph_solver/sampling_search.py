@@ -253,10 +253,10 @@ def is_matching_shape_pair(grids_tuple):
 
 def unpack(args, num_elements):
     return [
-        [Function(vectorize(get_item), arg, Constant(index)) for index in range(num_elements)]
-        for arg in args
+        [Function(get_item, arg, Constant(index)) for index in range(num_elements)] for arg in args
     ]
 
 
+@vectorize
 def get_item(grids, index):
     return grids[index]
