@@ -8,12 +8,13 @@ import numpy as np
 from ..function_graph_solver.sampling_search import solve, Constraint
 from ..language import Grid
 from .dataset import load_tasks
+from .timeout import timeout
 
 
 DEFAULT_RESULT = Grid.empty((2, 2))
 
 
-def generate_submission(data_path, max_depth=4):
+def generate_submission(data_path, max_depth=10, max_time=1):
     with open("submission.csv", "w") as submission:
         submission.write("output_id,output\n")
 
@@ -28,7 +29,7 @@ def generate_submission(data_path, max_depth=4):
                 for subtask in task["train"]
             ]
 
-            solution = solve(constraints, max_depth=max_depth)
+            solution = timeout(max_time)(solve)(constraints, max_depth=max_depth)
 
             if solution is not None:
                 print(solution, end=" -> ")
