@@ -3,7 +3,13 @@ import warnings
 
 import pytest
 
-from ..arc.loader import train_and_test_subtasks
+from ..arc.loader import training_tasks
+
+
+def train_and_test_subtasks(task_id):
+    yield from training_tasks()[task_id].train
+    yield from training_tasks()[task_id].test
+
 
 # parameterize subtasks using test name
 def pytest_generate_tests(metafunc):

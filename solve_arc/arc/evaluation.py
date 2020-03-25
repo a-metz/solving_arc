@@ -3,7 +3,7 @@ from itertools import islice
 from func_timeout import func_timeout, FunctionTimedOut
 import click
 
-from . import loader
+from .loader import training_tasks, evaluation_tasks
 from ..function_graph_solver.sampling_search import solve, Constraint
 
 
@@ -12,10 +12,16 @@ from ..function_graph_solver.sampling_search import solve, Constraint
 def evaluate(task_ids):
 
     if not task_ids:
-        tasks = loader.tasks().items()
+        print("evaluating performance on training tasks")
+        evaluate(loader.training_tasks().items())
+        print("evaluating performance on evaluation tasks")
+        evaluate(loader.evaluation_tasks().items())
     else:
-        tasks = [(task_id, loader.tasks()[task_id]) for task_id in task_ids]
+        all_tasks = {**loader.training_tasks(), **loader.evaluation_tasks()}
+        evaluate([(task_id, all_tasks[task_id]) for task_id in task_ids])
 
+
+def _evaluate(tasks):
     score = 0
     for task_id, (train_subtasks, test_subtasks) in tasks:
         print(task_id, end=" ", flush=True)

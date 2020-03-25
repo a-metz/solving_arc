@@ -3,7 +3,7 @@ from ..language.grid import Grid
 
 
 def test_dimensions():
-    arc_tasks = tasks()
+    arc_tasks = training_tasks()
 
     # 400 tasks in training set
     assert len(arc_tasks) == 400
@@ -21,9 +21,9 @@ def test_dimensions():
 
 
 def test_train_and_test_subtasks_for_arbitrary_task():
-    subtasks = list(train_and_test_subtasks("0520fde7"))
+    subtasks = training_tasks()["0520fde7"].train
 
-    assert len(subtasks) == 4
+    assert len(subtasks) == 3
 
     expected_input_grid = Grid.from_string(
         """
