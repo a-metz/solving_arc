@@ -5,15 +5,12 @@ class Grid:
     def __init__(self, state):
         self.state = np.array(state, copy=True)
 
-        if len(self.state.shape) != 2:
-            raise ValueError(
-                "state needs to be 2d array, "
-                "but insead is {}d array".format(len(self.state.shape))
-            )
+        assert self.state.dtype.kind in ["i", "u"], "state datatype must be integral"
+        assert len(self.state.shape) == 2, "state needs to be 2d array"
 
     @classmethod
     def empty(cls, shape):
-        return cls(np.zeros(shape=shape))
+        return cls(np.zeros(shape=shape, dtype=np.int))
 
     @classmethod
     def from_string(cls, string):

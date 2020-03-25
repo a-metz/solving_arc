@@ -19,12 +19,12 @@ def test_create():
 
 
 def test_create__1darray():
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         grid = Grid([1, 2])
 
 
 def test_create__ndarray():
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         grid = Grid([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])
 
 
