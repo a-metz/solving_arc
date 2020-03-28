@@ -50,7 +50,8 @@ def map_color_functions(args, target):
         for arg in scalars(args, Grid)
         for from_color, to_color in product(
             used_colors(arg.value),
-            used_colors(target),  # heuristic: only map to colors used in target
+            # heuristic: only map to colors used in target
+            used_colors(target),
         )
     }
 
@@ -76,8 +77,8 @@ def mask_for_all_colors_functions(args):
         Function(vectorize(mask_for_all_colors), arg, Constant(color))
         for arg in scalars(args, Grid)
         for color in used_colors(arg.value)
-        if len(used_colors(arg.value))
-        > 2  # 2 colors or less is covered by mask_for_color_functions
+        # 2 colors or less is covered by mask_for_color_functions
+        if len(used_colors(arg.value)) > 2
     }
 
 
@@ -95,7 +96,8 @@ def extract_color_patches_functions(args, target):
     return {
         Function(vectorize(extract_color_patches), arg, Constant(color))
         for arg in scalars(args, Grid)
-        if shape(arg.value) != shape(target)  # heuristic: if target has different shape
+        # heuristic: if target has different shape
+        if shape(arg.value) != shape(target)
         for color in used_colors(arg.value)
     }
 
@@ -104,7 +106,8 @@ def extract_color_patch_functions(args, target):
     return {
         Function(vectorize(extract_color_patch), arg, Constant(color))
         for arg in scalars(args, Grid)
-        if shape(arg.value) != shape(target)  # heuristic: if target has different shape
+        # heuristic: if target has different shape
+        if shape(arg.value) != shape(target)
         for color in used_colors(arg.value)
     }
 
