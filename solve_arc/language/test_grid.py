@@ -100,11 +100,11 @@ def test_mask_create_empty():
 
 
 def test_mask_create():
-    mask = Mask([[1, 2], [3, 4]])
+    mask = Mask([[True, False], [False, True]])
 
     assert mask.shape == (2, 2)
-    assert mask[0, 0] == 1
-    assert mask[1, 0] == 3
+    assert mask[0, 0]
+    assert not mask[1, 0]
 
 
 def test_mask_create__non_boolean():
@@ -118,6 +118,13 @@ def test_mask_create__non_boolean():
 def test_mask_any():
     assert Mask([[True, False]]).any()
     assert not Mask([[False, False]]).any()
+
+
+def test_mask_create_from_indices():
+    mask = Mask.from_indices(shape=(3, 2), indices=[(0, 0), (0, 1), (1, 1), (2, 0)])
+
+    assert mask.shape == (3, 2)
+    assert mask == Mask([[True, True], [False, True], [True, False]])
 
 
 def test_mask_create_from_string():

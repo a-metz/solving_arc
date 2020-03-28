@@ -77,6 +77,16 @@ class Mask(_Base):
         return cls(np.zeros(shape=shape, dtype=np.bool))
 
     @classmethod
+    def from_indices(cls, shape, indices):
+        num_rows = shape[0]
+        num_colums = shape[1]
+        # assignment by indices can only be done on flat array (numpy limitation)
+        flat_indices = np.dot(np.array(indices), np.array([num_colums, 1]))
+        flat_state = np.zeros(shape=num_rows * num_colums, dtype=np.bool)
+        flat_state[flat_indices] = True
+        return Mask(flat_state.reshape(shape))
+
+    @classmethod
     def from_string(cls, string):
         elements = [[char == "#" for char in line] for line in filtered_elements(string)]
         return cls(elements)
