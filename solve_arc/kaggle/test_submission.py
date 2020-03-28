@@ -1,3 +1,5 @@
+import pytest
+
 from ..language.grid import Grid
 from .submission import *
 
@@ -21,6 +23,7 @@ def test_format_results():
     assert results_string[1] == "0520fde7_1,|12|34| |56|78|"
 
 
+@pytest.mark.slow
 def test_generate_submission_smoketest():
     generate_submission("solve_arc/kaggle/test_data", max_depth=3)
 
