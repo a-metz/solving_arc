@@ -39,8 +39,11 @@ class _Base:
     def __eq__(self, other):
         return isinstance(other, self.__class__) and hash(self) == hash(other)
 
+    def __str__(self):
+        return "{}(<{}, {}>)".format(self.__class__.__name__, shape[0], shape[1])
+
     def __repr__(self):
-        return "{}({})".format(self.__class__, self.state.tolist())
+        return "{}({})".format(self.__class__.__name__, self.state.tolist())
 
 
 class Grid(_Base):
