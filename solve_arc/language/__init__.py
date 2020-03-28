@@ -1,8 +1,8 @@
 # core entities
-from .grid import Grid
+from .grid import *
 
 # operations
-from .logic import elementwise_equal_and, elementwise_equal_or, elementwise_xor
-from .segmentation import extract_islands, extract_color_patches, extract_color_patch
-from .color import switch_color, map_color
-from .symmetry import flip_up_down, flip_left_right, rotate
+from .logic import *
+from .segmentation import *
+from .color import *
+from .symmetry import *

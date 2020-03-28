@@ -45,9 +45,10 @@ def test_8d5021e8(input_, expected):
 
 
 def test_11852cab(input_, expected):
-    # selection = select_islands(input_, ignore=0)
-    # selection = eor(selection, rotate_ccw(selection))
-    # selection = eor(selection, rotate_180(selection))
+    mask = mask_for_all_colors(input_, ignore=0)
+    island = extract_bounding_box(input_, mask)
+    island = elementwise_equal_or(island, rotate(island, num_times=1))
+    island = elementwise_equal_or(island, rotate(island, num_times=2))
     pass
 
 
