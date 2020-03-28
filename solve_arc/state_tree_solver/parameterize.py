@@ -5,6 +5,7 @@ from ..language import *
 
 _extract_islands = expect_scalar(on_error_return=None)(extract_islands)
 _extract_color_patches = expect_scalar(on_error_return=None)(extract_color_patches)
+_extract_color_patch = expect_scalar(on_error_return=None)(extract_color_patch)
 
 
 @expect_scalar(on_error_return=[])
@@ -15,6 +16,9 @@ def parameterize_segmentation(grid):
     ]
     extract_color_patches_functions = [
         partial(_extract_color_patches, ignore=color) for color in grid.used_colors()
+    ]
+    extract_color_patch_functions = [
+        partial(_extract_color_patch, color=color) for color in grid.used_colors()
     ]
     return extract_islands_functions + extract_color_patches_functions
 
