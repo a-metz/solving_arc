@@ -13,15 +13,15 @@ def solve(constraints, max_depth):
     sources, targets = zip(*constraints)
 
     source_function = Source(sources)
-    if source_function.value == targets:
+    if source_function() == targets:
         return Solution(source_function, source_function)
 
     nodes = {source_function}
     for _ in range(max_depth):
         nodes |= valid_functions(nodes, targets)
         for node in nodes:
-            # print(node, "->", node.value)
-            if node.value == targets:
+            # print(node, "->", node())
+            if node() == targets:
                 return Solution(node, source_function)
 
     # print("No Solution")
@@ -41,7 +41,7 @@ def valid_functions(args, target):
         | logic_functions(args)
         | symmetry_functions(args)
     )
-    return {func for func in functions if is_valid(func.value)}
+    return {func for func in functions if is_valid(func())}
 
 
 def map_color_functions(args, target):
@@ -49,7 +49,7 @@ def map_color_functions(args, target):
         Function(vectorize(map_color), arg, Constant(from_color), Constant(to_color))
         for arg in scalars(args, Grid)
         for from_color, to_color in product(
-            used_colors(arg.value),
+            used_colors(arg()),
             # heuristic: only map to colors used in target
             used_colors(target),
         )
@@ -60,7 +60,7 @@ def swap_color_functions(args, target):
     return {
         Function(vectorize(switch_color), arg, Constant(a), Constant(b))
         for arg in scalars(args, Grid)
-        for a, b in combinations(used_colors(arg.value), 2)
+        for a, b in combinations(used_colors(arg()), 2)
     }
 
 
@@ -68,7 +68,7 @@ def mask_for_color_functions(args):
     return {
         Function(vectorize(mask_for_color), arg, Constant(color))
         for arg in scalars(args, Grid)
-        for color in used_colors(arg.value)
+        for color in used_colors(arg())
     }
 
 
@@ -76,9 +76,9 @@ def mask_for_all_colors_functions(args):
     return {
         Function(vectorize(mask_for_all_colors), arg, Constant(color))
         for arg in scalars(args, Grid)
-        for color in used_colors(arg.value)
+        for color in used_colors(arg())
         # 2 colors or less is covered by mask_for_color_functions
-        if len(used_colors(arg.value)) > 2
+        if len(used_colors(arg())) > 2
     }
 
 
@@ -88,7 +88,7 @@ def extract_bounding_box_functions(args):
     return {
         Function(vectorize(extract_bounding_box), grid_arg, mask_arg)
         for grid_arg, mask_arg in product(grid_args, mask_args)
-        if shape(grid_arg.value) == shape(mask_arg.value)
+        if shape(grid_arg()) == shape(mask_arg())
     }
 
 
@@ -97,8 +97,8 @@ def extract_color_patches_functions(args, target):
         Function(vectorize(extract_color_patches), arg, Constant(color))
         for arg in scalars(args, Grid)
         # heuristic: if target has different shape
-        if shape(arg.value) != shape(target)
-        for color in used_colors(arg.value)
+        if shape(arg()) != shape(target)
+        for color in used_colors(arg())
     }
 
 
@@ -107,8 +107,8 @@ def extract_color_patch_functions(args, target):
         Function(vectorize(extract_color_patch), arg, Constant(color))
         for arg in scalars(args, Grid)
         # heuristic: if target has different shape
-        if shape(arg.value) != shape(target)
-        for color in used_colors(arg.value)
+        if shape(arg()) != shape(target)
+        for color in used_colors(arg())
     }
 
 
@@ -138,25 +138,14 @@ class Function:
     def __init__(self, operation, *args):
         self.operation = operation
         self.args = args
-        self.called = False
 
-    @property
-    def value(self):
-        """evaluate function with cached arg values and cache result"""
+    def __call__(self, use_cache=True):
+        """evaluate function with evaluated args, use cached values if possible and use_cache is True"""
+        if not (use_cache and hasattr(self, "value")):
+            args = [arg(use_cache) for arg in self.args]
+            self.value = self.operation(*args)
 
-        arg_values = [arg.value for arg in self.args]
-        value = self.operation(*arg_values)
-
-        # TODO: does not cache
-        # implement caching by overwriting property value for next call
-        # (cached_property package is not available on kaggle docker image)
-        self.__dict__["value"] = value
-        return value
-
-    def __call__(self):
-        """reevaluate function with reevaluated args"""
-        args = [arg() for arg in self.args]
-        return self.operation(*args)
+        return self.value
 
     def __str__(self):
         return "{}({})".format(self.operation.__name__, ", ".join(str(arg) for arg in self.args))
@@ -170,7 +159,7 @@ class Function:
         return isinstance(other, self.__class__) and hash(self) == hash(other)
 
     def __hash__(self):
-        return hash(self.operation) ^ hash(tuple(self.args))
+        return hash(self.operation) ^ hash(tuple(arg() for arg in self.args))
 
 
 class Source:
@@ -180,10 +169,10 @@ class Source:
         self.value = value
 
     def load(self, value):
+        """replace value for transfer of program to different source"""
         self.value = value
 
-    def __call__(self):
-        """reevaluate input after loading"""
+    def __call__(self, use_cache=True):
         return self.value
 
     def __str__(self):
@@ -206,7 +195,7 @@ class Constant:
         self.scalar = scalar
         self.value = repeat(scalar)
 
-    def __call__(self):
+    def __call__(self, use_cache=True):
         """return scalar wrapped in iterator for use as arguments for vectorized operations"""
         return self.value
 
@@ -231,7 +220,7 @@ class Solution:
     def __call__(self, value):
         # run only for single element
         self.source.load((value,))
-        return self.function()[0]
+        return self.function(use_cache=False)[0]
 
     def __str__(self):
         return str(self.function)
@@ -249,19 +238,19 @@ class vectorize:
     def __call__(self, *arg_tuples):
         return tuple(self.func(*args) for args in zip(*arg_tuples))
 
-    def __hash__(self):
-        return hash(self.func)
-
     def __str__(self):
         return self.func.__name__
 
     def __repr__(self):
         return "vectorize({})".format(self.func.__name__)
 
+    def __hash__(self):
+        return hash(self.func)
+
 
 def scalars(args, type_):
     """filter args for grid tuples which are not nested in containers"""
-    return {arg for arg in args if is_scalar(arg.value, type_)}
+    return {arg for arg in args if is_scalar(arg(), type_)}
 
 
 def is_scalar(value_tuple, type_):
@@ -281,7 +270,7 @@ def shape(value):
 
 def shape_matching_pairs(args, type_):
     # TODO: also enumerate all combinations of two scalar grids with same shape
-    return {arg for arg in args if is_matching_shape_pair(arg.value, type_)}
+    return {arg for arg in args if is_matching_shape_pair(arg(), type_)}
 
 
 def is_matching_shape_pair(value_tuple, type_):
