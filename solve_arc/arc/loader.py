@@ -17,6 +17,6 @@ def evaluation_tasks():
     # use singleton to avoid reloading dataset (which takes long)
     global _evaluation_tasks
     if _evaluation_tasks is None:
-        _evaluation_tasks = load_tasks("dataset/data/training")
+        _evaluation_tasks = load_tasks("dataset/data/evaluation")
 
     return _evaluation_tasks
