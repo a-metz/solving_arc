@@ -10,9 +10,11 @@ import time
 from itertools import product, combinations, repeat, count
 from functools import wraps
 from collections import namedtuple
+import logging
 
 from ..language import *
 
+logger = logging.getLogger(__name__)
 
 Constraint = namedtuple("Constraint", ["source", "target"])
 
@@ -27,8 +29,10 @@ def solve(constraints, max_depth):
     nodes = {source_function}
     for _ in range(max_depth):
         nodes |= valid_functions(nodes, targets)
-        for node in nodes:
+        for node in list(nodes):
             # print(node, "->", node())
+            if not is_valid(node()):
+                nodes.remove(node)
             if node() == targets:
                 return Solution(node, source_function)
 
@@ -39,18 +43,18 @@ def solve(constraints, max_depth):
 def valid_functions(args, target):
     functions = (
         swap_color_functions(args, target)
-        # | map_color_functions(args, target)
-        | mask_for_color_functions(args)
-        | mask_for_all_colors_functions(args)
-        | extract_masked_area_functions(args, target)
-        | split_mask_islands_functions(args)
-        # | extract_islands_functions(args, target)
-        # | extract_color_patches_functions(args, target)
-        # | extract_color_patch_functions(args, target)
+        | map_color_functions(args, target)
+        # | mask_for_color_functions(args)
+        # | mask_for_all_colors_functions(args)
+        # | extract_masked_area_functions(args, target)
+        # | split_mask_islands_functions(args)
+        | extract_islands_functions(args, target)
+        | extract_color_patches_functions(args, target)
+        | extract_color_patch_functions(args, target)
         | logic_functions(args)
         | symmetry_functions(args)
     )
-    return {func for func in functions if is_valid(func())}
+    return functions
 
 
 def map_color_functions(args, target):
@@ -118,6 +122,15 @@ def extract_masked_areas_functions(args, target):
         if shape(grid_arg()) == shape(mask_arg()[0])
         # heuristic: if target has different shape
         and shape(grid_arg()) != shape(target)
+    }
+
+
+def extract_islands_functions(args, target):
+    return {
+        Function(vectorize(extract_islands), arg, Constant(color))
+        for arg in scalars(args, Grid)
+        if shape(arg.value) != shape(target)  # heuristic: if target has different shape
+        for color in used_colors(arg())
     }
 
 
