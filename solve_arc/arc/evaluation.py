@@ -1,22 +1,37 @@
 from itertools import islice
+import logging
 
 from func_timeout import func_timeout, FunctionTimedOut
 import click
 
 from .loader import training_tasks, evaluation_tasks
+from .solved_tasks import SOLVED_TASK_IDS
 from ..function_graph_solver.sampling_search import solve, Constraint
 
 
+logging.basicConfig(format="%(message)s", level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
 @click.command()
-@click.argument("task_ids", nargs=-1)
-def evaluate(task_ids):
-    if not task_ids:
-        print("evaluating performance on training tasks")
-        evaluate(training_tasks().items())
-        print("evaluating performance on evaluation tasks")
-        evaluate(evaluation_tasks().items())
+@click.option("--debug/--no-debug", default=False)
+@click.argument("args", nargs=-1)
+def evaluate(debug, args):
+    if debug:
+        logging.getLogger("solve_arc").setLevel(level=logging.DEBUG)
+
+    if len(args) > 0:
+        if args[0] == "solved":
+            logger.info("evaluating performance on known solved tasks")
+            _evaluate(_get_tasks(SOLVED_TASK_IDS))
+        else:
+            logger.info("evaluating performance on {}", str(args))
+            _evaluate(_get_tasks(args))
     else:
-        evaluate(_get_tasks(task_ids))
+        logger.info("evaluating performance on training tasks")
+        _evaluate(training_tasks().items())
+        logger.info("evaluating performance on evaluation tasks")
+        _evaluate(evaluation_tasks().items())
 
 
 def _get_tasks(task_ids):
@@ -28,7 +43,7 @@ def _evaluate(tasks, max_time=10):
     score = 0
     solved = []
     for task_id, (train_subtasks, test_subtasks) in tasks:
-        print(task_id, end=" ", flush=True)
+        logger.info("solving {}".format(task_id))
         constraints = [Constraint(*subtask) for subtask in train_subtasks]
 
         try:
@@ -38,18 +53,17 @@ def _evaluate(tasks, max_time=10):
                 if valid:
                     score += 1
                     solved.append(task_id)
-                    print("found valid solution")
+                    logger.info("found valid solution: {}".format(solution))
                 else:
-                    print("found invalid solution")
-                print(solution)
+                    logger.info("found invalid solution: {}".format(solution))
             else:
-                print("no solution")
+                logger.info("no solution")
 
         except FunctionTimedOut:
-            print("timeout")
+            logger.info("timeout")
 
-    print("solved: {}".format(", ".join(solved)))
-    print("score: {}/{} (score: {})".format(score, len(tasks), (1 - score / len(tasks))))
+    logger.info("solved: {}".format(", ".join(solved)))
+    logger.info("score: {}/{} (score: {})".format(score, len(tasks), (1 - score / len(tasks))))
 
     return solved
 
