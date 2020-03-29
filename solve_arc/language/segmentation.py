@@ -26,7 +26,7 @@ def extract_color_patches(grid, ignore=0):
 # to be removed when using a DAG approach
 def extract_color_patch(grid, color):
     mask = mask_for_color(grid, color)
-    return extract_bounding_box(grid, mask)
+    return extract_masked_area(grid, mask)
 
 
 def mask_for_color(grid, color):
@@ -39,7 +39,11 @@ def mask_for_all_colors(grid, ignore=0):
     return Mask(grid.state != ignore)
 
 
-def extract_bounding_box(grid, mask):
+def extract_masked_areas(grid, masks):
+    return [extract_masked_area(grid, mask) for mask in masks]
+
+
+def extract_masked_area(grid, mask):
     """extract box bounding mask from grid"""
     indices = np.argwhere(mask.state)
     top, left = np.min(indices, axis=0)
@@ -59,7 +63,7 @@ def extract_islands(grid, ignore=0):
     if not mask.any():
         return None
 
-    mask_islands = extract_mask_islands(mask)
+    mask_islands = split_mask_islands(mask)
 
     # if no mask return
     if mask_islands is None:
@@ -67,7 +71,7 @@ def extract_islands(grid, ignore=0):
 
     islands = []
     for mask in mask_islands:
-        island = extract_bounding_box(grid, mask)
+        island = extract_masked_area(grid, mask)
         if island is not None:
             islands.append(island)
 
@@ -77,7 +81,7 @@ def extract_islands(grid, ignore=0):
     return islands
 
 
-def extract_mask_islands(mask):
+def split_mask_islands(mask):
     unassigned = {tuple(index) for index in np.argwhere(mask.state)}
 
     islands = []

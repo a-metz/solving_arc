@@ -1,3 +1,5 @@
+import pytest
+
 from .sampling_search import *
 
 
@@ -7,7 +9,12 @@ class SingleElementConstant(Constant):
         self.value = (scalar,)
 
 
-def test_extract_bounding_box_functions():
+@pytest.fixture
+def dummy_target():
+    return (Grid.empty(shape=(1, 1)),)
+
+
+def test_extract_masked_area_functions(dummy_target):
     grid_arg = SingleElementConstant(
         Grid.from_string(
             """
@@ -36,6 +43,6 @@ def test_extract_bounding_box_functions():
     )
     args = {grid_arg, mask_arg, wrong_size_mask_arg}
 
-    functions = extract_bounding_box_functions(args)
+    functions = extract_masked_area_functions(args, dummy_target)
 
-    assert functions == {Function(vectorize(extract_bounding_box), grid_arg, mask_arg)}
+    assert functions == {Function(vectorize(extract_masked_area), grid_arg, mask_arg)}
