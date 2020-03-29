@@ -1,6 +1,6 @@
 import pytest
 
-from .sampling_search import *
+from .function_generation import *
 
 
 class SingleElementConstant(Constant):
