@@ -7,12 +7,12 @@ Not worth it:
 """
 
 from copy import copy
-from collections import namedtuple, defaultdict
+from collections import namedtuple
 import logging
 
 from .function_generation import generate_functions
 from .nodes import Source
-from ..language import Grid, Mask
+from .graph import Graph
 
 logger = logging.getLogger(__name__)
 
@@ -29,57 +29,25 @@ def solve(constraints, max_depth):
         return Solution(source_node, source_node)
 
     for _ in range(max_depth):
-        solution = graph.add(generate_functions(graph))
-        if solution is not None:
-            return Solution(solution, source_node)
-
-    return None
-
-
-class Graph:
-    def __init__(self, target):
-        self.target = target
-        self.nodes = set()
-
-        # special node types for faster access
-        self._scalars = defaultdict(set)
-        self._sequences = defaultdict(set)
-
-    def add(self, added_nodes):
         # only consider nodes not yet in graph
-        new_nodes = added_nodes - self.nodes
+        generated_nodes = generate_functions(graph)
+        new_nodes = generate_functions(graph) - graph.nodes
 
         # check for solution
         for node in new_nodes:
-            if node() == self.target:
-                return node
+            if node() == graph.target:
+                return Solution(node, source_node)
 
-        # filter valid
-        valid_nodes = {node for node in new_nodes if is_valid(node)}
-        self.nodes |= valid_nodes
+        graph.add(new_nodes)
 
         logger.debug(
-            "nodes added: %d, new: %d, valid: %d, total: %d",
-            len(added_nodes),
+            "nodes generated: %d, new: %d, total: %d",
+            len(generated_nodes),
             len(new_nodes),
-            len(valid_nodes),
-            len(self.nodes),
+            len(graph.nodes),
         )
 
-        # filter special node types
-        self._scalars[Grid] |= {node for node in valid_nodes if is_scalar(node, Grid)}
-        self._scalars[Mask] |= {node for node in valid_nodes if is_scalar(node, Mask)}
-        self._sequences[Grid] |= {node for node in valid_nodes if is_sequence(node, Grid)}
-        self._sequences[Mask] |= {node for node in valid_nodes if is_sequence(node, Mask)}
-
-        # no solution found
-        return None
-
-    def scalars(type_):
-        return self._scalars[type_]
-
-    def sequences(type_):
-        return self._sequences[type_]
+    return None
 
 
 class Solution:
@@ -97,18 +65,3 @@ class Solution:
 
     def __repr__(self):
         return "Solution({}, {})".format(repr(self.function), repr(self.source))
-
-
-def is_valid(node):
-    return all(element is not None for element in node())
-
-
-def is_scalar(node, type_):
-    return all(isinstance(element, type_) for element in node())
-
-
-def is_sequence(node, type_):
-    return all(
-        hasattr(elements, "__len__") and (isinstance(element, type_) for element in elements)
-        for elements in node()
-    )
