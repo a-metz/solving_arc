@@ -51,7 +51,7 @@ def _evaluate(tasks, max_seconds_per_task=10, max_search_depth=5):
         constraints = [Constraint(*subtask) for subtask in train_subtasks]
 
         try:
-            solution = func_timeout(
+            solution = timeout(
                 timeout=max_seconds_per_task, func=solve, args=(constraints, max_search_depth)
             )
             if solution is not None:
@@ -73,6 +73,13 @@ def _evaluate(tasks, max_seconds_per_task=10, max_search_depth=5):
     logger.info("score: {}/{} ({})".format(score, len(tasks), (1 - score / len(tasks))))
 
     return solved
+
+
+def timeout(timeout, func, args):
+    if timeout:
+        return func_timeout(timeout, func, args)
+    else:
+        return func(*args)
 
 
 def check_solution(solution, subtasks):

@@ -14,7 +14,7 @@ def expect_solve():
 
 @pytest.mark.slow
 def test_regression(expect_solve):
-    solved = set(_evaluate(_get_tasks(expect_solve), max_seconds_per_task=10))
+    solved = set(_evaluate(_get_tasks(expect_solve), max_seconds_per_task=None))
 
     assert expect_solve == solved, "failed to solve: {}".format(
         ", ".join(sorted(expect_solve - solved))
