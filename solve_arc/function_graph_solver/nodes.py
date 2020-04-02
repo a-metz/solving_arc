@@ -53,7 +53,7 @@ class _Value(_Node):
 
 class Source(_Value):
     @classmethod
-    def from_scalar(cls, scalar):
+    def from_scalar(cls, scalar):  # TODO: scalar has a different meaning
         return cls((scalar,))
 
     def load(self, value):

@@ -12,6 +12,7 @@ import logging
 
 from .function_generation import generate_functions
 from .nodes import Source
+from ..language import Grid, Mask
 
 logger = logging.getLogger(__name__)
 
@@ -19,49 +20,61 @@ Constraint = namedtuple("Constraint", ["source", "target"])
 
 
 def solve(constraints, max_depth):
-    sources, targets = zip(*constraints)
+    source, target = zip(*constraints)
+    source_node = Source(source)
 
-    graph = Graph(Source(sources))
-    solution = graph.solution(targets)
+    graph = Graph(target)
+    solution = graph.add({source_node})
+    if solution is not None:
+        return Solution(source_node, source_node)
 
-    depth = 0
-    while solution is None and depth < max_depth:
-        depth += 1
-        graph.add(generate_functions(graph, targets))
-        solution = graph.solution(targets)
+    for _ in range(max_depth):
+        solution = graph.add(generate_functions(graph))
+        if solution is not None:
+            return Solution(solution, source_node)
 
-    return solution
+    return None
 
 
 class Graph:
-    def __init__(self, source):
-        self.source = source
-        self.nodes = {source}
+    def __init__(self, target):
+        self.target = target
+        self.nodes = set()
+
+        # special node types for faster access
+        self.scalar_masks = set()
+        self.scalar_grids = set()
+        self.sequence_masks = set()
+        self.sequence_grids = set()
 
     def add(self, added_nodes):
+        # only consider nodes not yet in graph
         new_nodes = added_nodes - self.nodes
 
-        invalid = set()
-        # only check new nodes
+        # check for solution
         for node in new_nodes:
-            if not is_valid(node()):
-                invalid.add(node)
+            if node() == self.target:
+                return node
 
-        self.nodes |= new_nodes - invalid
+        # filter valid
+        valid_nodes = {node for node in new_nodes if is_valid(node)}
+        self.nodes |= valid_nodes
 
         logger.debug(
-            "nodes added: %d, new: %d, invalid: %d, total: %d",
+            "nodes added: %d, new: %d, valid: %d, total: %d",
             len(added_nodes),
             len(new_nodes),
-            len(invalid),
+            len(valid_nodes),
             len(self.nodes),
         )
 
-    def solution(self, target):
-        for node in self.nodes:
-            if node() == target:
-                return Solution(node, self.source)
+        # filter special node types
+        self.scalar_masks |= {node for node in valid_nodes if is_scalar(node, Mask)}
+        self.scalar_grids |= {node for node in valid_nodes if is_scalar(node, Grid)}
+        self.sequence_masks |= {node for node in valid_nodes if is_sequence(node, Mask)}
+        self.sequence_grids |= {node for node in valid_nodes if is_sequence(node, Grid)}
 
+        # no solution found
         return None
 
 
@@ -82,5 +95,16 @@ class Solution:
         return "Solution({}, {})".format(repr(self.function), repr(self.source))
 
 
-def is_valid(value_tuple):
-    return all(value is not None for value in value_tuple)
+def is_valid(node):
+    return all(element is not None for element in node())
+
+
+def is_scalar(node, type_):
+    return all(isinstance(element, type_) for element in node())
+
+
+def is_sequence(node, type_):
+    return all(
+        hasattr(elements, "__len__") and (isinstance(element, type_) for element in elements)
+        for elements in node()
+    )

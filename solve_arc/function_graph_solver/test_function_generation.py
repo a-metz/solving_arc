@@ -2,6 +2,7 @@ import pytest
 
 from .function_generation import *
 from .nodes import Source
+from .sampling_search import Graph
 
 
 @pytest.fixture
@@ -36,8 +37,9 @@ def test_extract_masked_area_functions(dummy_target):
             """
         )
     )
-    args = {grid_arg, mask_arg, wrong_size_mask_arg}
+    graph = Graph(dummy_target)
+    graph.add({grid_arg, mask_arg, wrong_size_mask_arg})
 
-    functions = extract_masked_area_functions(args, dummy_target)
+    functions = extract_masked_area_functions(graph)
 
     assert functions == {Function(vectorize(extract_masked_area), grid_arg, mask_arg)}
