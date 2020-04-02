@@ -14,7 +14,7 @@ def expect_solve():
 
 @pytest.mark.slow
 def test_regression(expect_solve):
-    solved = set(_evaluate(_get_tasks(expect_solve), max_time_per_task=10))
+    solved = set(_evaluate(_get_tasks(expect_solve), max_seconds_per_task=10))
 
     assert expect_solve == solved, "failed to solve: {}".format(
         ", ".join(sorted(expect_solve - solved))
@@ -25,7 +25,7 @@ def test_regression(expect_solve):
 def test_check_for_additional_solve(expect_solve):
     expect_no_solve = (set(training_tasks().keys()) | set(evaluation_tasks().keys())) - expect_solve
 
-    additionally_solved = set(_evaluate(_get_tasks(expect_no_solve), max_time_per_task=10))
+    additionally_solved = set(_evaluate(_get_tasks(expect_no_solve), max_seconds_per_task=10))
 
     if len(additionally_solved) > 0:
         warn("additionally solved: {}".format(", ".join(sorted(additionally_solved))))
