@@ -1,13 +1,13 @@
 """
 TODO:
-* move f(arg) helper functions (e.g. shape, is_scalar, used_colors(?), ...) to Function Subclass and cache
-* wrap node set in proper object, move f(args, [target]) helper functions there and cache
 * write unpack function which unpacks first, second, last(?), ...(?) as new nodes
 * add cached counters to functions to count number of operations in evaluation subtree (as heuristic for function gen)
+Not worth it:
+* move f(arg) helper functions (e.g. shape, is_scalar, used_colors(?), ...) to Function Subclass and cache
 """
 
 from copy import copy
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 import logging
 
 from .function_generation import generate_functions
@@ -42,10 +42,8 @@ class Graph:
         self.nodes = set()
 
         # special node types for faster access
-        self.scalar_masks = set()
-        self.scalar_grids = set()
-        self.sequence_masks = set()
-        self.sequence_grids = set()
+        self._scalars = defaultdict(set)
+        self._sequences = defaultdict(set)
 
     def add(self, added_nodes):
         # only consider nodes not yet in graph
@@ -69,13 +67,19 @@ class Graph:
         )
 
         # filter special node types
-        self.scalar_masks |= {node for node in valid_nodes if is_scalar(node, Mask)}
-        self.scalar_grids |= {node for node in valid_nodes if is_scalar(node, Grid)}
-        self.sequence_masks |= {node for node in valid_nodes if is_sequence(node, Mask)}
-        self.sequence_grids |= {node for node in valid_nodes if is_sequence(node, Grid)}
+        self._scalars[Grid] |= {node for node in valid_nodes if is_scalar(node, Grid)}
+        self._scalars[Mask] |= {node for node in valid_nodes if is_scalar(node, Mask)}
+        self._sequences[Grid] |= {node for node in valid_nodes if is_sequence(node, Grid)}
+        self._sequences[Mask] |= {node for node in valid_nodes if is_sequence(node, Mask)}
 
         # no solution found
         return None
+
+    def scalars(type_):
+        return self._scalars[type_]
+
+    def sequences(type_):
+        return self._sequences[type_]
 
 
 class Solution:

@@ -8,10 +8,10 @@ def generate_functions(graph):
     functions = (
         swap_color_functions(graph)
         | map_color_functions(graph)
-        # | mask_for_color_functions(graph)
-        # | mask_for_all_colors_functions(graph)
-        # | extract_masked_area_functions(graph)
-        # | split_mask_islands_functions(graph)
+        | mask_for_color_functions(graph)
+        | mask_for_all_colors_functions(graph)
+        | extract_masked_area_functions(graph)
+        | split_mask_islands_functions(graph)
         | extract_islands_functions(graph)
         | extract_color_patches_functions(graph)
         | extract_color_patch_functions(graph)
@@ -24,7 +24,7 @@ def generate_functions(graph):
 def map_color_functions(graph):
     return {
         Function(vectorize(map_color), arg, Constant(from_color), Constant(to_color))
-        for arg in graph.scalar_grids
+        for arg in graph.scalars(Grid)
         for from_color, to_color in product(
             used_colors(arg()),
             # heuristic: only map to colors used in target
@@ -36,7 +36,7 @@ def map_color_functions(graph):
 def swap_color_functions(graph):
     return {
         Function(vectorize(switch_color), arg, Constant(a), Constant(b))
-        for arg in graph.scalar_grids
+        for arg in graph.scalars(Grid)
         if not (isinstance(arg, Function) and arg.operation == vectorize(switch_color))
         for a, b in combinations(used_colors(arg()), 2)
     }
@@ -45,7 +45,7 @@ def swap_color_functions(graph):
 def mask_for_color_functions(graph):
     return {
         Function(vectorize(mask_for_color), arg, Constant(color))
-        for arg in graph.scalar_grids
+        for arg in graph.scalars(Grid)
         for color in used_colors(arg())
     }
 
@@ -53,7 +53,7 @@ def mask_for_color_functions(graph):
 def mask_for_all_colors_functions(graph):
     return {
         Function(vectorize(mask_for_all_colors), arg, Constant(color))
-        for arg in graph.scalar_grids
+        for arg in graph.scalars(Grid)
         for color in used_colors(arg())
         # 2 colors or less is covered by mask_for_color_functions
         if len(used_colors(arg())) > 2
@@ -61,13 +61,13 @@ def mask_for_all_colors_functions(graph):
 
 
 def split_mask_islands_functions(graph):
-    return {Function(vectorize(split_mask_islands), arg) for arg in graph.scalar_masks}
+    return {Function(vectorize(split_mask_islands), arg) for arg in graph.scalars(Mask)}
 
 
 def extract_masked_area_functions(graph):
     return {
         Function(vectorize(extract_masked_area), grid_arg, mask_arg)
-        for grid_arg, mask_arg in product(graph.scalar_grids, graph.scalar_masks)
+        for grid_arg, mask_arg in product(graph.scalars(Grid), graph.scalars(Mask))
         if shape(grid_arg()) == shape(mask_arg())
         # heuristic: if target has different shape
         and shape(grid_arg()) != shape(graph.target)
@@ -77,7 +77,7 @@ def extract_masked_area_functions(graph):
 def extract_masked_areas_functions(graph):
     return {
         Function(vectorize(extract_masked_area), grid_arg, masks_arg)
-        for grid_arg, masks_arg in product(graph.scalar_grids, graph.sequence_masks)
+        for grid_arg, masks_arg in product(graph.scalars(Grid), graph.sequences(Mask))
         # shortcut: assume all masks in sequences have same shape
         if shape(grid_arg()) == shape(masks_arg()[0])
         # heuristic: if target has different shape
@@ -88,7 +88,7 @@ def extract_masked_areas_functions(graph):
 def extract_islands_functions(graph):
     return {
         Function(vectorize(extract_islands), arg, Constant(color))
-        for arg in graph.scalar_grids
+        for arg in graph.scalars(Grid)
         if shape(arg.value) != shape(graph.target)  # heuristic: if target has different shape
         for color in used_colors(arg())
     }
@@ -97,7 +97,7 @@ def extract_islands_functions(graph):
 def extract_color_patches_functions(graph):
     return {
         Function(vectorize(extract_color_patches), arg, Constant(color))
-        for arg in graph.scalar_grids
+        for arg in graph.scalars(Grid)
         # heuristic: if target has different shape
         if shape(arg()) != shape(graph.target)
         for color in used_colors(arg())
@@ -107,7 +107,7 @@ def extract_color_patches_functions(graph):
 def extract_color_patch_functions(graph):
     return {
         Function(vectorize(extract_color_patch), arg, Constant(color))
-        for arg in graph.scalar_grids
+        for arg in graph.scalars(Grid)
         # heuristic: if target has different shape
         if shape(arg()) != shape(graph.target)
         for color in used_colors(arg())
@@ -116,7 +116,7 @@ def extract_color_patch_functions(graph):
 
 def logic_functions(graph):
     functions = set()
-    for a, b in unpack(shape_matching_pairs(graph.sequence_grids, Grid, Grid), 2):
+    for a, b in unpack(shape_matching_pairs(graph.sequences(Grid), Grid, Grid), 2):
         functions.add(Function(vectorize(elementwise_equal_and), a, b))
         functions.add(Function(vectorize(elementwise_equal_or), a, b))
         functions.add(Function(vectorize(elementwise_xor), a, b))
@@ -125,7 +125,7 @@ def logic_functions(graph):
 
 def symmetry_functions(graph):
     functions = set()
-    for arg in graph.scalar_grids:
+    for arg in graph.scalars(Grid):
         functions.add(Function(vectorize(flip_up_down), arg))
         functions.add(Function(vectorize(flip_left_right), arg))
         functions.add(Function(vectorize(rotate), arg, Constant(1)))
