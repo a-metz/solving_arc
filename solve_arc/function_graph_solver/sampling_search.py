@@ -21,14 +21,25 @@ Constraint = namedtuple("Constraint", ["source", "target"])
 def solve(constraints, max_depth):
     sources, targets = zip(*constraints)
 
-    source_function = Source(sources)
-    if source_function() == targets:
-        return Solution(source_function, source_function)
+    graph = Graph(Source(sources))
+    solution = graph.solution(targets)
 
-    nodes = {source_function}
-    for _ in range(max_depth):
-        generated_nodes = generate_functions(nodes, targets)
-        new_nodes = generated_nodes - nodes
+    depth = 0
+    while solution is None and depth < max_depth:
+        depth += 1
+        graph.add(generate_functions(graph, targets))
+        solution = graph.solution(targets)
+
+    return solution
+
+
+class Graph:
+    def __init__(self, source):
+        self.source = source
+        self.nodes = {source}
+
+    def add(self, added_nodes):
+        new_nodes = added_nodes - self.nodes
 
         invalid = set()
         # only check new nodes
@@ -36,22 +47,22 @@ def solve(constraints, max_depth):
             if not is_valid(node()):
                 invalid.add(node)
 
-        nodes |= new_nodes - invalid
+        self.nodes |= new_nodes - invalid
 
         logger.debug(
-            "nodes generated: %d, new: %d, invalid: %d, total: %d",
-            len(generated_nodes),
+            "nodes added: %d, new: %d, invalid: %d, total: %d",
+            len(added_nodes),
             len(new_nodes),
             len(invalid),
-            len(nodes),
+            len(self.nodes),
         )
 
-        for node in nodes:
-            # print(node, "->", node())
-            if node() == targets:
-                return Solution(node, source_function)
+    def solution(self, target):
+        for node in self.nodes:
+            if node() == target:
+                return Solution(node, self.source)
 
-    return None
+        return None
 
 
 class Solution:

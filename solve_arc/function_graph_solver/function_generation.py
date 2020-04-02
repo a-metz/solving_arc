@@ -4,7 +4,8 @@ from .graph import Function, Constant
 from ..language import *
 
 
-def generate_functions(args, target):
+def generate_functions(graph, target):
+    args = graph.nodes
     functions = (
         swap_color_functions(args, target)
         | map_color_functions(args, target)
