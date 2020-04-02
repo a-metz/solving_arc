@@ -1,12 +1,7 @@
 import pytest
 
 from .function_generation import *
-
-
-class SingleElementConstant(Constant):
-    def __init__(self, scalar):
-        self.scalar = scalar
-        self.value = (scalar,)
+from .graph import *
 
 
 @pytest.fixture
@@ -15,7 +10,7 @@ def dummy_target():
 
 
 def test_extract_masked_area_functions(dummy_target):
-    grid_arg = SingleElementConstant(
+    grid_arg = Source.from_scalar(
         Grid.from_string(
             """
             1 2 3
@@ -24,7 +19,7 @@ def test_extract_masked_area_functions(dummy_target):
             """
         )
     )
-    mask_arg = SingleElementConstant(
+    mask_arg = Source.from_scalar(
         Mask.from_string(
             """
             # # .
@@ -33,7 +28,7 @@ def test_extract_masked_area_functions(dummy_target):
             """
         )
     )
-    wrong_size_mask_arg = SingleElementConstant(
+    wrong_size_mask_arg = Source.from_scalar(
         Mask.from_string(
             """
             # #
