@@ -1,6 +1,6 @@
 from itertools import product, combinations
 
-from .graph import Function, Constant
+from .nodes import Function, Constant
 from ..language import *
 
 

@@ -1,7 +1,7 @@
 import pytest
 
 from .function_generation import *
-from .graph import *
+from .nodes import Source
 
 
 @pytest.fixture
