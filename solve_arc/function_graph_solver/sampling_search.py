@@ -27,15 +27,30 @@ def solve(constraints, max_depth):
 
     nodes = {source_function}
     for _ in range(max_depth):
-        for node in list(nodes):
-            # print(node, "->", node())
-        nodes |= generate_functions(nodes, targets)
+        generated_nodes = generate_functions(nodes, targets)
+        new_nodes = generated_nodes - nodes
+
+        invalid = set()
+        # only check new nodes
+        for node in new_nodes:
             if not is_valid(node()):
-                nodes.remove(node)
+                invalid.add(node)
+
+        nodes |= new_nodes - invalid
+
+        logger.debug(
+            "nodes generated: %d, new: %d, invalid: %d, total: %d",
+            len(generated_nodes),
+            len(new_nodes),
+            len(invalid),
+            len(nodes),
+        )
+
+        for node in nodes:
+            # print(node, "->", node())
             if node() == targets:
                 return Solution(node, source_function)
 
-    # print("No Solution")
     return None
 
 
