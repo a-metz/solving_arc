@@ -1,5 +1,6 @@
 import signal
 from functools import wraps
+import traceback
 
 
 class Timeout(Exception):
@@ -19,6 +20,9 @@ def timeout(time):
                 return func(*args, **kwargs)
             except Timeout:
                 print("timeout")
+            except:
+                traceback.print_exc()
+
             return None
 
         return wrapper

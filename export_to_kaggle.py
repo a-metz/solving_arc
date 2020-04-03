@@ -20,4 +20,6 @@ for input_path in Path.cwd().joinpath("solve_arc").glob("**/*.py"):
     output.write(")\n")
 
 output.write("\n\nfrom solve_arc.kaggle.submission import generate_submission\n")
-output.write("generate_submission('/kaggle/input/abstraction-and-reasoning-challenge/test')\n")
+output.write(
+    "generate_submission('/kaggle/input/abstraction-and-reasoning-challenge/test', max_seconds_per_task=10, max_search_depth=10)\n"
+)
