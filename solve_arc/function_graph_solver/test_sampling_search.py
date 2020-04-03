@@ -101,7 +101,6 @@ def test_solve__single_xor__multiple_contraints():
 # some solution cases:
 
 
-@pytest.mark.skip
 def test_solve__mask_color_and_extract_masked_area__multiple_contraints():
     constraints = [
         Constraint(source=Grid([[1, 2, 1]]), target=Grid([[2]])),
@@ -116,7 +115,6 @@ def test_solve__mask_color_and_extract_masked_area__multiple_contraints():
     assert solution(Grid([[1, 2, 2]])) == Grid([[2, 2]])
 
 
-@pytest.mark.slow
 def test_solve__complex__multiple_constraints():
     constraints = [
         # undefined / no color swap

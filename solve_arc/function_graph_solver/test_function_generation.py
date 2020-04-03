@@ -6,12 +6,20 @@ from .sampling_search import Graph
 
 
 @pytest.fixture
-def dummy_target():
-    return (Grid.empty(shape=(1, 1)),)
+def target():
+    return (
+        Grid.from_string(
+            """
+            1 2
+            1 1
+            """
+        ),
+    )
 
 
-def test_extract_masked_area_functions(dummy_target):
-    grid_arg = Source.from_scalar(
+@pytest.fixture
+def grid():
+    return Source.from_scalar(
         Grid.from_string(
             """
             1 2 3
@@ -20,7 +28,11 @@ def test_extract_masked_area_functions(dummy_target):
             """
         )
     )
-    mask_arg = Source.from_scalar(
+
+
+@pytest.fixture
+def mask_1():
+    return Source.from_scalar(
         Mask.from_string(
             """
             # # .
@@ -29,7 +41,24 @@ def test_extract_masked_area_functions(dummy_target):
             """
         )
     )
-    wrong_size_mask_arg = Source.from_scalar(
+
+
+@pytest.fixture
+def mask_2():
+    return Source.from_scalar(
+        Mask.from_string(
+            """
+            # # #
+            # . .
+            # . .
+            """
+        )
+    )
+
+
+@pytest.fixture
+def mask_wrong_size():
+    return Source.from_scalar(
         Mask.from_string(
             """
             # #
@@ -37,9 +66,30 @@ def test_extract_masked_area_functions(dummy_target):
             """
         )
     )
-    graph = Graph(dummy_target)
-    graph.add({grid_arg, mask_arg, wrong_size_mask_arg})
 
+
+@pytest.fixture
+def graph(target, grid, mask_1, mask_2, mask_wrong_size):
+    graph = Graph(target)
+    graph.add({grid, mask_1, mask_2, mask_wrong_size})
+    return graph
+
+
+def test_extract_masked_area_functions(graph, grid, mask_1, mask_2):
     functions = extract_masked_area_functions(graph)
 
-    assert functions == {Function(vectorize(extract_masked_area), grid_arg, mask_arg)}
+    assert functions == {
+        Function(vectorize(extract_masked_area), grid, mask_1),
+        Function(vectorize(extract_masked_area), grid, mask_2),
+    }
+
+
+def test_set_mask_to_color_functions(graph, grid, mask_1, mask_2):
+    functions = set_mask_to_color_functions(graph)
+
+    assert functions == {
+        Function(vectorize(set_mask_to_color), grid, mask_1, Constant(1)),
+        Function(vectorize(set_mask_to_color), grid, mask_2, Constant(1)),
+        Function(vectorize(set_mask_to_color), grid, mask_1, Constant(2)),
+        Function(vectorize(set_mask_to_color), grid, mask_2, Constant(2)),
+    }

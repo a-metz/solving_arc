@@ -64,6 +64,17 @@ def split_mask_islands_functions(graph):
     return {Function(vectorize(split_mask_islands), arg) for arg in graph.scalars(Mask)}
 
 
+def set_mask_to_color_functions(graph):
+    return {
+        Function(vectorize(set_mask_to_color), grid_arg, mask_arg, Constant(color))
+        for grid_arg, mask_arg in product(graph.scalars(Grid), graph.scalars(Mask))
+        if shape(grid_arg()) == shape(mask_arg())
+        # heuristic: if target has different shape
+        and shape(grid_arg()) != shape(graph.target)
+        for color in used_colors(graph.target)
+    }
+
+
 def extract_masked_area_functions(graph):
     return {
         Function(vectorize(extract_masked_area), grid_arg, mask_arg)
@@ -136,6 +147,8 @@ def symmetry_functions(graph):
 
 # break naming conventions for consistent decorator naming
 class vectorize:
+    """vectorize decorator with hash only dependent on wrapped function"""
+
     def __init__(self, func):
         self.func = func
         self.__name__ = self.func.__name__
