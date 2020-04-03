@@ -1,6 +1,3 @@
-from itertools import repeat
-
-
 class _Node:
     def __eq__(self, other):
         return isinstance(other, self.__class__) and hash(self) == hash(other)
@@ -66,10 +63,13 @@ class Source(_Value):
 
 
 class Constant(_Value):
-    def __init__(self, value):
-        super().__init__(value)
-        self.value_sequence = repeat(value)
+    """endlessly iterate over value so instance can be used as argument for vectorized functions"""
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return self.value
 
     def __call__(self, use_cache=True):
-        """return color wrapped in iterator for use as arguments for vectorized operations"""
-        return self.value_sequence
+        return self
