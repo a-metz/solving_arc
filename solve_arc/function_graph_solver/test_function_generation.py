@@ -1,68 +1,77 @@
 import pytest
 
 from .function_generation import *
+from .vectorize import *
 from .sampling_search import Graph, Source
 
 
 @pytest.fixture
 def target():
-    return (
+    return repeat_once(
         Grid.from_string(
             """
             1 2
             1 1
             """
-        ),
+        )
     )
 
 
 @pytest.fixture
 def grid():
-    return Source.from_scalar(
-        Grid.from_string(
-            """
-            1 2 3
-            4 5 6
-            7 8 9
-            """
+    return Source(
+        repeat_once(
+            Grid.from_string(
+                """
+                1 2 3
+                4 5 6
+                7 8 9
+                """
+            )
         )
     )
 
 
 @pytest.fixture
 def mask_1():
-    return Source.from_scalar(
-        Mask.from_string(
-            """
-            # # .
-            . # #
-            . . #
-            """
+    return Source(
+        repeat_once(
+            Mask.from_string(
+                """
+                # # .
+                . # #
+                . . #
+                """
+            )
         )
     )
 
 
 @pytest.fixture
 def mask_2():
-    return Source.from_scalar(
-        Mask.from_string(
-            """
-            # # #
-            # . .
-            # . .
-            """
+    return Source(
+        repeat_once(
+            Mask.from_string(
+                """
+                # # #
+                # . .
+                # . .
+                """
+            )
         )
     )
 
 
 @pytest.fixture
 def mask_wrong_size():
-    return Source.from_scalar(
-        Mask.from_string(
-            """
-            # #
-            # #
-            """
+    return Source(
+        repeat_once(
+            Mask.from_string(
+                """
+                # #
+                # #
+                """
+            )
         )
     )
 
@@ -87,8 +96,8 @@ def test_set_mask_to_color_functions(graph, grid, mask_1, mask_2):
     functions = set_mask_to_color_functions(graph)
 
     assert functions == {
-        Function(vectorize(set_mask_to_color), grid, mask_1, Constant(1)),
-        Function(vectorize(set_mask_to_color), grid, mask_2, Constant(1)),
-        Function(vectorize(set_mask_to_color), grid, mask_1, Constant(2)),
-        Function(vectorize(set_mask_to_color), grid, mask_2, Constant(2)),
+        Function(vectorize(set_mask_to_color), grid, mask_1, Constant(repeat_once(1))),
+        Function(vectorize(set_mask_to_color), grid, mask_2, Constant(repeat_once(1))),
+        Function(vectorize(set_mask_to_color), grid, mask_1, Constant(repeat_once(2))),
+        Function(vectorize(set_mask_to_color), grid, mask_2, Constant(repeat_once(2))),
     }

@@ -1,7 +1,8 @@
 from itertools import product, combinations
 
-from .graph import Function, Constant
 from ..language import *
+from .graph import Function, Constant
+from .vectorize import *
 
 
 def generate_functions(graph):
@@ -23,9 +24,9 @@ def generate_functions(graph):
 
 def map_color_functions(graph):
     return {
-        Function(vectorize(map_color), arg, Constant(from_color), Constant(to_color))
+        Function(vectorize(map_color), arg, Constant(repeat(a)), Constant(repeat(b)))
         for arg in graph.scalars(Grid)
-        for from_color, to_color in product(
+        for a, b in product(
             used_colors(arg()),
             # heuristic: only map to colors used in target
             used_colors(graph.target),
@@ -35,7 +36,7 @@ def map_color_functions(graph):
 
 def swap_color_functions(graph):
     return {
-        Function(vectorize(switch_color), arg, Constant(a), Constant(b))
+        Function(vectorize(switch_color), arg, Constant(repeat(a)), Constant(repeat(b)))
         for arg in graph.scalars(Grid)
         if not (isinstance(arg, Function) and arg.operation == vectorize(switch_color))
         for a, b in combinations(used_colors(arg()), 2)
@@ -44,7 +45,7 @@ def swap_color_functions(graph):
 
 def mask_for_color_functions(graph):
     return {
-        Function(vectorize(mask_for_color), arg, Constant(color))
+        Function(vectorize(mask_for_color), arg, Constant(repeat(color)))
         for arg in graph.scalars(Grid)
         for color in used_colors(arg())
     }
@@ -52,7 +53,7 @@ def mask_for_color_functions(graph):
 
 def mask_for_all_colors_functions(graph):
     return {
-        Function(vectorize(mask_for_all_colors), arg, Constant(color))
+        Function(vectorize(mask_for_all_colors), arg, Constant(repeat(color)))
         for arg in graph.scalars(Grid)
         for color in used_colors(arg())
         # 2 colors or less is covered by mask_for_color_functions
@@ -66,7 +67,7 @@ def split_mask_islands_functions(graph):
 
 def set_mask_to_color_functions(graph):
     return {
-        Function(vectorize(set_mask_to_color), grid_arg, mask_arg, Constant(color))
+        Function(vectorize(set_mask_to_color), grid_arg, mask_arg, Constant(repeat(color)))
         for grid_arg, mask_arg in product(graph.scalars(Grid), graph.scalars(Mask))
         if shape(grid_arg()) == shape(mask_arg())
         # heuristic: if target has different shape
@@ -98,17 +99,17 @@ def extract_masked_areas_functions(graph):
 
 def extract_islands_functions(graph):
     return {
-        Function(vectorize(extract_islands), arg, Constant(color))
+        Function(vectorize(extract_islands), arg, Constant(repeat(color)))
         for arg in graph.scalars(Grid)
         # heuristic: if target has different shape
-        if shape(arg.value) != shape(graph.target)
+        if shape(arg()) != shape(graph.target)
         for color in used_colors(arg())
     }
 
 
 def extract_color_patches_functions(graph):
     return {
-        Function(vectorize(extract_color_patches), arg, Constant(color))
+        Function(vectorize(extract_color_patches), arg, Constant(repeat(color)))
         for arg in graph.scalars(Grid)
         # heuristic: if target has different shape
         if shape(arg()) != shape(graph.target)
@@ -118,7 +119,7 @@ def extract_color_patches_functions(graph):
 
 def extract_color_patch_functions(graph):
     return {
-        Function(vectorize(extract_color_patch), arg, Constant(color))
+        Function(vectorize(extract_color_patch), arg, Constant(repeat(color)))
         for arg in graph.scalars(Grid)
         # heuristic: if target has different shape
         if shape(arg()) != shape(graph.target)
@@ -140,34 +141,10 @@ def symmetry_functions(graph):
     for arg in graph.scalars(Grid):
         functions.add(Function(vectorize(flip_up_down), arg))
         functions.add(Function(vectorize(flip_left_right), arg))
-        functions.add(Function(vectorize(rotate), arg, Constant(1)))
-        functions.add(Function(vectorize(rotate), arg, Constant(2)))
-        functions.add(Function(vectorize(rotate), arg, Constant(3)))
+        functions.add(Function(vectorize(rotate), arg, Constant(repeat(1))))
+        functions.add(Function(vectorize(rotate), arg, Constant(repeat(2))))
+        functions.add(Function(vectorize(rotate), arg, Constant(repeat(3))))
     return functions
-
-
-# break naming conventions for consistent decorator naming
-class vectorize:
-    """vectorize decorator with hash only dependent on wrapped function"""
-
-    def __init__(self, func):
-        self.func = func
-        self.__name__ = self.func.__name__
-
-    def __call__(self, *arg_tuples):
-        return tuple(self.func(*args) for args in zip(*arg_tuples))
-
-    def __str__(self):
-        return self.func.__name__
-
-    def __repr__(self):
-        return "vectorize({})".format(self.func.__name__)
-
-    def __eq__(self, other):
-        return isinstance(other, self.__class__) and hash(self) == hash(other)
-
-    def __hash__(self):
-        return hash(self.func)
 
 
 def used_colors(grid_tuple):
@@ -198,7 +175,8 @@ def is_matching_shape_pair(values_tuple, type_a, type_b):
 
 def unpack(args, num_elements):
     return {
-        (Function(get_item, arg, Constant(index)) for index in range(num_elements)) for arg in args
+        (Function(get_item, arg, Constant(repeat(index))) for index in range(num_elements))
+        for arg in args
     }
 
 

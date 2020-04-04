@@ -49,11 +49,23 @@ def is_sequence(node, type_):
 
 
 class _Node:
+    def __call__(self, use_cache=True):
+        return None
+
+    def __str__(self):
+        raise NotImplementedError()
+
+    def __repr__(self):
+        raise NotImplementedError()
+
     def __eq__(self, other):
         return isinstance(other, self.__class__) and hash(self) == hash(other)
 
+    def __hash__(self):
+        raise NotImplementedError()
+
     def operation_count():
-        """ dict of operation: count in """
+        """ dict of operation-count in """
         return {}
 
 
@@ -72,6 +84,15 @@ class Function(_Node):
 
         return self.value
 
+    def operation_count():
+        if not hasattr(self, "_operation_count"):
+            self._operation_count = {self.operation: 1}
+            for arg in self.args:
+                for operation, count in arg.operation_count().items():
+                    self._operation_count[operation] += count
+
+        return self._operation_count
+
     def __str__(self):
         return "{}({})".format(self.operation.__name__, ", ".join(str(arg) for arg in self.args))
 
@@ -85,7 +106,7 @@ class Function(_Node):
         return hash(self.operation) ^ hash(tuple(arg() for arg in self.args))
 
 
-class _Value(_Node):
+class Constant(_Node):
     def __init__(self, value):
         self.value = value
 
@@ -102,11 +123,7 @@ class _Value(_Node):
         return hash(self.value)
 
 
-class Source(_Value):
-    @classmethod
-    def from_scalar(cls, scalar):  # TODO: scalar has a different meaning
-        return cls((scalar,))
-
+class Source(Constant):
     def load(self, value):
         """replace value for transfer of program to different inputs"""
         self.value = value
@@ -114,16 +131,3 @@ class Source(_Value):
     def __str__(self):
         # do not output of grid as that would clutter the output
         return "{}".format(self.__class__.__name__.lower())
-
-
-class Constant(_Value):
-    """endlessly iterate over value so instance can be used as argument for vectorized functions"""
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        return self.value
-
-    def __call__(self, use_cache=True):
-        return self
