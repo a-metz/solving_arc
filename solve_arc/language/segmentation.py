@@ -20,7 +20,7 @@ def extract_color_patches(grid, ignore=0):
     if len(patches) == 1:
         return patches[0]
 
-    return patches
+    return tuple(patches)
 
 
 # to be removed when using a DAG approach
@@ -40,7 +40,7 @@ def mask_for_all_colors(grid, ignore=0):
 
 
 def extract_masked_areas(grid, masks):
-    return [extract_masked_area(grid, mask) for mask in masks]
+    return tuple(extract_masked_area(grid, mask) for mask in masks)
 
 
 def extract_masked_area(grid, mask):
@@ -78,7 +78,7 @@ def extract_islands(grid, ignore=0):
     if len(islands) == 1:
         return islands[0]
 
-    return islands
+    return tuple(islands)
 
 
 def split_mask_islands(mask):
@@ -94,7 +94,7 @@ def split_mask_islands(mask):
     if len(islands) <= 1:
         return None
 
-    return islands
+    return tuple(islands)
 
 
 def _connected_indices(start, candidates):
