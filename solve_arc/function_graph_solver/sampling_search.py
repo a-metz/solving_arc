@@ -11,8 +11,7 @@ from collections import namedtuple
 import logging
 
 from .function_generation import generate_functions
-from .nodes import Source
-from .graph import Graph
+from .graph import Graph, Source
 
 logger = logging.getLogger(__name__)
 

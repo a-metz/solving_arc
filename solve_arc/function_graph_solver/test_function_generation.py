@@ -1,8 +1,7 @@
 import pytest
 
 from .function_generation import *
-from .nodes import Source
-from .sampling_search import Graph
+from .sampling_search import Graph, Source
 
 
 @pytest.fixture

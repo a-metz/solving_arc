@@ -1,6 +1,6 @@
 from itertools import product, combinations
 
-from .nodes import Function, Constant
+from .graph import Function, Constant
 from ..language import *
 
 
@@ -100,7 +100,8 @@ def extract_islands_functions(graph):
     return {
         Function(vectorize(extract_islands), arg, Constant(color))
         for arg in graph.scalars(Grid)
-        if shape(arg.value) != shape(graph.target)  # heuristic: if target has different shape
+        # heuristic: if target has different shape
+        if shape(arg.value) != shape(graph.target)
         for color in used_colors(arg())
     }
 
