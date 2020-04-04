@@ -2,7 +2,7 @@ import pytest
 
 from .function_generation import *
 from .vectorize import *
-from .sampling_search import Graph, Source
+from .nodes import Constant
 
 
 @pytest.fixture
@@ -19,7 +19,7 @@ def target():
 
 @pytest.fixture
 def grid():
-    return Source(
+    return Constant(
         repeat_once(
             Grid.from_string(
                 """
@@ -34,7 +34,7 @@ def grid():
 
 @pytest.fixture
 def mask_1():
-    return Source(
+    return Constant(
         repeat_once(
             Mask.from_string(
                 """
@@ -49,7 +49,7 @@ def mask_1():
 
 @pytest.fixture
 def mask_2():
-    return Source(
+    return Constant(
         repeat_once(
             Mask.from_string(
                 """
@@ -64,7 +64,7 @@ def mask_2():
 
 @pytest.fixture
 def mask_wrong_size():
-    return Source(
+    return Constant(
         repeat_once(
             Mask.from_string(
                 """

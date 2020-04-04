@@ -1,7 +1,8 @@
+from collections import defaultdict
 from itertools import product, combinations
 
 from ..language import *
-from .graph import Function, Constant
+from .nodes import Function, Constant
 from .vectorize import *
 
 
@@ -20,6 +21,33 @@ def generate_functions(graph):
         | symmetry_functions(graph)
     )
     return functions
+
+
+class Graph:
+    def __init__(self, target):
+        self.target = target
+        self.nodes = set()
+
+        # special node types for faster access
+        self._scalars = defaultdict(set)
+        self._sequences = defaultdict(set)
+
+    def add(self, nodes):
+        # filter valid
+        valid_nodes = {node for node in nodes if is_valid(node)}
+        self.nodes |= valid_nodes
+
+        # filter special node types
+        self._scalars[Grid] |= {node for node in valid_nodes if is_scalar(node, Grid)}
+        self._scalars[Mask] |= {node for node in valid_nodes if is_scalar(node, Mask)}
+        self._sequences[Grid] |= {node for node in valid_nodes if is_sequence(node, Grid)}
+        self._sequences[Mask] |= {node for node in valid_nodes if is_sequence(node, Mask)}
+
+    def scalars(self, type_):
+        return self._scalars[type_]
+
+    def sequences(self, type_):
+        return self._sequences[type_]
 
 
 def map_color_functions(graph):
@@ -153,11 +181,6 @@ def used_colors(grid_tuple):
     return set.intersection(*used_colors)
 
 
-@vectorize
-def shape(value):
-    return value.shape
-
-
 def shape_matching_pairs(args, type_a, type_b):
     # TODO: also enumerate all combinations of two scalar grids with same shape
     return {arg for arg in args if is_matching_shape_pair(arg(), type_a, type_b)}
@@ -181,5 +204,25 @@ def unpack(args, num_elements):
 
 
 @vectorize
+def shape(value):
+    return value.shape
+
+
+@vectorize
 def get_item(values, index):
     return values[index]
+
+
+def is_valid(node):
+    return all(element is not None for element in node())
+
+
+def is_scalar(node, type_):
+    return all(isinstance(element, type_) for element in node())
+
+
+def is_sequence(node, type_):
+    return all(
+        hasattr(elements, "__len__") and (isinstance(element, type_) for element in elements)
+        for elements in node()
+    )

@@ -10,8 +10,9 @@ from copy import copy
 from collections import namedtuple
 import logging
 
-from .function_generation import generate_functions
-from .graph import Graph, Source
+from .function_generation import Graph, generate_functions
+from .nodes import Constant
+from .vectorize import repeat_once
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +50,16 @@ def solve(constraints, max_depth):
     return None
 
 
+class Source(Constant):
+    def load(self, value):
+        """replace value for transfer of program to different inputs"""
+        self.value = value
+
+    def __str__(self):
+        # do not output value as that would clutter the output
+        return "{}".format(self.__class__.__name__.lower())
+
+
 class Solution:
     def __init__(self, function, source):
         self.function = function
@@ -56,7 +67,7 @@ class Solution:
 
     def __call__(self, value):
         # run only for single element
-        self.source.load((value,))
+        self.source.load(repeat_once(value))
         return self.function(use_cache=False)[0]
 
     def __str__(self):

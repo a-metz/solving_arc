@@ -1,4 +1,4 @@
-from .graph import *
+from .nodes import *
 
 
 def test_function__lazy_evaluation_and_caching():
