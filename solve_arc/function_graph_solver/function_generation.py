@@ -66,7 +66,7 @@ def switch_color_functions(graph):
     return {
         Function(vectorize(switch_color), arg, Constant(repeat(a)), Constant(repeat(b)))
         for arg in graph.scalars(Grid)
-        if not (isinstance(arg, Function) and arg.operation == vectorize(switch_color))
+        if not (isinstance(arg, Function) and arg.callable_ == vectorize(switch_color))
         for a, b in combinations(used_colors(arg()), 2)
     }
 
