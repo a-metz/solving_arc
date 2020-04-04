@@ -101,18 +101,18 @@ def test_function__hash_of_chained_functions():
     arg_a = Constant(2)
     arg_b = Constant(3)
     arg_c = Constant(5)
+    reference = Function(add, arg_a, Function(multiply, arg_b, arg_c))
 
-    # same twice function instantiated
-    assert hash(Function(add, arg_a, Function(multiply, arg_b, arg_c))) == hash(
-        Function(add, arg_a, Function(multiply, arg_b, arg_c))
-    )
+    # same function instantiated twice
+    assert hash(Function(add, arg_a, Function(multiply, arg_b, arg_c))) == hash(reference)
 
     # different inner function
-    assert hash(Function(add, arg_a, Function(add, arg_b, arg_c))) != hash(
-        Function(add, arg_a, Function(multiply, arg_b, arg_c))
-    )
+    assert hash(Function(add, arg_a, Function(add, arg_b, arg_c))) != hash(reference)
 
     # different inner value
-    assert hash(Function(add, arg_a, Function(multiply, arg_a, arg_c))) != hash(
-        Function(add, arg_a, Function(multiply, arg_b, arg_c))
-    )
+    assert hash(Function(add, arg_a, Function(multiply, arg_a, arg_c))) != hash(reference)
+
+    # different inner function but same resulting value
+    arg_d = Constant(1)
+    arg_e = Constant(15)
+    assert hash(Function(add, arg_a, Function(multiply, arg_d, arg_e))) == hash(reference)
