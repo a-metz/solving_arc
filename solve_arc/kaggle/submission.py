@@ -5,7 +5,7 @@ import click
 import numpy as np
 
 
-from ..state_tree_solver.tree_search import solve, Constraint
+from ..function_graph_solver.sampling_search import solve, Constraint
 from ..language import Grid
 from .dataset import load_tasks
 from .timeout import timeout
