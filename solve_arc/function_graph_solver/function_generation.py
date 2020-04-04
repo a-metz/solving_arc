@@ -8,7 +8,7 @@ from .vectorize import *
 
 def generate_functions(graph):
     functions = (
-        swap_color_functions(graph)
+        switch_color_functions(graph)
         | map_color_functions(graph)
         | mask_for_color_functions(graph)
         | mask_for_all_colors_functions(graph)
@@ -62,7 +62,7 @@ def map_color_functions(graph):
     }
 
 
-def swap_color_functions(graph):
+def switch_color_functions(graph):
     return {
         Function(vectorize(switch_color), arg, Constant(repeat(a)), Constant(repeat(b)))
         for arg in graph.scalars(Grid)
