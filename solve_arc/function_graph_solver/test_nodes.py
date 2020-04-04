@@ -31,13 +31,28 @@ def test_function__lazy_evaluation_with_multiple_arguments():
     def add_second_times_three(a, b):
         return a + (3 * b)
 
-    arg_a = Constant(0)
-    arg_b = Constant(0)
+    arg_a = Constant(None)
+    arg_b = Constant(None)
     function = Function(add_second_times_three, arg_a, arg_b)
-
-    # modify constant value after creating function to check lazy evaluation
+    # modify values after creating function to check lazy evaluation
     arg_a.value = 2
     arg_b.value = 5
+
+    assert function() == 2 + (3 * 5)
+
+
+def test_function__evaluation_of_chained_function():
+    def add(a, b):
+        return a + b
+
+    def multiply(a, b):
+        return a * b
+
+    arg_a = Constant(2)
+    arg_b = Constant(3)
+    arg_c = Constant(5)
+    function = Function(add, arg_a, Function(multiply, arg_b, arg_c))
+
     assert function() == 2 + (3 * 5)
 
 
@@ -55,15 +70,17 @@ def test_function__hash_equality():
 
     arg = Constant(0)
 
+    # single function
     assert hash(Function(func)) == hash(Function(func))
+    assert hash(Function(func, arg)) == hash(Function(func, arg))
     assert hash(Function(func, arg)) == hash(Function(func, arg))
 
 
 def test_function__hash_inequality():
-    def func_a(a, b):
+    def func_a(*args):
         pass
 
-    def func_b(a, b):
+    def func_b(*args):
         pass
 
     arg_a = Constant(0)
@@ -72,3 +89,30 @@ def test_function__hash_inequality():
     assert hash(Function(func_a)) != hash(Function(func_b))
     assert hash(Function(func_a, arg_a)) != hash(Function(func_b, arg_b))
     assert hash(Function(func_a, arg_a, arg_b)) != hash(Function(func_b, arg_b, arg_a))
+
+
+def test_function__hash_of_chained_functions():
+    def add(a, b):
+        return a + b
+
+    def multiply(a, b):
+        return a * b
+
+    arg_a = Constant(2)
+    arg_b = Constant(3)
+    arg_c = Constant(5)
+
+    # same twice function instantiated
+    assert hash(Function(add, arg_a, Function(multiply, arg_b, arg_c))) == hash(
+        Function(add, arg_a, Function(multiply, arg_b, arg_c))
+    )
+
+    # different inner function
+    assert hash(Function(add, arg_a, Function(add, arg_b, arg_c))) != hash(
+        Function(add, arg_a, Function(multiply, arg_b, arg_c))
+    )
+
+    # different inner value
+    assert hash(Function(add, arg_a, Function(multiply, arg_a, arg_c))) != hash(
+        Function(add, arg_a, Function(multiply, arg_b, arg_c))
+    )
