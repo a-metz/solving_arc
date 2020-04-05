@@ -67,7 +67,7 @@ def map_color_functions(graph):
         for a, b in product(
             used_colors(node()),
             # heuristic: only map to colors used in target
-            used_colors(graph.tnodeet),
+            used_colors(graph.target),
         )
         if a != b
     }

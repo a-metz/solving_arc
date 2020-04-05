@@ -4,7 +4,7 @@ import logging
 
 from .function_generation import Graph, generate_functions
 from .nodes import Constant
-from .vectorize import repeat_once
+from .vectorize import repeat_once, Vector
 
 logger = logging.getLogger(__name__)
 
@@ -12,8 +12,8 @@ Constraint = namedtuple("Constraint", ["source", "target"])
 
 
 def solve(constraints, max_depth):
-    source, target = zip(*constraints)
-    source_node = Source(source)
+    target = Vector(constraint.target for constraint in constraints)
+    source_node = Source(Vector(constraint.source for constraint in constraints))
 
     if source_node() == target:
         return Solution(source_node, source_node)
