@@ -5,7 +5,7 @@ import json
 from schema import Schema, Use, And
 import numpy as np
 
-from ..language.grid import Grid
+from ..language import Grid
 
 Task = collections.namedtuple("Task", ["train", "test"])
 Subtask = collections.namedtuple("Subtask", ["input", "output"])

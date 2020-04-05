@@ -3,8 +3,7 @@ from functools import reduce
 
 import numpy as np
 
-from .grid import Grid, Selection
-
+from .arguments import *
 
 # to be removed when using a DAG approach
 def extract_color_patches(grid, ignore=0):
@@ -15,13 +14,13 @@ def extract_color_patches(grid, ignore=0):
             if patch is not None:
                 patches.append(patch)
 
-    if len(patches) == 0:
-        return None
-
     if len(patches) == 1:
         return patches[0]
 
-    return tuple(patches)
+    if len(patches) == 0:
+        return None
+
+    return Grids(patches)
 
 
 # to be removed when using a DAG approach
@@ -41,7 +40,7 @@ def select_all_colors(grid, ignore=0):
 
 
 def extract_selected_areas(grid, selections):
-    return tuple(extract_selected_area(grid, selection) for selection in selections)
+    return Grids(extract_selected_area(grid, selection) for selection in selections)
 
 
 def extract_selected_area(grid, selection):
@@ -70,7 +69,7 @@ def extract_islands(grid, ignore=0):
 
     selection_islands = split_selection_into_connected_areas(selection)
 
-    # if no selection return
+    # if no selection islands extract single selection
     if selection_islands is None:
         selection_islands = [selection]
 
@@ -83,7 +82,10 @@ def extract_islands(grid, ignore=0):
     if len(islands) == 1:
         return islands[0]
 
-    return tuple(islands)
+    if len(islands) == 0:
+        return None
+
+    return Grids(islands)
 
 
 def split_selection_into_connected_areas(selection):
@@ -107,7 +109,7 @@ def _split_selection_into_connected_areas(selection, get_neighbors):
     if len(areas) <= 1:
         return None
 
-    return tuple(areas)
+    return Selections(areas)
 
 
 def _connected_indices(start, candidates, get_neighbors):
@@ -150,11 +152,13 @@ def _get_neighbors_no_diag(index):
 
 
 def filter_selections_touching_edge(selections):
-    return tuple(selection for selection in selections if _is_selection_touching_edge(selection))
+    return Selections(
+        selection for selection in selections if _is_selection_touching_edge(selection)
+    )
 
 
 def filter_selections_not_touching_edge(selections):
-    return tuple(
+    return Selections(
         selection for selection in selections if not _is_selection_touching_edge(selection)
     )
 

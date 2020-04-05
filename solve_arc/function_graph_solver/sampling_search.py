@@ -24,7 +24,7 @@ def solve(constraints, max_depth):
     for _ in range(max_depth):
         # only consider nodes not yet in graph
         generated_nodes = generate_functions(graph)
-        new_nodes = generate_functions(graph) - graph.nodes
+        new_nodes = generate_functions(graph) - graph.nodes()
 
         # check for solution
         for node in new_nodes:
@@ -37,7 +37,7 @@ def solve(constraints, max_depth):
             "nodes generated: %d, new: %d, total: %d",
             len(generated_nodes),
             len(new_nodes),
-            len(graph.nodes),
+            len(graph.nodes()),
         )
 
     return None

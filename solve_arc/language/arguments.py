@@ -104,3 +104,28 @@ class Selection(_Base):
 
 def filtered_elements(string):
     return (line.strip().split() for line in string.splitlines() if len(line.strip()) > 0)
+
+
+class _Sequence(tuple):
+    def __new__(cls, *args):
+        # allow creation with multiple arguments as elements
+        if len(args) > 1:
+            return super(_Sequence, cls).__new__(cls, args)
+
+        return super(_Sequence, cls).__new__(cls, *args)
+
+    def __str__(self):
+        return "{}({})".format(self.__class__.__name__, ", ".join(str(element) for element in self))
+
+    def __repr__(self):
+        return "{}({})".format(
+            self.__class__.__name__, ", ".join(repr(element) for element in self)
+        )
+
+
+class Grids(_Sequence):
+    pass
+
+
+class Selections(_Sequence):
+    pass

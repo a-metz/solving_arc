@@ -1,6 +1,6 @@
 import pytest
 
-from .grid import *
+from .arguments import *
 from .color import *
 
 

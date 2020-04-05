@@ -47,7 +47,7 @@ def test_solve__single_colorswap():
 
 
 def test_solve__single_xor():
-    source = (Grid([[1, 0, 0]]), Grid([[1, 1, 0]]))
+    source = Grids(Grid([[1, 0, 0]]), Grid([[1, 1, 0]]))
     target = Grid([[0, 1, 0]])
     constraints = [Constraint(source, target)]
 
@@ -86,8 +86,8 @@ def test_solve__single_colorswap__multiple_contraints():
 
 def test_solve__single_xor__multiple_contraints():
     constraints = [
-        Constraint(source=(Grid([[1, 0, 0]]), Grid([[1, 1, 0]])), target=Grid([[0, 1, 0]])),
-        Constraint(source=(Grid([[0, 1, 1]]), Grid([[1, 1, 0]])), target=Grid([[1, 0, 1]])),
+        Constraint(source=Grids(Grid([[1, 0, 0]]), Grid([[1, 1, 0]])), target=Grid([[0, 1, 0]])),
+        Constraint(source=Grids(Grid([[0, 1, 1]]), Grid([[1, 1, 0]])), target=Grid([[1, 0, 1]])),
     ]
 
     solution = solve(constraints, max_depth=1)

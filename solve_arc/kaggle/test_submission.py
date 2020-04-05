@@ -1,6 +1,6 @@
 import pytest
 
-from ..language.grid import Grid
+from ..language import Grid
 from .submission import *
 
 

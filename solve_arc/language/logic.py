@@ -1,6 +1,6 @@
 import numpy as np
 
-from .grid import Grid
+from .arguments import *
 
 
 def elementwise_equal_and(a, b):

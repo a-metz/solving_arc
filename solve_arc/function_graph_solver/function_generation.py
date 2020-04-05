@@ -39,34 +39,31 @@ def generate_functions(graph):
 class Graph:
     def __init__(self, target):
         self.target = target
-        self.nodes = set()
+        self._nodes = set()
 
         # special node types for faster access
-        self._scalars = defaultdict(set)
-        self._sequences = defaultdict(set)
+        self._by_type = defaultdict(set)
 
     def add(self, nodes):
         # filter valid
         valid_nodes = {node for node in nodes if is_valid(node)}
-        self.nodes |= valid_nodes
+        self._nodes |= valid_nodes
 
-        # filter special node types
-        self._scalars[Grid] |= {node for node in valid_nodes if is_scalar(node, Grid)}
-        self._scalars[Selection] |= {node for node in valid_nodes if is_scalar(node, Selection)}
-        self._sequences[Grid] |= {node for node in valid_nodes if is_sequence(node, Grid)}
-        self._sequences[Selection] |= {node for node in valid_nodes if is_sequence(node, Selection)}
+        # collect by node types
+        for node in valid_nodes:
+            self._by_type[get_type(node)].add(node)
 
-    def scalars(self, type_):
-        return self._scalars[type_]
+    def nodes(self, type_=None):
+        if type_ is None:
+            return self._nodes
 
-    def sequences(self, type_):
-        return self._sequences[type_]
+        return self._by_type[type_]
 
 
 def map_color_functions(graph):
     return {
         Function(vectorize(map_color), arg, Constant(repeat(a)), Constant(repeat(b)))
-        for arg in graph.scalars(Grid)
+        for arg in graph.nodes(Grid)
         for a, b in product(
             used_colors(arg()),
             # heuristic: only map to colors used in target
@@ -79,7 +76,7 @@ def map_color_functions(graph):
 def switch_color_functions(graph):
     return {
         Function(vectorize(switch_color), arg, Constant(repeat(a)), Constant(repeat(b)))
-        for arg in graph.scalars(Grid)
+        for arg in graph.nodes(Grid)
         if not (isinstance(arg, Function) and arg.callable_ == vectorize(switch_color))
         for a, b in combinations(used_colors(arg()), 2)
     }
@@ -88,7 +85,7 @@ def switch_color_functions(graph):
 def select_color_functions(graph):
     return {
         Function(vectorize(select_color), arg, Constant(repeat(color)))
-        for arg in graph.scalars(Grid)
+        for arg in graph.nodes(Grid)
         for color in used_colors(arg())
     }
 
@@ -96,7 +93,7 @@ def select_color_functions(graph):
 def select_all_colors_functions(graph):
     return {
         Function(vectorize(select_all_colors), arg, Constant(repeat(color)))
-        for arg in graph.scalars(Grid)
+        for arg in graph.nodes(Grid)
         for color in used_colors(arg())
         # 2 colors or less is covered by select_color_functions
         if len(used_colors(arg())) > 2
@@ -105,7 +102,7 @@ def select_all_colors_functions(graph):
 
 def split_selection_into_connected_areas_functions(graph):
     functions = set()
-    for arg in graph.scalars(Selection):
+    for arg in graph.nodes(Selection):
         functions.add(Function(vectorize(split_selection_into_connected_areas), arg))
         functions.add(Function(vectorize(split_selection_into_connected_areas_no_diagonals), arg))
     return functions
@@ -113,7 +110,7 @@ def split_selection_into_connected_areas_functions(graph):
 
 def filter_selections_functions(graph):
     functions = set()
-    for arg in graph.sequences(Selection):
+    for arg in graph.nodes(Selections):
         functions.add(Function(vectorize(filter_selections_touching_edge), arg))
         functions.add(Function(vectorize(filter_selections_not_touching_edge), arg))
     return functions
@@ -122,7 +119,7 @@ def filter_selections_functions(graph):
 def merge_selections_functions(graph):
     return {
         Function(vectorize(merge_selections), selections)
-        for selections in graph.sequences(Selection)
+        for selections in graph.nodes(Selections)
         if is_matching_shape(selections)
     }
 
@@ -130,7 +127,7 @@ def merge_selections_functions(graph):
 def set_selected_to_color_functions(graph):
     return {
         Function(vectorize(set_selected_to_color), grid_arg, selection_arg, Constant(repeat(color)))
-        for grid_arg, selection_arg in product(graph.scalars(Grid), graph.scalars(Selection))
+        for grid_arg, selection_arg in product(graph.nodes(Grid), graph.nodes(Selection))
         if shape(grid_arg()) == shape(selection_arg())
         for color in used_colors(graph.target)
     }
@@ -139,7 +136,7 @@ def set_selected_to_color_functions(graph):
 def extract_selected_area_functions(graph):
     return {
         Function(vectorize(extract_selected_area), grid_arg, selection_arg)
-        for grid_arg, selection_arg in product(graph.scalars(Grid), graph.scalars(Selection))
+        for grid_arg, selection_arg in product(graph.nodes(Grid), graph.nodes(Selection))
         if shape(grid_arg()) == shape(selection_arg())
         # heuristic: if target has different shape
         and shape(grid_arg()) != shape(graph.target)
@@ -149,8 +146,8 @@ def extract_selected_area_functions(graph):
 def extract_selected_areas_functions(graph):
     return {
         Function(vectorize(extract_selected_areas), grid_arg, selections_arg)
-        for grid_arg, selections_arg in product(graph.scalars(Grid), graph.sequences(Selection))
-        # can only process sequences of length 2 further
+        for grid_arg, selections_arg in product(graph.nodes(Grid), graph.nodes(Selections))
+        # can only process nodes ofs length 2 further
         if is_matching_shape(selections_arg) and shape(grid_arg()) == shape(selections_arg()[0])
         # heuristic: if target has different shape
         and shape(grid_arg()) != shape(graph.target)
@@ -160,7 +157,7 @@ def extract_selected_areas_functions(graph):
 def extract_islands_functions(graph):
     return {
         Function(vectorize(extract_islands), arg, Constant(repeat(color)))
-        for arg in graph.scalars(Grid)
+        for arg in graph.nodes(Grid)
         # heuristic: if target has different shape
         if shape(arg()) != shape(graph.target)
         for color in used_colors(arg())
@@ -170,7 +167,7 @@ def extract_islands_functions(graph):
 def extract_color_patches_functions(graph):
     return {
         Function(vectorize(extract_color_patches), arg, Constant(repeat(color)))
-        for arg in graph.scalars(Grid)
+        for arg in graph.nodes(Grid)
         # heuristic: if target has different shape
         if shape(arg()) != shape(graph.target)
         for color in used_colors(arg())
@@ -180,7 +177,7 @@ def extract_color_patches_functions(graph):
 def extract_color_patch_functions(graph):
     return {
         Function(vectorize(extract_color_patch), arg, Constant(repeat(color)))
-        for arg in graph.scalars(Grid)
+        for arg in graph.nodes(Grid)
         # heuristic: if target has different shape
         if shape(arg()) != shape(graph.target)
         for color in used_colors(arg())
@@ -191,7 +188,7 @@ def extract_color_patch_functions(graph):
 # TODO: refactor logical functions to also take graph sequences (?)
 def logic_functions(graph):
     functions = set()
-    for sequence in graph.sequences(Grid):
+    for sequence in graph.nodes(Grids):
         if is_matching_shape_pair(sequence):
             a = Function(get_item, sequence, Constant(repeat(0)))
             b = Function(get_item, sequence, Constant(repeat(1)))
@@ -203,7 +200,7 @@ def logic_functions(graph):
 
 def symmetry_functions(graph):
     functions = set()
-    for arg in graph.scalars(Grid):
+    for arg in graph.nodes(Grid):
         functions.add(Function(vectorize(flip_up_down), arg))
         functions.add(Function(vectorize(flip_left_right), arg))
         functions.add(Function(vectorize(rotate), arg, Constant(repeat(1))))
@@ -248,12 +245,12 @@ def is_valid(node):
     return all(element is not None for element in node())
 
 
-def is_scalar(node, type_):
-    return all(isinstance(element, type_) for element in node())
+def get_type(node):
+    vector_iter = iter(node())
+    value_type = type(next(vector_iter))
 
+    # only valid if all are equal
+    if not all(value_type == type(element) for element in vector_iter):
+        return None
 
-def is_sequence(node, type_):
-    return all(
-        hasattr(elements, "__len__") and all(isinstance(element, type_) for element in elements)
-        for elements in node()
-    )
+    return value_type

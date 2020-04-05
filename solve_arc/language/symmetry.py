@@ -1,6 +1,6 @@
 import numpy as np
 
-from .grid import Grid
+from .arguments import *
 
 
 def flip_up_down(grid):

@@ -1,6 +1,6 @@
 import numpy as np
 
-from .grid import *
+from .arguments import *
 
 
 def switch_color(grid, a, b):

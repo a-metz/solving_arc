@@ -1,6 +1,6 @@
 import pytest
 
-from .grid import Grid
+from .arguments import *
 from .logic import *
 
 

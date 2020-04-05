@@ -1,5 +1,5 @@
 from .loader import *
-from ..language.grid import Grid
+from ..language import Grid
 
 
 def test_dimensions():
