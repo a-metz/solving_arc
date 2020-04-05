@@ -93,17 +93,17 @@ def split_mask_into_connected_areas_no_diagonals(mask):
 def _split_mask_into_connected_areas(mask, get_neighbors):
     unassigned = {tuple(index) for index in np.argwhere(mask.state)}
 
-    islands = []
+    areas = []
     while len(unassigned) > 0:
         connected, unassigned = _connected_indices(unassigned.pop(), unassigned, get_neighbors)
-        island = Mask.from_indices(mask.shape, list(connected))
-        islands.append(island)
+        area = Mask.from_indices(mask.shape, list(connected))
+        areas.append(area)
 
-    # only a single island means this was a pointless operation, just use original mask instead
-    if len(islands) <= 1:
+    # only a single area means this was a pointless operation, just use original mask instead
+    if len(areas) <= 1:
         return None
 
-    return tuple(islands)
+    return tuple(areas)
 
 
 def _connected_indices(start, candidates, get_neighbors):
