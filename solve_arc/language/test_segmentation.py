@@ -116,8 +116,8 @@ def test_extract_color_patches(patches_grid):
 
 
 @pytest.fixture
-def example_mask():
-    return Mask.from_string(
+def example_selection():
+    return Selection.from_string(
         """
         # . . . . .
         . # # . # #
@@ -130,11 +130,11 @@ def example_mask():
     )
 
 
-def test_split_mask_into_connected_areas(example_mask):
-    areas = split_mask_into_connected_areas(example_mask)
+def test_split_selection_into_connected_areas(example_selection):
+    areas = split_selection_into_connected_areas(example_selection)
 
     assert set(areas) == {
-        Mask.from_string(
+        Selection.from_string(
             """
             # . . . . .
             . # # . . .
@@ -145,7 +145,7 @@ def test_split_mask_into_connected_areas(example_mask):
             . . . . . .
             """
         ),
-        Mask.from_string(
+        Selection.from_string(
             """
             . . . . . .
             . . . . # #
@@ -156,7 +156,7 @@ def test_split_mask_into_connected_areas(example_mask):
             . . . . . .
             """
         ),
-        Mask.from_string(
+        Selection.from_string(
             """
             . . . . . .
             . . . . . .
@@ -170,11 +170,11 @@ def test_split_mask_into_connected_areas(example_mask):
     }
 
 
-def test_split_mask_into_connected_areas_no_diagonals(example_mask):
-    areas = split_mask_into_connected_areas_no_diagonals(example_mask)
+def test_split_selection_into_connected_areas_no_diagonals(example_selection):
+    areas = split_selection_into_connected_areas_no_diagonals(example_selection)
 
     assert set(areas) == {
-        Mask.from_string(
+        Selection.from_string(
             """
             # . . . . .
             . . . . . .
@@ -185,7 +185,7 @@ def test_split_mask_into_connected_areas_no_diagonals(example_mask):
             . . . . . .
             """
         ),
-        Mask.from_string(
+        Selection.from_string(
             """
             . . . . . .
             . # # . . .
@@ -196,7 +196,7 @@ def test_split_mask_into_connected_areas_no_diagonals(example_mask):
             . . . . . .
             """
         ),
-        Mask.from_string(
+        Selection.from_string(
             """
             . . . . . .
             . . . . # #
@@ -207,7 +207,7 @@ def test_split_mask_into_connected_areas_no_diagonals(example_mask):
             . . . . . .
             """
         ),
-        Mask.from_string(
+        Selection.from_string(
             """
             . . . . . .
             . . . . . .
@@ -218,7 +218,7 @@ def test_split_mask_into_connected_areas_no_diagonals(example_mask):
             . . . . . .
             """
         ),
-        Mask.from_string(
+        Selection.from_string(
             """
             . . . . . .
             . . . . . .
@@ -233,20 +233,20 @@ def test_split_mask_into_connected_areas_no_diagonals(example_mask):
 
 
 @pytest.fixture
-def connected_areas_masks(example_mask):
-    """ A sequence of masks with some connected areas
+def connected_areas_selections(example_selection):
+    """ A sequence of selections with some connected areas
     - without diagonal connection
-    - with and without bordering the mask edge
+    - with and without bordering the selection edge
     """
-    return split_mask_into_connected_areas_no_diagonals(example_mask)
+    return split_selection_into_connected_areas_no_diagonals(example_selection)
 
 
-def test_filter_masks_touching_edge(connected_areas_masks):
-    areas = filter_masks_touching_edge(connected_areas_masks)
+def test_filter_selections_touching_edge(connected_areas_selections):
+    areas = filter_selections_touching_edge(connected_areas_selections)
     print("\n\n".join(str(area) for area in areas))
 
     assert set(areas) == {
-        Mask.from_string(
+        Selection.from_string(
             """
             # . . . . .
             . . . . . .
@@ -257,7 +257,7 @@ def test_filter_masks_touching_edge(connected_areas_masks):
             . . . . . .
             """
         ),
-        Mask.from_string(
+        Selection.from_string(
             """
             . . . . . .
             . . . . # #
@@ -271,12 +271,12 @@ def test_filter_masks_touching_edge(connected_areas_masks):
     }
 
 
-def test_filter_masks_not_touching_edge(connected_areas_masks):
-    areas = filter_masks_not_touching_edge(connected_areas_masks)
+def test_filter_selections_not_touching_edge(connected_areas_selections):
+    areas = filter_selections_not_touching_edge(connected_areas_selections)
     print("\n\n".join(str(area) for area in areas))
 
     assert set(areas) == {
-        Mask.from_string(
+        Selection.from_string(
             """
             . . . . . .
             . # # . . .
@@ -287,7 +287,7 @@ def test_filter_masks_not_touching_edge(connected_areas_masks):
             . . . . . .
             """
         ),
-        Mask.from_string(
+        Selection.from_string(
             """
             . . . . . .
             . . . . . .
@@ -298,7 +298,7 @@ def test_filter_masks_not_touching_edge(connected_areas_masks):
             . . . . . .
             """
         ),
-        Mask.from_string(
+        Selection.from_string(
             """
             . . . . . .
             . . . . . .
@@ -312,5 +312,5 @@ def test_filter_masks_not_touching_edge(connected_areas_masks):
     }
 
 
-def test_merge_masks(connected_areas_masks, example_mask):
-    assert merge_masks(connected_areas_masks) == example_mask
+def test_merge_selections(connected_areas_selections, example_selection):
+    assert merge_selections(connected_areas_selections) == example_selection

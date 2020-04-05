@@ -16,7 +16,7 @@ def map_color(grid, from_, to):
     return mapped
 
 
-def set_mask_to_color(grid, mask, color):
-    changed = mask.state * color
-    unchanged = grid.state * np.invert(mask.state)
+def set_selected_to_color(grid, selection, color):
+    changed = selection.state * color
+    unchanged = grid.state * np.invert(selection.state)
     return Grid(changed + unchanged)

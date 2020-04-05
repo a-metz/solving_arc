@@ -1,6 +1,3 @@
-from ..language import Grid, Mask
-
-
 class _Node:
     def __call__(self, use_cache=True):
         raise NotImplementedError()

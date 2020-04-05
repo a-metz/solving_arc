@@ -45,19 +45,19 @@ def test_8d5021e8(input_, expected):
 
 
 def test_11852cab(input_, expected):
-    mask = mask_for_all_colors(input_, ignore=0)
-    island = extract_masked_area(input_, mask)
+    selection = select_all_colors(input_, ignore=0)
+    island = extract_selected_area(input_, selection)
     island = elementwise_equal_or(island, rotate(island, num_times=1))
     island = elementwise_equal_or(island, rotate(island, num_times=2))
     pass
 
 
 def test_00d62c1b(input_, expected):
-    mask = mask_for_color(input_, color=0)
-    areas = split_mask_into_connected_areas_no_diagonals(mask)
-    areas = filter_masks_touching_edge(areas)
-    mask = merge_masks(areas)
-    result = set_mask_to_color(input_, mask, color=4)
+    selection = select_color(input_, color=0)
+    areas = split_selection_into_connected_areas_no_diagonals(selection)
+    areas = filter_selections_touching_edge(areas)
+    selection = merge_selections(areas)
+    result = set_selected_to_color(input_, selection, color=4)
 
 
 # def test_31d5ba1a(input_, expected):

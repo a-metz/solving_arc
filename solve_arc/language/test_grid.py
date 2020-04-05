@@ -92,54 +92,54 @@ def test_grid_used_colors():
     assert set(used_colors) == expected_used_colors
 
 
-def test_mask_create_empty():
-    mask = Mask.empty(shape=(5, 5))
+def test_selection_create_empty():
+    selection = Selection.empty(shape=(5, 5))
 
-    assert mask.shape == (5, 5)
-    assert not mask[0, 0]
-
-
-def test_mask_create():
-    mask = Mask([[True, False], [False, True]])
-
-    assert mask.shape == (2, 2)
-    assert mask[0, 0]
-    assert not mask[1, 0]
+    assert selection.shape == (5, 5)
+    assert not selection[0, 0]
 
 
-def test_mask_create__non_boolean():
+def test_selection_create():
+    selection = Selection([[True, False], [False, True]])
+
+    assert selection.shape == (2, 2)
+    assert selection[0, 0]
+    assert not selection[1, 0]
+
+
+def test_selection_create__non_boolean():
     with pytest.raises(AssertionError):
-        mask = Mask([1, 2])
+        selection = Selection([1, 2])
 
     with pytest.raises(AssertionError):
-        mask = Mask([1.0, 2.0])
+        selection = Selection([1.0, 2.0])
 
 
-def test_mask_any():
-    assert Mask([[True, False]]).any()
-    assert not Mask([[False, False]]).any()
+def test_selection_any():
+    assert Selection([[True, False]]).any()
+    assert not Selection([[False, False]]).any()
 
 
-def test_mask_create_from_indices():
-    mask = Mask.from_indices(shape=(3, 2), indices=[(0, 0), (0, 1), (1, 1), (2, 0)])
+def test_selection_create_from_indices():
+    selection = Selection.from_indices(shape=(3, 2), indices=[(0, 0), (0, 1), (1, 1), (2, 0)])
 
-    assert mask.shape == (3, 2)
-    assert mask == Mask([[True, True], [False, True], [True, False]])
+    assert selection.shape == (3, 2)
+    assert selection == Selection([[True, True], [False, True], [True, False]])
 
 
-def test_mask_create_from_string():
+def test_selection_create_from_string():
     string = """
     # #
     # .
     """
 
-    mask = Mask.from_string(string)
+    selection = Selection.from_string(string)
 
-    assert mask == Mask([[True, True], [True, False]])
+    assert selection == Selection([[True, True], [True, False]])
 
 
-def test_mask_string_representation():
-    mask = Mask([[True, True], [True, False]])
+def test_selection_string_representation():
+    selection = Selection([[True, True], [True, False]])
     expected_string = "# #\n# ."
 
-    assert str(mask) == expected_string
+    assert str(selection) == expected_string

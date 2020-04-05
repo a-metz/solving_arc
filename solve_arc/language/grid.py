@@ -69,7 +69,7 @@ class Grid(_Base):
         return "\n".join([" ".join([str(char) for char in row]) for row in self.state])
 
 
-class Mask(_Base):
+class Selection(_Base):
     def __init__(self, state):
         super().__init__(state)
 
@@ -87,7 +87,7 @@ class Mask(_Base):
         flat_indices = np.dot(np.array(indices), np.array([num_colums, 1]))
         flat_state = np.zeros(shape=num_rows * num_colums, dtype=np.bool)
         flat_state[flat_indices] = True
-        return Mask(flat_state.reshape(shape))
+        return Selection(flat_state.reshape(shape))
 
     @classmethod
     def from_string(cls, string):
@@ -95,7 +95,7 @@ class Mask(_Base):
         return cls(elements)
 
     def any(self):
-        """returns whether any element is true in mask"""
+        """returns whether any element is true in selection"""
         return np.any(self.state)
 
     def __str__(self):

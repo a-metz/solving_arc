@@ -101,7 +101,7 @@ def test_solve__single_xor__multiple_contraints():
 # some solution cases:
 
 
-def test_solve__mask_color_and_extract_masked_area__multiple_contraints():
+def test_solve__select_color_and_extract_selected_area__multiple_contraints():
     constraints = [
         Constraint(source=Grid([[1, 2, 1]]), target=Grid([[2]])),
         Constraint(source=Grid([[2, 2, 1]]), target=Grid([[2, 2]])),

@@ -33,10 +33,10 @@ def grid():
 
 
 @pytest.fixture
-def mask_1():
+def selection_1():
     return Constant(
         repeat_once(
-            Mask.from_string(
+            Selection.from_string(
                 """
                 # # .
                 . # #
@@ -48,10 +48,10 @@ def mask_1():
 
 
 @pytest.fixture
-def mask_2():
+def selection_2():
     return Constant(
         repeat_once(
-            Mask.from_string(
+            Selection.from_string(
                 """
                 # # #
                 # . .
@@ -63,10 +63,10 @@ def mask_2():
 
 
 @pytest.fixture
-def mask_wrong_size():
+def selection_wrong_size():
     return Constant(
         repeat_once(
-            Mask.from_string(
+            Selection.from_string(
                 """
                 # #
                 # #
@@ -77,27 +77,27 @@ def mask_wrong_size():
 
 
 @pytest.fixture
-def graph(target, grid, mask_1, mask_2, mask_wrong_size):
+def graph(target, grid, selection_1, selection_2, selection_wrong_size):
     graph = Graph(target)
-    graph.add({grid, mask_1, mask_2, mask_wrong_size})
+    graph.add({grid, selection_1, selection_2, selection_wrong_size})
     return graph
 
 
-def test_extract_masked_area_functions(graph, grid, mask_1, mask_2):
-    functions = extract_masked_area_functions(graph)
+def test_extract_selected_area_functions(graph, grid, selection_1, selection_2):
+    functions = extract_selected_area_functions(graph)
 
     assert functions == {
-        Function(vectorize(extract_masked_area), grid, mask_1),
-        Function(vectorize(extract_masked_area), grid, mask_2),
+        Function(vectorize(extract_selected_area), grid, selection_1),
+        Function(vectorize(extract_selected_area), grid, selection_2),
     }
 
 
-def test_set_mask_to_color_functions(graph, grid, mask_1, mask_2):
-    functions = set_mask_to_color_functions(graph)
+def test_set_selected_to_color_functions(graph, grid, selection_1, selection_2):
+    functions = set_selected_to_color_functions(graph)
 
     assert functions == {
-        Function(vectorize(set_mask_to_color), grid, mask_1, Constant(repeat_once(1))),
-        Function(vectorize(set_mask_to_color), grid, mask_2, Constant(repeat_once(1))),
-        Function(vectorize(set_mask_to_color), grid, mask_1, Constant(repeat_once(2))),
-        Function(vectorize(set_mask_to_color), grid, mask_2, Constant(repeat_once(2))),
+        Function(vectorize(set_selected_to_color), grid, selection_1, Constant(repeat_once(1))),
+        Function(vectorize(set_selected_to_color), grid, selection_2, Constant(repeat_once(1))),
+        Function(vectorize(set_selected_to_color), grid, selection_1, Constant(repeat_once(2))),
+        Function(vectorize(set_selected_to_color), grid, selection_2, Constant(repeat_once(2))),
     }

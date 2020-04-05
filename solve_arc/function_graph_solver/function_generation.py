@@ -9,17 +9,17 @@ from .vectorize import *
 logger = logging.getLogger(__name__)
 
 
-# TODO: switch completely to mask based functions(?)
+# TODO: switch completely to selection based functions(?)
 def generate_functions(graph):
     functions = (
-        mask_for_color_functions(graph)
-        | mask_for_all_colors_functions(graph)
-        | extract_masked_area_functions(graph)
-        | extract_masked_areas_functions(graph)
-        | set_mask_to_color_functions(graph)
-        | merge_masks_functions(graph)
-        | filter_masks_functions(graph)
-        | split_mask_into_connected_areas_functions(graph)
+        select_color_functions(graph)
+        | select_all_colors_functions(graph)
+        | extract_selected_area_functions(graph)
+        | extract_selected_areas_functions(graph)
+        | set_selected_to_color_functions(graph)
+        | merge_selections_functions(graph)
+        | filter_selections_functions(graph)
+        | split_selection_into_connected_areas_functions(graph)
         | switch_color_functions(graph)
         | map_color_functions(graph)
         | extract_islands_functions(graph)
@@ -51,9 +51,9 @@ class Graph:
 
         # filter special node types
         self._scalars[Grid] |= {node for node in valid_nodes if is_scalar(node, Grid)}
-        self._scalars[Mask] |= {node for node in valid_nodes if is_scalar(node, Mask)}
+        self._scalars[Selection] |= {node for node in valid_nodes if is_scalar(node, Selection)}
         self._sequences[Grid] |= {node for node in valid_nodes if is_sequence(node, Grid)}
-        self._sequences[Mask] |= {node for node in valid_nodes if is_sequence(node, Mask)}
+        self._sequences[Selection] |= {node for node in valid_nodes if is_sequence(node, Selection)}
 
     def scalars(self, type_):
         return self._scalars[type_]
@@ -84,73 +84,73 @@ def switch_color_functions(graph):
     }
 
 
-def mask_for_color_functions(graph):
+def select_color_functions(graph):
     return {
-        Function(vectorize(mask_for_color), arg, Constant(repeat(color)))
+        Function(vectorize(select_color), arg, Constant(repeat(color)))
         for arg in graph.scalars(Grid)
         for color in used_colors(arg())
     }
 
 
-def mask_for_all_colors_functions(graph):
+def select_all_colors_functions(graph):
     return {
-        Function(vectorize(mask_for_all_colors), arg, Constant(repeat(color)))
+        Function(vectorize(select_all_colors), arg, Constant(repeat(color)))
         for arg in graph.scalars(Grid)
         for color in used_colors(arg())
-        # 2 colors or less is covered by mask_for_color_functions
+        # 2 colors or less is covered by select_color_functions
         if len(used_colors(arg())) > 2
     }
 
 
-def split_mask_into_connected_areas_functions(graph):
+def split_selection_into_connected_areas_functions(graph):
     functions = set()
-    for arg in graph.scalars(Mask):
-        functions.add(Function(vectorize(split_mask_into_connected_areas), arg))
-        functions.add(Function(vectorize(split_mask_into_connected_areas_no_diagonals), arg))
+    for arg in graph.scalars(Selection):
+        functions.add(Function(vectorize(split_selection_into_connected_areas), arg))
+        functions.add(Function(vectorize(split_selection_into_connected_areas_no_diagonals), arg))
     return functions
 
 
-def filter_masks_functions(graph):
+def filter_selections_functions(graph):
     functions = set()
-    for arg in graph.sequences(Mask):
-        functions.add(Function(vectorize(filter_masks_touching_edge), arg))
-        functions.add(Function(vectorize(filter_masks_not_touching_edge), arg))
+    for arg in graph.sequences(Selection):
+        functions.add(Function(vectorize(filter_selections_touching_edge), arg))
+        functions.add(Function(vectorize(filter_selections_not_touching_edge), arg))
     return functions
 
 
-def merge_masks_functions(graph):
+def merge_selections_functions(graph):
     return {
-        Function(vectorize(merge_masks), masks)
-        for masks in graph.sequences(Mask)
-        if is_matching_shape(masks)
+        Function(vectorize(merge_selections), selections)
+        for selections in graph.sequences(Selection)
+        if is_matching_shape(selections)
     }
 
 
-def set_mask_to_color_functions(graph):
+def set_selected_to_color_functions(graph):
     return {
-        Function(vectorize(set_mask_to_color), grid_arg, mask_arg, Constant(repeat(color)))
-        for grid_arg, mask_arg in product(graph.scalars(Grid), graph.scalars(Mask))
-        if shape(grid_arg()) == shape(mask_arg())
+        Function(vectorize(set_selected_to_color), grid_arg, selection_arg, Constant(repeat(color)))
+        for grid_arg, selection_arg in product(graph.scalars(Grid), graph.scalars(Selection))
+        if shape(grid_arg()) == shape(selection_arg())
         for color in used_colors(graph.target)
     }
 
 
-def extract_masked_area_functions(graph):
+def extract_selected_area_functions(graph):
     return {
-        Function(vectorize(extract_masked_area), grid_arg, mask_arg)
-        for grid_arg, mask_arg in product(graph.scalars(Grid), graph.scalars(Mask))
-        if shape(grid_arg()) == shape(mask_arg())
+        Function(vectorize(extract_selected_area), grid_arg, selection_arg)
+        for grid_arg, selection_arg in product(graph.scalars(Grid), graph.scalars(Selection))
+        if shape(grid_arg()) == shape(selection_arg())
         # heuristic: if target has different shape
         and shape(grid_arg()) != shape(graph.target)
     }
 
 
-def extract_masked_areas_functions(graph):
+def extract_selected_areas_functions(graph):
     return {
-        Function(vectorize(extract_masked_areas), grid_arg, masks_arg)
-        for grid_arg, masks_arg in product(graph.scalars(Grid), graph.sequences(Mask))
+        Function(vectorize(extract_selected_areas), grid_arg, selections_arg)
+        for grid_arg, selections_arg in product(graph.scalars(Grid), graph.sequences(Selection))
         # can only process sequences of length 2 further
-        if is_matching_shape(masks_arg) and shape(grid_arg()) == shape(masks_arg()[0])
+        if is_matching_shape(selections_arg) and shape(grid_arg()) == shape(selections_arg()[0])
         # heuristic: if target has different shape
         and shape(grid_arg()) != shape(graph.target)
     }

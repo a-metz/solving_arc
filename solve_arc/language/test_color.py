@@ -10,8 +10,8 @@ def example_grid():
 
 
 @pytest.fixture
-def example_mask():
-    return Mask([[True, False, False], [True, True, False], [False, True, True]])
+def example_selection():
+    return Selection([[True, False, False], [True, True, False], [False, True, True]])
 
 
 def test_map_color(example_grid):
@@ -24,11 +24,11 @@ def test_switch_color(example_grid):
     assert switch_color(example_grid, 1, 2) == expected_grid
 
 
-def test_switch_color(example_grid, example_mask):
+def test_switch_color(example_grid, example_selection):
     expected_grid = Grid([[1, 2, 3], [1, 1, 6], [7, 1, 1]])
-    assert set_mask_to_color(example_grid, example_mask, 1) == expected_grid
+    assert set_selected_to_color(example_grid, example_selection, 1) == expected_grid
 
 
-def test_switch_color__to_black(example_grid, example_mask):
+def test_switch_color__to_black(example_grid, example_selection):
     expected_grid = Grid([[0, 2, 3], [0, 0, 6], [7, 0, 0]])
-    assert set_mask_to_color(example_grid, example_mask, 0) == expected_grid
+    assert set_selected_to_color(example_grid, example_selection, 0) == expected_grid
