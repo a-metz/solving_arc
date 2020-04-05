@@ -232,6 +232,6 @@ def is_scalar(node, type_):
 
 def is_sequence(node, type_):
     return all(
-        hasattr(elements, "__len__") and (isinstance(element, type_) for element in elements)
+        hasattr(elements, "__len__") and all(isinstance(element, type_) for element in elements)
         for elements in node()
     )
