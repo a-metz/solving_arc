@@ -12,14 +12,16 @@ logger = logging.getLogger(__name__)
 # TODO: switch completely to mask based functions(?)
 def generate_functions(graph):
     functions = (
-        switch_color_functions(graph)
-        | map_color_functions(graph)
-        | mask_for_color_functions(graph)
+        mask_for_color_functions(graph)
         | mask_for_all_colors_functions(graph)
         | extract_masked_area_functions(graph)
         | extract_masked_areas_functions(graph)
-        | split_mask_islands_functions(graph)
         | set_mask_to_color_functions(graph)
+        | merge_masks_functions(graph)
+        | filter_masks_functions(graph)
+        | split_mask_into_connected_areas_functions(graph)
+        | switch_color_functions(graph)
+        | map_color_functions(graph)
         | extract_islands_functions(graph)
         | extract_color_patches_functions(graph)
         | extract_color_patch_functions(graph)
@@ -100,8 +102,28 @@ def mask_for_all_colors_functions(graph):
     }
 
 
-def split_mask_islands_functions(graph):
-    return {Function(vectorize(split_mask_islands), arg) for arg in graph.scalars(Mask)}
+def split_mask_into_connected_areas_functions(graph):
+    functions = set()
+    for arg in graph.scalars(Mask):
+        functions.add(Function(vectorize(split_mask_into_connected_areas), arg))
+        functions.add(Function(vectorize(split_mask_into_connected_areas_no_diagonals), arg))
+    return functions
+
+
+def filter_masks_functions(graph):
+    functions = set()
+    for arg in graph.sequences(Mask):
+        functions.add(Function(vectorize(filter_masks_touching_edge), arg))
+        functions.add(Function(vectorize(filter_masks_not_touching_edge), arg))
+    return functions
+
+
+def merge_masks_functions(graph):
+    return {
+        Function(vectorize(merge_masks), masks)
+        for masks in graph.sequences(Mask)
+        if is_matching_shape(masks)
+    }
 
 
 def set_mask_to_color_functions(graph):
@@ -128,8 +150,7 @@ def extract_masked_areas_functions(graph):
         Function(vectorize(extract_masked_areas), grid_arg, masks_arg)
         for grid_arg, masks_arg in product(graph.scalars(Grid), graph.sequences(Mask))
         # can only process sequences of length 2 further
-        if is_matching_shape_pair(masks_arg(), Mask, Mask)
-        and shape(grid_arg()) == shape(masks_arg()[0])
+        if is_matching_shape(masks_arg) and shape(grid_arg()) == shape(masks_arg()[0])
         # heuristic: if target has different shape
         and shape(grid_arg()) != shape(graph.target)
     }
@@ -165,12 +186,18 @@ def extract_color_patch_functions(graph):
     }
 
 
+# TODO:
+# * also enumerate all combinations of two scalar grids with same shape
+# * refactor logical functions to also take graph sequences (?)
 def logic_functions(graph):
     functions = set()
-    for a, b in unpack(shape_matching_pairs(graph.sequences(Grid), Grid, Grid), 2):
-        functions.add(Function(vectorize(elementwise_equal_and), a, b))
-        functions.add(Function(vectorize(elementwise_equal_or), a, b))
-        functions.add(Function(vectorize(elementwise_xor), a, b))
+    for sequence in graph.sequences(Grid):
+        if is_matching_shape_pair(sequence):
+            a = Function(get_item, sequence, Constant(repeat(0)))
+            b = Function(get_item, sequence, Constant(repeat(1)))
+            functions.add(Function(vectorize(elementwise_equal_and), a, b))
+            functions.add(Function(vectorize(elementwise_equal_or), a, b))
+            functions.add(Function(vectorize(elementwise_xor), a, b))
     return functions
 
 
@@ -191,26 +218,20 @@ def used_colors(grid_tuple):
     return set.intersection(*used_colors)
 
 
-def shape_matching_pairs(args, type_a, type_b):
-    # TODO: also enumerate all combinations of two scalar grids with same shape
-    return {arg for arg in args if is_matching_shape_pair(arg(), type_a, type_b)}
-
-
-def is_matching_shape_pair(values_tuple, type_a, type_b):
+def is_matching_shape_pair(sequence_node):
+    """assume type is already checked"""
     return all(
-        len(values) == 2
-        and isinstance(values[0], type_a)
-        and isinstance(values[1], type_b)
-        and values[0].shape == values[1].shape
-        for values in values_tuple
+        len(sequence) == 2 and sequence[0].shape == sequence[1].shape
+        for sequence in sequence_node()
     )
 
 
-def unpack(args, num_elements):
-    return {
-        (Function(get_item, arg, Constant(repeat(index))) for index in range(num_elements))
-        for arg in args
-    }
+def is_matching_shape(sequence_node):
+    """assume type is already checked"""
+    return all(
+        len(sequence) >= 2 and all(scalar.shape == sequence[0].shape for scalar in sequence[1:])
+        for sequence in sequence_node()
+    )
 
 
 @vectorize
