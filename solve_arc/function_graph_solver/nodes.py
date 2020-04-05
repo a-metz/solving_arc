@@ -12,13 +12,14 @@ class _Node:
         raise NotImplementedError()
 
     def __eq__(self, other):
-        return isinstance(other, self.__class__) and hash(self) == hash(other)
+        # allow equality between subclasses for uniqueness in sets
+        return isinstance(other, _Node) and hash(self) == hash(other)
 
     def __hash__(self):
         raise NotImplementedError()
 
 
-# TODO: nicer interface for caching switch i.e. a recursive clear_cache() function (?)
+# TODO: nicer interface for caching switch i.e. a recursive clear_cache() function (?) -> but may not invalidate hash!
 class Function(_Node):
     """cached partial application"""
 
@@ -44,7 +45,9 @@ class Function(_Node):
         )
 
     def __hash__(self):
-        return hash(self.callable_) ^ hash(tuple(arg() for arg in self.args))
+        # alternative: hash(self.callable_) ^ hash(tuple(arg() for arg in self.args))
+        # creates more functions with equal value, but avoids evaluating same callable and args mutiple times
+        return hash(self())
 
 
 class Constant(_Node):

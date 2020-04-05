@@ -1,3 +1,5 @@
+import pytest
+
 from .nodes import *
 
 
@@ -64,6 +66,53 @@ def test_constant__hash():
         assert hash(Constant(i)) == hash(Constant(i))
 
 
+def test_function__hash():
+    def func_a():
+        return 42
+
+    def func_b():
+        return 0
+
+    arg = Constant(42)
+
+    # check hash equality when result is equal
+    reference = Function(func_a)
+    assert hash(Function(func_a)) == hash(reference)
+    assert hash(Function(func_b)) != hash(reference)
+    assert hash(Function(arg)) == hash(reference)
+
+    # also between constant and function
+    assert hash(arg) == hash(reference)
+
+
+def test_constant__equality():
+    assert Constant(0) != Constant(1)
+
+    # stress it a bit as function wrappers can also coincidentally have the same hash
+    for i in range(10):
+        assert Constant(i) == Constant(i)
+
+
+def test_function__equality():
+    def func_a():
+        return 42
+
+    def func_b():
+        return 0
+
+    arg = Constant(42)
+
+    # check equality when result is equal
+    reference = Function(func_a)
+    assert Function(func_a) == reference
+    assert Function(func_b) != reference
+    assert Function(arg) == reference
+
+    # also between constant and function
+    assert arg == reference
+
+
+@pytest.mark.skip("only valid when using hash calculation based on callable and argument values")
 def test_function__hash_equality():
     def func(*args):
         pass
@@ -76,6 +125,7 @@ def test_function__hash_equality():
     assert hash(Function(func, arg)) == hash(Function(func, arg))
 
 
+@pytest.mark.skip("only valid when using hash calculation based on callable and argument values")
 def test_function__hash_inequality():
     def func_a(*args):
         pass
@@ -91,6 +141,7 @@ def test_function__hash_inequality():
     assert hash(Function(func_a, arg_a, arg_b)) != hash(Function(func_b, arg_b, arg_a))
 
 
+@pytest.mark.skip("only valid when using hash calculation based on callable and argument values")
 def test_function__hash_of_chained_functions():
     def add(a, b):
         return a + b
