@@ -20,10 +20,11 @@ def solve(constraints, max_depth):
     source, target = zip(*constraints)
     source_node = Source(source)
 
-    graph = Graph(target)
-    solution = graph.add({source_node})
-    if solution is not None:
+    if source_node() == target:
         return Solution(source_node, source_node)
+
+    graph = Graph(target)
+    graph.add({source_node})
 
     for _ in range(max_depth):
         # only consider nodes not yet in graph
@@ -65,7 +66,7 @@ class Solution:
     def __call__(self, value):
         # run only for single element
         self.source.load(repeat_once(value))
-        return self.function(use_cache=False)[0]
+        return next(iter(self.function(use_cache=False)))
 
     def __str__(self):
         return str(self.function)
