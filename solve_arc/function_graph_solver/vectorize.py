@@ -1,4 +1,19 @@
+"""
+utilitiy function and classes to handle processing of multiple grids/selections
+(i.e. multiple constraints) at once
+"""
+
 import itertools
+
+
+class Vector(tuple):
+    def __str__(self):
+        return "{}({})".format(self.__class__.__name__, ", ".join(str(element) for element in self))
+
+    def __repr__(self):
+        return "{}([{}])".format(
+            self.__class__.__name__, ", ".join(repr(element) for element in self)
+        )
 
 
 class _FunctionWrapper:
@@ -29,7 +44,7 @@ class vectorize(_FunctionWrapper):
     """vectorized application of function"""
 
     def __call__(self, *arg_tuples):
-        return tuple(self.func(*args) for args in zip(*arg_tuples))
+        return Vector(self.func(*args) for args in zip(*arg_tuples))
 
 
 class _ValueWrapper:
