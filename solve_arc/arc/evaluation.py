@@ -28,7 +28,7 @@ def evaluate(debug, args, **kwargs):
             logger.info("evaluating performance on known solved tasks")
             _evaluate(_get_tasks(SOLVED_TASK_IDS), **kwargs)
         else:
-            logger.info("evaluating performance on {}", str(args))
+            logger.info("evaluating performance on {}".format(", ".join(args)))
             _evaluate(_get_tasks(args), **kwargs)
     else:
         logger.info("evaluating performance on training tasks")
