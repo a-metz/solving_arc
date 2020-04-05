@@ -69,6 +69,7 @@ def map_color_functions(graph):
             # heuristic: only map to colors used in target
             used_colors(graph.target),
         )
+        if a != b
     }
 
 
