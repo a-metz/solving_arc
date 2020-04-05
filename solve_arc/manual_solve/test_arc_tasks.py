@@ -52,6 +52,14 @@ def test_11852cab(input_, expected):
     pass
 
 
+def test_00d62c1b(input_, expected):
+    mask = mask_for_color(input_, color=0)
+    areas = split_mask_into_connected_areas_no_diagonals(mask)
+    areas = filter_masks_touching_edge(areas)
+    mask = merge_masks(areas)
+    result = set_mask_to_color(input_, mask, color=4)
+
+
 # def test_31d5ba1a(input_, expected):
 #     patches = extract_color_patches(input_, ignore=0)
 #     pass

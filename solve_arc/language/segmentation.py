@@ -1,4 +1,5 @@
 from collections import deque
+from functools import reduce
 
 import numpy as np
 
@@ -63,7 +64,7 @@ def extract_islands(grid, ignore=0):
     if not mask.any():
         return None
 
-    mask_islands = split_mask_islands(mask)
+    mask_islands = split_mask_into_connected_areas(mask)
 
     # if no mask return
     if mask_islands is None:
@@ -81,12 +82,20 @@ def extract_islands(grid, ignore=0):
     return tuple(islands)
 
 
-def split_mask_islands(mask):
+def split_mask_into_connected_areas(mask):
+    return _split_mask_into_connected_areas(mask, _get_neighbors)
+
+
+def split_mask_into_connected_areas_no_diagonals(mask):
+    return _split_mask_into_connected_areas(mask, _get_neighbors_no_diag)
+
+
+def _split_mask_into_connected_areas(mask, get_neighbors):
     unassigned = {tuple(index) for index in np.argwhere(mask.state)}
 
     islands = []
     while len(unassigned) > 0:
-        connected, unassigned = _connected_indices(unassigned.pop(), unassigned)
+        connected, unassigned = _connected_indices(unassigned.pop(), unassigned, get_neighbors)
         island = Mask.from_indices(mask.shape, list(connected))
         islands.append(island)
 
@@ -97,14 +106,14 @@ def split_mask_islands(mask):
     return tuple(islands)
 
 
-def _connected_indices(start, candidates):
+def _connected_indices(start, candidates, get_neighbors):
     connected = set()
     queue = deque([start])
 
     while len(queue) > 0:
         index = queue.popleft()
         connected.add(index)
-        neighbors = _neighbors(index) & candidates
+        neighbors = get_neighbors(index) & candidates
         candidates -= neighbors
         queue.extend(neighbors)
 
@@ -112,7 +121,7 @@ def _connected_indices(start, candidates):
     return connected, candidates
 
 
-def _neighbors(index):
+def _get_neighbors(index):
     y, x = index
     return {
         (y - 1, x - 1),
@@ -124,3 +133,31 @@ def _neighbors(index):
         (y + 1, x),
         (y + 1, x + 1),
     }
+
+
+def _get_neighbors_no_diag(index):
+    y, x = index
+    return {
+        (y - 1, x),
+        (y + 1, x),
+        (y, x - 1),
+        (y, x + 1),
+    }
+
+
+def filter_masks_touching_edge(masks):
+    return tuple(mask for mask in masks if _is_mask_touching_edge(mask))
+
+
+def filter_masks_not_touching_edge(masks):
+    return tuple(mask for mask in masks if not _is_mask_touching_edge(mask))
+
+
+def _is_mask_touching_edge(mask):
+    indices = np.argwhere(mask.state)
+    return np.any(indices == 0) or np.any(indices == np.array(mask.shape) - 1)
+
+
+# TODO: move to logical functions?
+def merge_masks(masks):
+    return Mask(reduce(np.logical_or, (mask.state for mask in masks)))
