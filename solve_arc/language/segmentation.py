@@ -47,6 +47,9 @@ def extract_masked_areas(grid, masks):
 def extract_masked_area(grid, mask):
     """extract box bounding mask from grid"""
     indices = np.argwhere(mask.state)
+    if len(indices) == 0:
+        return None
+
     top, left = np.min(indices, axis=0)
     bottom, right = np.max(indices, axis=0) + 1
     patch = grid[top:bottom, left:right]
