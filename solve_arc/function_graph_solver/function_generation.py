@@ -10,6 +10,8 @@ logger = logging.getLogger(__name__)
 
 
 # TODO: switch completely to selection based functions(?)
+# TODO: introduce Vector and Sequence types
+# TODO: write unpack function which unpacks first, second, last(?), largest, smallest, tallest, widest, ... as new nodes
 def generate_functions(graph):
     functions = (
         select_color_functions(graph)
@@ -31,10 +33,9 @@ def generate_functions(graph):
     return functions
 
 
-# TODO: refactor
-# * move generate functions into graph, inline functions and give access to self (=graph)
-# * rename add to expand without args (maybe option for sample size)
-# * add operation counts and/or other heuristics of evaluation subtree as map (node->value) (?)
+# TODO: move generate functions into graph, inline functions and give access to self (=graph)
+# TODO: rename add to expand without args (maybe option for sample size)
+# TODO: add operation counts and/or other heuristics of evaluation subtree as map (node->value) (?)
 class Graph:
     def __init__(self, target):
         self.target = target
@@ -186,9 +187,8 @@ def extract_color_patch_functions(graph):
     }
 
 
-# TODO:
-# * also enumerate all combinations of two scalar grids with same shape
-# * refactor logical functions to also take graph sequences (?)
+# TODO: also enumerate all combinations of two scalar grids with same shape
+# TODO: refactor logical functions to also take graph sequences (?)
 def logic_functions(graph):
     functions = set()
     for sequence in graph.sequences(Grid):

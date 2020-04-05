@@ -1,8 +1,3 @@
-"""
-TODO:
-* write unpack function which unpacks first, second, last(?), largest, smallest, tallest, widest, ... as new nodes
-"""
-
 from copy import copy
 from collections import namedtuple
 import logging

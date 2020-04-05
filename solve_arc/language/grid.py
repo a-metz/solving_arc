@@ -1,6 +1,6 @@
 import numpy as np
 
-
+# TODO: inherit from numpy array (?)
 class _Base:
     def __init__(self, state):
         self.state = np.array(state, copy=True)
