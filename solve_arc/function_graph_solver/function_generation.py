@@ -9,6 +9,7 @@ from .vectorize import *
 logger = logging.getLogger(__name__)
 
 
+# TODO: switch completely to mask based functions(?)
 def generate_functions(graph):
     functions = (
         switch_color_functions(graph)
@@ -28,6 +29,10 @@ def generate_functions(graph):
     return functions
 
 
+# TODO: refactor
+# * move generate functions into graph, inline functions and give access to self (=graph)
+# * rename add to expand without args (maybe option for sample size)
+# * add operation counts and/or other heuristics of evaluation subtree as map (node->value) (?)
 class Graph:
     def __init__(self, target):
         self.target = target

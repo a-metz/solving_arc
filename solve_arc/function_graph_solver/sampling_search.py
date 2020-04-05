@@ -1,9 +1,6 @@
 """
 TODO:
-* write unpack function which unpacks first, second, last(?), ...(?) as new nodes
-* add cached counters to functions to count number of operations in evaluation subtree (as heuristic for function gen)
-Not worth it:
-* move f(arg) helper functions (e.g. shape, is_scalar, used_colors(?), ...) to Function Subclass and cache
+* write unpack function which unpacks first, second, last(?), largest, smallest, tallest, widest, ... as new nodes
 """
 
 from copy import copy

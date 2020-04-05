@@ -18,6 +18,7 @@ class _Node:
         raise NotImplementedError()
 
 
+# TODO: nicer interface for caching switch i.e. a recursive clear_cache() function (?)
 class Function(_Node):
     """cached partial application"""
 
