@@ -41,6 +41,9 @@ class _ValueWrapper:
     def __str__(self):
         return str(self.value)
 
+    def __repr__(self):
+        return "{}({})".format(self.__class__.__name__, repr(self.value))
+
     def __eq__(self, other):
         return isinstance(other, self.__class__) and hash(self) == hash(other)
 
