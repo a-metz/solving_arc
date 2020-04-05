@@ -62,12 +62,12 @@ class Graph:
 
 def map_color_functions(graph):
     return {
-        Function(vectorize(map_color), arg, Constant(repeat(a)), Constant(repeat(b)))
-        for arg in graph.nodes(Grid)
+        Function(vectorize(map_color), node, Constant(repeat(a)), Constant(repeat(b)))
+        for node in graph.nodes(Grid)
         for a, b in product(
-            used_colors(arg()),
+            used_colors(node()),
             # heuristic: only map to colors used in target
-            used_colors(graph.target),
+            used_colors(graph.tnodeet),
         )
         if a != b
     }
@@ -75,44 +75,44 @@ def map_color_functions(graph):
 
 def switch_color_functions(graph):
     return {
-        Function(vectorize(switch_color), arg, Constant(repeat(a)), Constant(repeat(b)))
-        for arg in graph.nodes(Grid)
-        if not (isinstance(arg, Function) and arg.callable_ == vectorize(switch_color))
-        for a, b in combinations(used_colors(arg()), 2)
+        Function(vectorize(switch_color), node, Constant(repeat(a)), Constant(repeat(b)))
+        for node in graph.nodes(Grid)
+        if not (isinstance(node, Function) and node.callable_ == vectorize(switch_color))
+        for a, b in combinations(used_colors(node()), 2)
     }
 
 
 def select_color_functions(graph):
     return {
-        Function(vectorize(select_color), arg, Constant(repeat(color)))
-        for arg in graph.nodes(Grid)
-        for color in used_colors(arg())
+        Function(vectorize(select_color), node, Constant(repeat(color)))
+        for node in graph.nodes(Grid)
+        for color in used_colors(node())
     }
 
 
 def select_all_colors_functions(graph):
     return {
-        Function(vectorize(select_all_colors), arg, Constant(repeat(color)))
-        for arg in graph.nodes(Grid)
-        for color in used_colors(arg())
+        Function(vectorize(select_all_colors), node, Constant(repeat(color)))
+        for node in graph.nodes(Grid)
+        for color in used_colors(node())
         # 2 colors or less is covered by select_color_functions
-        if len(used_colors(arg())) > 2
+        if len(used_colors(node())) > 2
     }
 
 
 def split_selection_into_connected_areas_functions(graph):
     functions = set()
-    for arg in graph.nodes(Selection):
-        functions.add(Function(vectorize(split_selection_into_connected_areas), arg))
-        functions.add(Function(vectorize(split_selection_into_connected_areas_no_diagonals), arg))
+    for node in graph.nodes(Selection):
+        functions.add(Function(vectorize(split_selection_into_connected_areas), node))
+        functions.add(Function(vectorize(split_selection_into_connected_areas_no_diagonals), node))
     return functions
 
 
 def filter_selections_functions(graph):
     functions = set()
-    for arg in graph.nodes(Selections):
-        functions.add(Function(vectorize(filter_selections_touching_edge), arg))
-        functions.add(Function(vectorize(filter_selections_not_touching_edge), arg))
+    for node in graph.nodes(Selections):
+        functions.add(Function(vectorize(filter_selections_touching_edge), node))
+        functions.add(Function(vectorize(filter_selections_not_touching_edge), node))
     return functions
 
 
@@ -126,61 +126,63 @@ def merge_selections_functions(graph):
 
 def set_selected_to_color_functions(graph):
     return {
-        Function(vectorize(set_selected_to_color), grid_arg, selection_arg, Constant(repeat(color)))
-        for grid_arg, selection_arg in product(graph.nodes(Grid), graph.nodes(Selection))
-        if shape(grid_arg()) == shape(selection_arg())
+        Function(
+            vectorize(set_selected_to_color), grid_node, selection_node, Constant(repeat(color))
+        )
+        for grid_node, selection_node in product(graph.nodes(Grid), graph.nodes(Selection))
+        if shape(grid_node()) == shape(selection_node())
         for color in used_colors(graph.target)
     }
 
 
 def extract_selected_area_functions(graph):
     return {
-        Function(vectorize(extract_selected_area), grid_arg, selection_arg)
-        for grid_arg, selection_arg in product(graph.nodes(Grid), graph.nodes(Selection))
-        if shape(grid_arg()) == shape(selection_arg())
+        Function(vectorize(extract_selected_area), grid_node, selection_node)
+        for grid_node, selection_node in product(graph.nodes(Grid), graph.nodes(Selection))
+        if shape(grid_node()) == shape(selection_node())
         # heuristic: if target has different shape
-        and shape(grid_arg()) != shape(graph.target)
+        and shape(grid_node()) != shape(graph.target)
     }
 
 
 def extract_selected_areas_functions(graph):
     return {
-        Function(vectorize(extract_selected_areas), grid_arg, selections_arg)
-        for grid_arg, selections_arg in product(graph.nodes(Grid), graph.nodes(Selections))
+        Function(vectorize(extract_selected_areas), grid_node, selections_node)
+        for grid_node, selections_node in product(graph.nodes(Grid), graph.nodes(Selections))
         # can only process nodes ofs length 2 further
-        if is_matching_shape(selections_arg) and shape(grid_arg()) == shape(selections_arg()[0])
+        if is_matching_shape(selections_node) and shape(grid_node()) == shape(selections_node()[0])
         # heuristic: if target has different shape
-        and shape(grid_arg()) != shape(graph.target)
+        and shape(grid_node()) != shape(graph.target)
     }
 
 
 def extract_islands_functions(graph):
     return {
-        Function(vectorize(extract_islands), arg, Constant(repeat(color)))
-        for arg in graph.nodes(Grid)
+        Function(vectorize(extract_islands), node, Constant(repeat(color)))
+        for node in graph.nodes(Grid)
         # heuristic: if target has different shape
-        if shape(arg()) != shape(graph.target)
-        for color in used_colors(arg())
+        if shape(node()) != shape(graph.target)
+        for color in used_colors(node())
     }
 
 
 def extract_color_patches_functions(graph):
     return {
-        Function(vectorize(extract_color_patches), arg, Constant(repeat(color)))
-        for arg in graph.nodes(Grid)
+        Function(vectorize(extract_color_patches), node, Constant(repeat(color)))
+        for node in graph.nodes(Grid)
         # heuristic: if target has different shape
-        if shape(arg()) != shape(graph.target)
-        for color in used_colors(arg())
+        if shape(node()) != shape(graph.target)
+        for color in used_colors(node())
     }
 
 
 def extract_color_patch_functions(graph):
     return {
-        Function(vectorize(extract_color_patch), arg, Constant(repeat(color)))
-        for arg in graph.nodes(Grid)
+        Function(vectorize(extract_color_patch), node, Constant(repeat(color)))
+        for node in graph.nodes(Grid)
         # heuristic: if target has different shape
-        if shape(arg()) != shape(graph.target)
-        for color in used_colors(arg())
+        if shape(node()) != shape(graph.target)
+        for color in used_colors(node())
     }
 
 
@@ -200,18 +202,18 @@ def logic_functions(graph):
 
 def symmetry_functions(graph):
     functions = set()
-    for arg in graph.nodes(Grid):
-        functions.add(Function(vectorize(flip_up_down), arg))
-        functions.add(Function(vectorize(flip_left_right), arg))
-        functions.add(Function(vectorize(rotate), arg, Constant(repeat(1))))
-        functions.add(Function(vectorize(rotate), arg, Constant(repeat(2))))
-        functions.add(Function(vectorize(rotate), arg, Constant(repeat(3))))
+    for node in graph.nodes(Grid):
+        functions.add(Function(vectorize(flip_up_down), node))
+        functions.add(Function(vectorize(flip_left_right), node))
+        functions.add(Function(vectorize(rotate), node, Constant(repeat(1))))
+        functions.add(Function(vectorize(rotate), node, Constant(repeat(2))))
+        functions.add(Function(vectorize(rotate), node, Constant(repeat(3))))
     return functions
 
 
-def used_colors(grid_tuple):
+def used_colors(grid_vector):
     """intersection of used colors in value tuple elements"""
-    used_colors = (set(grid.used_colors()) for grid in grid_tuple)
+    used_colors = (set(grid.used_colors()) for grid in grid_vector)
     return set.intersection(*used_colors)
 
 
@@ -232,13 +234,13 @@ def is_matching_shape(sequence_node):
 
 
 @vectorize
-def shape(value):
-    return value.shape
+def shape(element):
+    return element.shape
 
 
 @vectorize
-def get_item(values, index):
-    return values[index]
+def get_item(elements, index):
+    return elements[index]
 
 
 def is_valid(node):
