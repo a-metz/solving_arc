@@ -79,7 +79,6 @@ def test_function__hash():
     reference = Function(func_a)
     assert hash(Function(func_a)) == hash(reference)
     assert hash(Function(func_b)) != hash(reference)
-    assert hash(Function(arg)) == hash(reference)
 
     # also between constant and function
     assert hash(arg) == hash(reference)

@@ -1,8 +1,9 @@
 from copy import copy
+from itertools import count
 from collections import namedtuple
 import logging
 
-from .function_generation import Graph, generate_functions
+from .function_generation import Graph
 from .nodes import Constant
 from .vectorize import repeat_once, Vector
 
@@ -18,27 +19,24 @@ def solve(constraints, max_depth):
     if source_node() == target:
         return Solution(source_node, source_node)
 
-    graph = Graph(target)
-    graph.add({source_node})
+    graph = Graph({source_node}, target, max_depth)
 
-    for _ in range(max_depth):
+    for step in count():
         # only consider nodes not yet in graph
-        generated_nodes = generate_functions(graph)
-        new_nodes = generate_functions(graph) - graph.nodes()
+        new_nodes = graph.expand()
+
+        if len(new_nodes) == 0:
+            # no new nodes can be generated
+            logger.debug("no futher graph expansion possible")
+            break
 
         # check for solution
         for node in new_nodes:
             if node() == graph.target:
+                logger.debug(
+                    "solution of depth %d: %s", node.depth(), str(node),
+                )
                 return Solution(node, source_node)
-
-        graph.add(new_nodes)
-
-        logger.debug(
-            "nodes generated: %d, new: %d, total: %d",
-            len(generated_nodes),
-            len(new_nodes),
-            len(graph.nodes()),
-        )
 
     return None
 

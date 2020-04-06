@@ -51,7 +51,7 @@ def test_solve__single_xor():
     target = Grid([[0, 1, 0]])
     constraints = [Constraint(source, target)]
 
-    solution = solve(constraints, max_depth=1)
+    solution = solve(constraints, max_depth=2)
 
     assert solution is not None
     assert solution(source) == target
@@ -90,7 +90,7 @@ def test_solve__single_xor__multiple_contraints():
         Constraint(source=Grids([Grid([[0, 1, 1]]), Grid([[1, 1, 0]])]), target=Grid([[1, 0, 1]])),
     ]
 
-    solution = solve(constraints, max_depth=1)
+    solution = solve(constraints, max_depth=2)
 
     assert solution is not None
     for source, target in constraints:

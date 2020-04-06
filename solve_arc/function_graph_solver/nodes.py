@@ -2,6 +2,9 @@ class _Node:
     def __call__(self, use_cache=True):
         raise NotImplementedError()
 
+    def depth(self):
+        raise NotImplementedError()
+
     def __str__(self):
         raise NotImplementedError()
 
@@ -32,6 +35,12 @@ class Function(_Node):
 
         return self.value
 
+    def depth(self):
+        if not hasattr(self, "_depth"):
+            self._depth = 1 + max(arg.depth() for arg in self.args)
+
+        return self._depth
+
     def __str__(self):
         return "{}({})".format(self.callable_.__name__, ", ".join(str(arg) for arg in self.args))
 
@@ -53,6 +62,9 @@ class Constant(_Node):
 
     def __call__(self, use_cache=True):
         return self.value
+
+    def depth(self):
+        return 0
 
     def __str__(self):
         return "{}".format(str(self.value))

@@ -9,55 +9,81 @@ from .vectorize import *
 logger = logging.getLogger(__name__)
 
 
-# TODO: switch completely to selection based functions(?)
-# TODO: introduce Vector and Sequence types
-# TODO: write unpack function which unpacks first, second, last(?), largest, smallest, tallest, widest, ... as new nodes
-def generate_functions(graph):
-    functions = (
-        select_color_functions(graph)
-        | select_all_colors_functions(graph)
-        | extract_selected_area_functions(graph)
-        | extract_selected_areas_functions(graph)
-        | set_selected_to_color_functions(graph)
-        | merge_selections_functions(graph)
-        | filter_selections_functions(graph)
-        | split_selection_into_connected_areas_functions(graph)
-        | switch_color_functions(graph)
-        | map_color_functions(graph)
-        | extract_islands_functions(graph)
-        | extract_color_patches_functions(graph)
-        | extract_color_patch_functions(graph)
-        | logic_functions(graph)
-        | symmetry_functions(graph)
-    )
-    return functions
-
-
 # TODO: move generate functions into graph, inline functions and give access to self (=graph)
 # TODO: rename add to expand without args (maybe option for sample size)
 # TODO: add operation counts and/or other heuristics of evaluation subtree as map (node->value) (?)
 class Graph:
-    def __init__(self, target):
+    def __init__(self, initial_nodes, target, max_depth):
         self.target = target
+        self.max_depth = max_depth
         self._nodes = set()
-
         # special node types for faster access
         self._by_type = defaultdict(set)
 
-    def add(self, nodes):
-        # filter valid
-        valid_nodes = {node for node in nodes if is_valid(node)}
-        self._nodes |= valid_nodes
+        self._add(initial_nodes)
+
+    def expand(self):
+        new_nodes = self.generate_functions() - self._nodes
+        valid_nodes = {node for node in new_nodes if is_valid(node)}
+        self._add(valid_nodes)
+
+        within_depth = {node for node in valid_nodes if node.depth() <= self.max_depth}
+
+        logger.debug(
+            "new nodes: %d, valid: %d, within depth: %d",
+            len(new_nodes),
+            len(valid_nodes),
+            len(within_depth),
+        )
+
+        return within_depth
+
+    def _add(self, nodes):
+        # can_be_expanded
+        self._nodes |= nodes
 
         # collect by node types
-        for node in valid_nodes:
-            self._by_type[get_type(node)].add(node)
+        for node in nodes:
+            if node.depth() < self.max_depth and get_type(node) is not None:
+                self._by_type[get_type(node)].add(node)
+
+        for type_, nodes in self._by_type.items():
+            logger.debug("type %s nodes: %d", type_.__name__, len(nodes))
+
+        logger.debug("total nodes: %d", len(self._nodes))
 
     def nodes(self, type_=None):
         if type_ is None:
             return self._nodes
 
         return self._by_type[type_]
+
+    # TODO: switch completely to selection based functions(?)
+    # TODO: write unpack function which unpacks first, second, last(?), largest, smallest, tallest, widest, ... as new nodes
+    def generate_functions(self):
+        functions = (
+            select_color_functions(self)
+            | select_all_colors_functions(self)
+            | extract_selected_area_functions(self)
+            | extract_selected_areas_functions(self)
+            | set_selected_to_color_functions(self)
+            | merge_selections_functions(self)
+            | filter_selections_functions(self)
+            | split_selection_into_connected_areas_functions(self)
+            | switch_color_functions(self)
+            | map_color_functions(self)
+            | extract_islands_functions(self)
+            | extract_color_patches_functions(self)
+            | extract_color_patch_functions(self)
+            | logic_functions(self)
+            | symmetry_functions(self)
+        )
+
+        logger.debug(
+            "generated functions: %d", len(functions),
+        )
+
+        return functions
 
 
 def map_color_functions(graph):
@@ -187,7 +213,7 @@ def extract_color_patch_functions(graph):
 
 
 # TODO: also enumerate all combinations of two scalar grids with same shape
-# TODO: refactor logical functions to also take graph sequences (?)
+# TODO: refactor logical functions to also take grid sequences (?)
 def logic_functions(graph):
     functions = set()
     for sequence in graph.nodes(Grids):

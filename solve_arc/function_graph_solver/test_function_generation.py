@@ -78,9 +78,7 @@ def selection_wrong_size():
 
 @pytest.fixture
 def graph(target, grid, selection_1, selection_2, selection_wrong_size):
-    graph = Graph(target)
-    graph.add({grid, selection_1, selection_2, selection_wrong_size})
-    return graph
+    return Graph({grid, selection_1, selection_2, selection_wrong_size}, target, max_depth=1)
 
 
 def test_extract_selected_area_functions(graph, grid, selection_1, selection_2):
