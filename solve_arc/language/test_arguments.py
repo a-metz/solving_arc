@@ -10,6 +10,13 @@ def test_grid_create_empty():
     assert grid[0, 0] == 0
 
 
+def test_grid_create_filled():
+    grid = Grid.filled(shape=(5, 5), color=3)
+
+    assert grid.shape == (5, 5)
+    assert grid[0, 0] == 3
+
+
 def test_grid_create():
     grid = Grid([[1, 2], [3, 4]])
 

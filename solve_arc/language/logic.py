@@ -71,3 +71,23 @@ def _elementwise_xor(a, b):
         return a
     else:
         return 0
+
+
+def selection_elementwise_and(a, b):
+    return Selection(np.logical_and(a.state, b.state))
+
+
+def selection_elementwise_or(a, b):
+    return Selection(np.logical_or(a.state, b.state))
+
+
+def selection_elementwise_xor(a, b):
+    return Selection(np.logical_xor(a.state, b.state))
+
+
+def selection_elementwise_eq(a, b):
+    return Selection(a.state == b.state)
+
+
+def selection_elementwise_not(selection):
+    return Selection(np.invert(selection.state))

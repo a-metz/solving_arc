@@ -57,6 +57,10 @@ class Grid(_Base):
         return cls(np.zeros(shape=shape, dtype=np.int))
 
     @classmethod
+    def filled(cls, shape, color):
+        return cls(np.full(shape=shape, fill_value=color, dtype=np.int))
+
+    @classmethod
     def from_string(cls, string):
         elements = [[int(char) for char in line] for line in filtered_elements(string)]
         return cls(elements)

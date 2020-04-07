@@ -20,3 +20,7 @@ def set_selected_to_color(grid, selection, color):
     changed = selection.state * color
     unchanged = grid.state * np.invert(selection.state)
     return Grid(changed + unchanged)
+
+
+def fill_grid(grid, color):
+    return Grid.fill(grid.shape, color)
