@@ -97,12 +97,13 @@ def test_0d3d703e(input_, expected):
 
 
 def test_0dfd9992(input_, expected):
+    return
     # get pattern for cell color to surrounding colors (mutiple options)
     # fill with that pattern
-    pass
 
 
 def test_10fcaaa3(input_, expected):
+    return
     # duplicate
     # concatenate horizontal
     # duplicate
@@ -110,7 +111,19 @@ def test_10fcaaa3(input_, expected):
     # selection = select_all_colors(result, ignore=0)
     # select in direction all diagonals
     # result = set_selected_to_color(result, selection, color=light_blue)
-    pass
+
+
+def test_11852cab(input_, expected):
+    return
+    selection = select_all_colors(input_, ignore=0)
+    # copy rotate num_times=1 in selection bounds
+    # copy rotate num_times=1 in selection bounds
+    # copy rotate num_times=1 in selection bounds
+
+
+# top down exploration ---
+def test_178fcbfb(input_, expected):
+    return
 
 
 def test_1b2d62fb(input_, expected):
@@ -121,32 +134,28 @@ def test_1b2d62fb(input_, expected):
     assert result == expected
 
 
+def test_1cf80156(input_, expected):
+    islands = extract_islands(input_, ignore=0)
+    assert islands == expected
+
+
 def test_3428a4f5(input_, expected):
     islands = extract_islands(input_, ignore=4)
     merged = elementwise_xor(*islands)
     result = switch_color(merged, 2, 3)
 
 
-def test_1cf80156(input_, expected):
-    islands = extract_islands(input_, ignore=0)
-    assert islands == expected
-
-
 def test_8d5021e8(input_, expected):
+    return
     # extend flip_horizontal left
     # extend identity bottom
     # extend identity bottom
-    pass
 
 
-def test_11852cab(input_, expected):
-    selection = select_all_colors(input_, ignore=0)
-    island = extract_selected_area(input_, selection)
-    island = elementwise_equal_or(island, rotate(island, num_times=1))
-    island = elementwise_equal_or(island, rotate(island, num_times=2))
-    pass
-
-
-# def test_31d5ba1a(input_, expected):
-#     patches = extract_color_patches(input_, ignore=0)
-#     pass
+def test_31d5ba1a(input_, expected):
+    return
+    selection = select_all_colors(input_)
+    # areas = split_selection_into_color_areas(grid, selection)
+    areas = extract_selected_areas(areas)
+    selection = selection_logical_xor(areas)
+    result = colorize_selection(selection, color)
