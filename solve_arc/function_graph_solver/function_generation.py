@@ -245,9 +245,9 @@ def symmetry_functions(graph):
     for node in graph.nodes_type(Grid):
         functions.add(Function(vectorize(flip_up_down), node))
         functions.add(Function(vectorize(flip_left_right), node))
-        functions.add(Function(vectorize(rotate), node, Constant(repeat(1))))
-        functions.add(Function(vectorize(rotate), node, Constant(repeat(2))))
-        functions.add(Function(vectorize(rotate), node, Constant(repeat(3))))
+        functions.add(Function(vectorize(rotate_90), node))
+        functions.add(Function(vectorize(rotate_180), node))
+        functions.add(Function(vectorize(rotate_270), node))
     return functions
 
 
