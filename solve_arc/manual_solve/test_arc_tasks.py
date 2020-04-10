@@ -30,12 +30,6 @@ def test_0520fde7(input_, expected):
     assert result == expected
 
 
-def test_05269061(input_, expected):
-    return
-    # get pattern for cell color to surrounding colors (underdefined)
-    # fill with that pattern
-
-
 def test_05f2a901(input_, expected):
     return
     # get red selection
@@ -64,18 +58,17 @@ def test_0a938d79(input_, expected):
     selection = select_all_colors(input_, ignore=0)
     areas = split_selection_into_connected_areas(selection)
     # get directional relation first to second
-    # copy stepwise first in direction
+    # extrude stepwise first in direction
     # get directional relation second to first
-    # copy stepwise second in direction
+    # extrude stepwise second in direction
     # ...
 
 
 def test_0b148d64(input_, expected):
     return
-    selection = select_all_colors(input_, ignore=0)
-    # areas = split_selection_into_color_areas(grid, selection)
-    # result = filter_selections_touching_edge(areas)
-    # alternative select by uniqueness?
+    # selections = select_each_color
+    # result = filter_selections_touching_edge(selections)
+    # result = extract_selected_areas(areas)
 
 
 def test_0ca9ddb6(input_, expected):
@@ -96,17 +89,11 @@ def test_0d3d703e(input_, expected):
     assert result == expected
 
 
-def test_0dfd9992(input_, expected):
-    return
-    # get pattern for cell color to surrounding colors (mutiple options)
-    # fill with that pattern
-
-
 def test_10fcaaa3(input_, expected):
     return
-    # duplicate
+    # (duplicate)
     # concatenate horizontal
-    # duplicate
+    # (duplicate)
     # concatenate vertical
     # selection = select_all_colors(result, ignore=0)
     # select in direction all diagonals
@@ -116,14 +103,21 @@ def test_10fcaaa3(input_, expected):
 def test_11852cab(input_, expected):
     return
     selection = select_all_colors(input_, ignore=0)
-    # copy rotate num_times=1 in selection bounds
-    # copy rotate num_times=1 in selection bounds
-    # copy rotate num_times=1 in selection bounds
+    # extrude rotate num_times=1 in selection bounds
+    # extrude rotate num_times=1 in selection bounds
+    # extrude rotate num_times=1 in selection bounds
 
 
-# top down exploration ---
 def test_178fcbfb(input_, expected):
     return
+    # selection2 = select_color(input_, color=2)
+    # extrude selected stepwise to top
+    # extrude selected stepwise to bottom
+    # selection1 = select_color(input_, color=1)
+    # selection3 = select_color(input_, color=3)
+    # selection = selection_logical_or(selection1, selection3)
+    # extrude selected stepwise to left
+    # extrude selected stepwise to right
 
 
 def test_1b2d62fb(input_, expected):
@@ -134,9 +128,53 @@ def test_1b2d62fb(input_, expected):
     assert result == expected
 
 
+def test_1c786137(input_, expected):
+    return
+    # select_each_color
+    # sort by bounds size
+    # get first (smallest)
+    # extract selected area
+    # select_each_color
+    # areas = filter_selections_touching_edge(areas)
+    # selection = selection_logical_or(areas)
+    # extract selected area
+
+
 def test_1cf80156(input_, expected):
     islands = extract_islands(input_, ignore=0)
     assert islands == expected
+
+
+def test_1e0a9b12(input_, expected):
+    return
+    # select_each_color
+    # split_selection_into_connected_areas_no_diagonals / single cells
+    # move all stepwise in direction bottom
+
+
+def test_1f85a75f(input_, expected):
+    return
+    # select_each_color
+    # areas = filter_selections_touching_edge(areas)
+    # result = extract_selected_areas(areas)
+
+
+def test_2013d3e2(input_, expected):
+    return
+    # selection = select_all_colors(input_)
+    # extract selected area
+    # split halfs horizontal
+    # take first
+    # split halfs vertical
+    # take first
+
+
+def test_23b5c85d(input_, expected):
+    return
+    # select_each_color
+    # sort by bounds size
+    # get first (smallest)
+    # extract_selected_area
 
 
 def test_3428a4f5(input_, expected):
@@ -150,6 +188,33 @@ def test_8d5021e8(input_, expected):
     # extend flip_horizontal left
     # extend identity bottom
     # extend identity bottom
+    #
+    # (duplicate)
+    # flip horizontal
+    # concatenate horizontal
+    # (duplicate)
+    # concatenate vertical
+    # concatenate vertical
+
+
+def test_25ff71a9(input_, expected):
+    return
+    selection = select_all_colors(input_)
+    # move one step in direction bottom
+
+
+def test_28bf18c6(input_, expected):
+    return
+    selection = selection_all_colors(input_)
+    # extract_selected_area
+    # (duplicate)
+    # concatenate horizontal
+
+
+def test_2dee498d(input_, expected):
+    return
+    # split thirds horizontal
+    # take first
 
 
 def test_31d5ba1a(input_, expected):
@@ -159,3 +224,93 @@ def test_31d5ba1a(input_, expected):
     areas = extract_selected_areas(areas)
     selection = selection_logical_xor(areas)
     result = colorize_selection(selection, color)
+
+
+def test_32597951(input_, expected):
+    return
+    selection = select_color(input_, color=1)
+    # fill bounds
+    # select color in selection
+    # set_selected_to_color
+
+
+def test_36fdfd69(input_, expected):
+    return
+    selection = select_color(input_, color=1)
+    # fill bounds
+    # select all colors in selection (ignore=2)
+    # set_selected_to_color
+
+
+def test_3906de3d(input_, expected):
+    return
+    # select_each_color
+    # split selections into single cells
+    # move all stepwise in direction top
+
+
+def test_39a8645d(input_, expected):
+    return
+    # select_each_color
+    # split_selections_into_connected_areas
+    # sort by commonness
+    # take first
+    # extract selected
+
+def test_3af2c5a8(input_, expected):
+    # (duplicate)
+    # flip horizontal
+    # concatenate horizontal
+    # (duplicate)
+    # concatenate vertical
+
+def test_4c4377d9(input_, expected):
+    # (duplicate)
+    # concatenate vertical
+
+
+def test_50cb2852(input_, expected):
+    # select_all_colors(result, ignore=0)
+    # shrink selection
+
+def test_5117e062(input_, expected):
+    # select_all_colors(result, ignore=0)
+    # filter_selections_not_containing_color
+
+
+def test_54d9e175(input_, expected):
+    # selection = select_all_colors(result, ignore=5)
+    # areas = split_selection_into_connected_areas_no_diagonals(selection)
+    # islands = extract_selected_areas()
+    # color = get_most_common_color
+    # fill_color(color)
+
+
+def test_5521c0d9(input_, expected):
+    # selection = select_all_colors(result, ignore=0)
+    # move all stepwise in direction bottom
+
+def test_5614dbcf(input_, expected):
+    # selection = select_all_colors(result, ignore=5)
+    # areas = split_selection_into_color_areas(grid, selection)
+    # islands = extract_selected_areas(areas)
+    # color = get_most_common_color
+    # fill_color(color)
+
+
+def test_5bd6f4ac(input_, expected):
+    # split thirds horizontal
+    # take last
+    # split thirds vertical
+    # take first
+
+# general missing concepts
+# * color as non-constant argument
+# * counts as pixels (e.g. progressbar)
+# * color depending on condition
+# * remembered positions
+# * scale invariance (pixels double sized)
+# * horizontal / vertial coordinate as argument
+# * associate shape
+# * complex / intricate shapes vs simple shapes
+# * natural pattern continuation

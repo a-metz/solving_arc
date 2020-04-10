@@ -1,9 +1,7 @@
 SOLVED_TASK_IDS = {
     "0520fde7",
     "0b148d64",
-    # soon? "11852cab",
     "195ba7dc",
-    # soon? "1b2d62fb",
     "1cf80156",
     "3428a4f5",
     "3c9b0459",
@@ -14,7 +12,6 @@ SOLVED_TASK_IDS = {
     "68b16354",
     "7468f01a",
     "74dd1130",
-    # soon? "8d5021e8",
     "9dfd6313",
     "9ecd008a",
     "b1948b0a",
