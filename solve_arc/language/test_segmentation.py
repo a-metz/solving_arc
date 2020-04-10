@@ -147,3 +147,27 @@ def test_split_top_middle_bottom(vertical_grid):
     )
 
     assert split_top_middle_bottom(vertical_grid) == expected
+
+
+def test_concatenate_left_right(horizonal_grid):
+    a, b = split_left_right(horizonal_grid)
+
+    assert concatenate_left_right(a, b) == horizonal_grid
+
+
+def test_concatenate_left_to_right(horizonal_grid):
+    grids = split_left_middle_right(horizonal_grid)
+
+    assert concatenate_left_to_right(grids) == horizonal_grid
+
+
+def test_concatenate_top_bottom(horizonal_grid):
+    a, b = split_top_bottom(horizonal_grid)
+
+    assert concatenate_top_bottom(a, b) == horizonal_grid
+
+
+def test_concatenate_top_to_bottom(vertical_grid):
+    grids = split_top_middle_bottom(vertical_grid)
+
+    assert concatenate_top_to_bottom(grids) == vertical_grid

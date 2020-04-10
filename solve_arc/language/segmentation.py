@@ -39,3 +39,19 @@ def split_top_bottom(grid):
 
 def split_top_middle_bottom(grid):
     return Grids(Grid(split) for split in np.vsplit(grid.state, 3))
+
+
+def concatenate_left_right(a, b):
+    return Grid(np.hstack([a.state, b.state]))
+
+
+def concatenate_top_bottom(a, b):
+    return Grid(np.vstack([a.state, b.state]))
+
+
+def concatenate_left_to_right(grids):
+    return Grid(np.hstack([grid.state for grid in grids]))
+
+
+def concatenate_top_to_bottom(grids):
+    return Grid(np.vstack([grid.state for grid in grids]))
