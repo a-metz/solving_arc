@@ -3,12 +3,13 @@ import warnings
 
 import pytest
 
-from ..arc.loader import training_tasks
+from ..arc.loader import training_tasks, evaluation_tasks
 
 
 def train_and_test_subtasks(task_id):
-    yield from training_tasks()[task_id].train
-    yield from training_tasks()[task_id].test
+    all_tasks = {**training_tasks(), **evaluation_tasks()}
+    yield from all_tasks[task_id].train
+    yield from all_tasks[task_id].test
 
 
 # parameterize subtasks using test name

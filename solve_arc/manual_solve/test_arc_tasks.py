@@ -18,9 +18,10 @@ from ..language import *
 def test_00d62c1b(input_, expected):
     selection = select_color(input_, color=0)
     areas = split_selection_into_connected_areas_no_diagonals(selection)
-    areas = filter_selections_touching_edge(areas)
+    areas = filter_selections_not_touching_edge(areas)
     selection = merge_selections(areas)
     result = set_selected_to_color(input_, selection, color=4)
+    assert result == expected
 
 
 def test_0520fde7(input_, expected):
@@ -181,6 +182,7 @@ def test_3428a4f5(input_, expected):
     islands = extract_islands(input_, ignore=4)
     merged = elementwise_xor(*islands)
     result = switch_color(merged, 2, 3)
+    assert result == expected
 
 
 def test_8d5021e8(input_, expected):
@@ -257,6 +259,7 @@ def test_39a8645d(input_, expected):
     # take first
     # extract selected
 
+
 def test_3af2c5a8(input_, expected):
     return
     # (duplicate)
@@ -264,6 +267,7 @@ def test_3af2c5a8(input_, expected):
     # concatenate horizontal
     # (duplicate)
     # concatenate vertical
+
 
 def test_4c4377d9(input_, expected):
     return
@@ -276,7 +280,9 @@ def test_50cb2852(input_, expected):
     # select_all_colors(result, ignore=0)
     # shrink selection
 
+
 def test_5117e062(input_, expected):
+    return
     # select_all_colors(result, ignore=0)
     # filter_selections_not_containing_color
 
@@ -294,6 +300,7 @@ def test_5521c0d9(input_, expected):
     return
     # selection = select_all_colors(result, ignore=0)
     # move all stepwise in direction bottom
+
 
 def test_5614dbcf(input_, expected):
     return
@@ -329,6 +336,7 @@ def test_62c24649(input_, expected):
     # (duplicate)
     # flip vertical
     # concatenate vertical
+
 
 # general missing concepts
 # * color as non-constant argument
