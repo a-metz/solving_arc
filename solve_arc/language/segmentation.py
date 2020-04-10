@@ -23,3 +23,19 @@ def extract_selected_area(grid, selection):
         return None
 
     return patch
+
+
+def split_left_right(grid):
+    return Grids(Grid(split) for split in np.hsplit(grid.state, 2))
+
+
+def split_left_middle_right(grid):
+    return Grids(Grid(split) for split in np.hsplit(grid.state, 3))
+
+
+def split_top_bottom(grid):
+    return Grids(Grid(split) for split in np.vsplit(grid.state, 2))
+
+
+def split_top_middle_bottom(grid):
+    return Grids(Grid(split) for split in np.vsplit(grid.state, 3))
