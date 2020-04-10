@@ -9,7 +9,7 @@ from .solved_tasks import SOLVED_TASK_IDS
 
 @pytest.fixture
 def expect_solve():
-    return SOLVED_TASK_IDS
+    return set(SOLVED_TASK_IDS)
 
 
 @pytest.mark.slow

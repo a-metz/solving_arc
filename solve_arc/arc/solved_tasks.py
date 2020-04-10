@@ -1,4 +1,4 @@
-SOLVED_TASK_IDS = {
+SOLVED_TASK_IDS = [
     "0520fde7",
     "0b148d64",
     "195ba7dc",
@@ -25,4 +25,4 @@ SOLVED_TASK_IDS = {
     "ed36ccf7",
     "f4081712",
     "ff805c23",
-}
+]
