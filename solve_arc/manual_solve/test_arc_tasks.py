@@ -261,7 +261,11 @@ def test_39a8645d(input_, expected):
 
 
 def test_3af2c5a8(input_, expected):
-    return
+    flipped = flip_left_right(input_)
+    result = concatenate_left_right(input_, flipped)
+    flipped = flip_up_down(result)
+    result = concatenate_top_bottom(result, flipped)
+    assert result == expected
     # (duplicate)
     # flip horizontal
     # concatenate horizontal
@@ -329,13 +333,15 @@ def test_60b61512(input_, expected):
 
 
 def test_62c24649(input_, expected):
+    flipped = flip_left_right(input_)
+    result = concatenate_left_right(input_, flipped)
+    flipped = flip_up_down(result)
+    result = concatenate_top_bottom(result, flipped)
+    assert result == expected
+
+
+def test_a740d043(input_, expected):
     return
-    # (duplicate)
-    # flip horizontal
-    # concatenate horizontal
-    # (duplicate)
-    # flip vertical
-    # concatenate vertical
 
 
 # general missing concepts

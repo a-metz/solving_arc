@@ -1,5 +1,5 @@
 from collections import defaultdict
-from itertools import product, combinations
+from itertools import product, combinations, combinations_with_replacement
 import logging
 
 from ..language import *
@@ -66,11 +66,13 @@ class Graph:
             | split_selection_into_connected_areas_functions(self)
             | switch_color_functions(self)
             | map_color_functions(self)
+            | logic_functions(self)
+            | symmetry_functions(self)
+            | concatenate_functions(self)
+            | split_functions(self)
             | extract_islands_functions(self)
             | extract_color_patches_functions(self)
             | extract_color_patch_functions(self)
-            | logic_functions(self)
-            | symmetry_functions(self)
         )
         return functions
 
@@ -226,6 +228,47 @@ def extract_color_patch_functions(graph):
     }
 
 
+def concatenate_functions(graph):
+    functions = set()
+
+    # heuristic: only do concatenations for half target height
+    half_height = (
+        grid_node
+        for grid_node in graph.nodes_type(Grid)
+        if multiply(height(grid_node()), 2) == height(graph.target)
+    )
+    for top_node, bottom_node in combinations_with_replacement(half_height, 2):
+        if width(top_node()) == width(bottom_node()):
+            functions.add(Function(vectorize(concatenate_top_bottom), top_node, bottom_node))
+
+    # heuristic: only do concatenations for half target width
+    half_width = (
+        grid_node
+        for grid_node in graph.nodes_type(Grid)
+        if multiply(width(grid_node()), 2) == width(graph.target)
+    )
+    for left_node, right_node in combinations_with_replacement(half_width, 2):
+        if height(left_node()) == height(right_node()):
+            functions.add(Function(vectorize(concatenate_left_right), left_node, right_node))
+
+    return functions
+
+
+def split_functions(graph):
+    functions = set()
+    # heuristic: only do concatenations for shape target.shape * num_splits
+    for grid_node in graph.nodes_type(Grid):
+        if height(grid_node()) == multiply(height(graph.target), 2):
+            functions.add(Function(vectorize(split_top_bottom), grid_node))
+        if height(grid_node()) == multiply(height(graph.target), 3):
+            functions.add(Function(vectorize(split_top_middle_bottom), grid_node))
+        if width(grid_node()) == multiply(width(graph.target), 2):
+            functions.add(Function(vectorize(split_left_right), grid_node))
+        if width(grid_node()) == multiply(width(graph.target), 3):
+            functions.add(Function(vectorize(split_left_middle_right), grid_node))
+    return functions
+
+
 # TODO: also enumerate all combinations of two scalar grids with same shape
 # TODO: refactor logical functions to also take grid sequences (?)
 def logic_functions(graph):
@@ -276,6 +319,20 @@ def is_matching_shape(sequence_node):
 @vectorize
 def shape(element):
     return element.shape
+
+
+@vectorize
+def height(element):
+    return element.shape[0]
+
+
+@vectorize
+def width(element):
+    return element.shape[1]
+
+
+def multiply(vector, factor):
+    return tuple(element * factor for element in vector)
 
 
 @vectorize
