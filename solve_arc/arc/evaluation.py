@@ -1,13 +1,14 @@
 from itertools import islice
-import logging
 from datetime import datetime
+from statistics import mean
+import logging
 
 from func_timeout import func_timeout, FunctionTimedOut
 import click
 
 from .loader import training_tasks, evaluation_tasks
 from .solved_tasks import SOLVED_TASK_IDS
-from ..function_graph_solver.sampling_search import solve, Constraint
+from ..function_graph_solver.sampling_search import solve, Constraint, Statistics
 
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
@@ -45,6 +46,7 @@ def _get_tasks(task_ids):
 def _evaluate(tasks, max_seconds_per_task=10, max_search_depth=5):
     score = 0
     solved = []
+    statistics = []
     start_time = datetime.now()
     for task_id, (train_subtasks, test_subtasks) in tasks:
         logger.info("solving {}".format(task_id))
@@ -55,6 +57,7 @@ def _evaluate(tasks, max_seconds_per_task=10, max_search_depth=5):
                 timeout=max_seconds_per_task, func=solve, args=(constraints, max_search_depth)
             )
             if solution is not None:
+                statistics.append(solution.statistics)
                 valid = check_solution(solution, train_subtasks)
                 if valid:
                     score += 1
@@ -70,9 +73,17 @@ def _evaluate(tasks, max_seconds_per_task=10, max_search_depth=5):
 
     logger.info("solved: {}".format(", ".join(solved)))
     logger.info("elapsed time: {}".format(datetime.now() - start_time))
+    if len(statistics) > 0:
+        logger.info("statistics mean: {!s}".format(reduce_statistics(statistics, mean)))
     logger.info("score: {}/{} ({})".format(score, len(tasks), (1 - score / len(tasks))))
 
     return solved
+
+
+def reduce_statistics(statistics, func):
+    return Statistics(
+        *[func(element) for element in zip(*[stat for stat in statistics if stat is not None])]
+    )
 
 
 def timeout(timeout, func, args):

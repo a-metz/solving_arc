@@ -51,6 +51,9 @@ class Graph:
 
         return check_solution_nodes
 
+    def nodes(self):
+        return self.checked_nodes
+
     # TODO: switch completely to selection based functions(?)
     # TODO: write unpack function which unpacks first, second, last(?), largest, smallest, tallest, widest, ... as new nodes
     def generate_functions(self):
