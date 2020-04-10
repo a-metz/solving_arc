@@ -229,7 +229,7 @@ def test_31d5ba1a(input_, expected):
 def test_32597951(input_, expected):
     return
     selection = select_color(input_, color=1)
-    # fill bounds
+    # fill_selection_bounds
     # select color in selection
     # set_selected_to_color
 
@@ -237,7 +237,7 @@ def test_32597951(input_, expected):
 def test_36fdfd69(input_, expected):
     return
     selection = select_color(input_, color=1)
-    # fill bounds
+    # fill_selection_bounds
     # select all colors in selection (ignore=2)
     # set_selected_to_color
 
@@ -258,6 +258,7 @@ def test_39a8645d(input_, expected):
     # extract selected
 
 def test_3af2c5a8(input_, expected):
+    return
     # (duplicate)
     # flip horizontal
     # concatenate horizontal
@@ -265,11 +266,13 @@ def test_3af2c5a8(input_, expected):
     # concatenate vertical
 
 def test_4c4377d9(input_, expected):
+    return
     # (duplicate)
     # concatenate vertical
 
 
 def test_50cb2852(input_, expected):
+    return
     # select_all_colors(result, ignore=0)
     # shrink selection
 
@@ -279,6 +282,7 @@ def test_5117e062(input_, expected):
 
 
 def test_54d9e175(input_, expected):
+    return
     # selection = select_all_colors(result, ignore=5)
     # areas = split_selection_into_connected_areas_no_diagonals(selection)
     # islands = extract_selected_areas()
@@ -287,10 +291,12 @@ def test_54d9e175(input_, expected):
 
 
 def test_5521c0d9(input_, expected):
+    return
     # selection = select_all_colors(result, ignore=0)
     # move all stepwise in direction bottom
 
 def test_5614dbcf(input_, expected):
+    return
     # selection = select_all_colors(result, ignore=5)
     # areas = split_selection_into_color_areas(grid, selection)
     # islands = extract_selected_areas(areas)
@@ -299,10 +305,30 @@ def test_5614dbcf(input_, expected):
 
 
 def test_5bd6f4ac(input_, expected):
+    return
     # split thirds horizontal
     # take last
     # split thirds vertical
     # take first
+
+
+def test_60b61512(input_, expected):
+    return
+    selection = select_all_colors(input_, ignore=0)
+    areas = split_selection_into_connected_areas(selection)
+    # fill_selection_bounds
+    # select color in selection
+    # set_selected_to_color(color=7)
+
+
+def test_62c24649(input_, expected):
+    return
+    # (duplicate)
+    # flip horizontal
+    # concatenate horizontal
+    # (duplicate)
+    # flip vertical
+    # concatenate vertical
 
 # general missing concepts
 # * color as non-constant argument
