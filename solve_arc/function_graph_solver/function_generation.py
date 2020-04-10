@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 
 # TODO: move generate functions into graph, inline functions and give access to self (=graph)
-# TODO: rename add to expand without args (maybe option for sample size)
 # TODO: add operation counts and/or other heuristics of evaluation subtree as map (node->value) (?)
 class Graph:
     def __init__(self, initial_nodes, target, max_depth):
