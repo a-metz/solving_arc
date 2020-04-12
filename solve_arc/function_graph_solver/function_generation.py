@@ -2,6 +2,7 @@ from collections import defaultdict
 from itertools import product, combinations, combinations_with_replacement
 from statistics import mean
 import logging
+import random
 
 from ..language import *
 from .nodes import Function, Constant
@@ -28,7 +29,8 @@ class Graph:
         self._process(initial_nodes)
 
     def expand(self):
-        expand_next = NodeCollection(self.expandable_nodes)
+        sample_size = min(len(self.expandable_nodes), 100)
+        expand_next = NodeCollection(random.sample(self.expandable_nodes, sample_size))
         self.expandable_nodes -= expand_next
         logger.debug(
             "expand %d nodes (Grid: %d, Grids: %d, Selection: %d, Selections: %d)",
@@ -45,6 +47,10 @@ class Graph:
         new_nodes = generate_functions(expand_next, self) - self.nodes
         self.expanded_nodes |= expand_next
 
+        logger.debug(
+            "new nodes: %d, expanded: %d", len(new_nodes), len(self.expanded_nodes),
+        )
+
         return self._process(new_nodes)
 
     def _process(self, new_nodes):
@@ -53,10 +59,7 @@ class Graph:
             node for node in new_nodes if is_valid(node) and node.depth() < self.max_depth
         }
         logger.debug(
-            "new nodes: %d, total expandable: %d, total nodes: %d",
-            len(new_nodes),
-            len(self.expandable_nodes),
-            len(self.nodes),
+            "total expandable: %d, total nodes: %d", len(self.expandable_nodes), len(self.nodes),
         )
 
         # check for solution
