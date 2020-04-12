@@ -1,10 +1,12 @@
 from collections import defaultdict
 from itertools import product, combinations, combinations_with_replacement
+from statistics import mean
 import logging
 
 from ..language import *
 from .nodes import Function, Constant
 from .vectorize import *
+from .loss import distance
 
 logger = logging.getLogger(__name__)
 
@@ -16,43 +18,41 @@ class Graph:
         self.target = target
         self.max_depth = max_depth
 
-        # all nodes that have been generated, for more efficient checking
-        self.checked_nodes = set(initial_nodes)
-        self.expandable_nodes = set(initial_nodes)
-
         # nodes by type for faster access
         self.nodes_type = NodesByType()
-        self.nodes_type.filter(self.expandable_nodes)
+        # all nodes that have been generated, for checking for new nodes
+        self.nodes = set()
+
+        self._process(initial_nodes)
 
     def expand(self):
-        new_nodes = self.generate_functions()
+        return self._process(self.generate_functions() - self.nodes)
 
-        # manage nodes to be checked
-        unchecked_nodes = new_nodes - self.checked_nodes
-        check_solution_nodes = {
-            node for node in unchecked_nodes if is_valid(node) and node.depth() <= self.max_depth
-        }
-        # actually check only happens at the end
-        self.checked_nodes |= check_solution_nodes
+    def _process(self, new_nodes):
+        self.nodes |= new_nodes
 
-        # manage nodes to be expanded
-        self.expandable_nodes |= {
+        # check for solution
+        for node in new_nodes:
+            if node() == self.target:
+                return node
+
+        expandable = [
             node for node in new_nodes if is_valid(node) and node.depth() < self.max_depth
-        }
-        self.nodes_type.filter(self.expandable_nodes)
+        ]
 
         logger.debug(
-            "new: %d, total expandable: %d, check solution for: %d, total checked: %d",
+            "nodes: new: %d, expandable: %d, total: %d",
             len(new_nodes),
-            len(self.expandable_nodes),
-            len(check_solution_nodes),
-            len(self.checked_nodes),
+            len(expandable),
+            len(self.nodes),
         )
 
-        return check_solution_nodes
+        if len(expandable) == 0:
+            raise NoExpandableNodes()
 
-    def nodes(self):
-        return self.checked_nodes
+        self.nodes_type.filter(expandable)
+
+        return None
 
     # TODO: switch completely to selection based functions(?)
     # TODO: write unpack function which unpacks first, second, last(?), largest, smallest, tallest, widest, ... as new nodes
@@ -77,6 +77,10 @@ class Graph:
             | extract_color_patch_functions(self)
         )
         return functions
+
+
+class NoExpandableNodes(Exception):
+    pass
 
 
 class NodesByType:

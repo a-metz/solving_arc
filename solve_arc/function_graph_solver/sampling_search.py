@@ -5,7 +5,7 @@ from statistics import mean
 import logging
 
 
-from .function_generation import Graph
+from .function_generation import *
 from .nodes import *
 from .vectorize import repeat_once, Vector
 
@@ -23,21 +23,18 @@ def solve(constraints, max_depth):
 
     graph = Graph({source_node}, target, max_depth)
 
-    for step in count():
-        # only consider nodes not yet in graph
-        new_nodes = graph.expand()
+    try:
+        for step in count():
+            # only consider nodes not yet in graph
+            solution = graph.expand()
 
-        if len(new_nodes) == 0:
-            # no new nodes can be generated
-            logger.debug("no futher graph expansion possible")
-            break
+            if solution is not None:
+                statistics = Statistics.from_graph(solution, graph)
+                logger.debug("found solution, statistics: %s", str(statistics))
+                return Solution(solution, source_node, statistics)
 
-        # check for solution
-        for node in new_nodes:
-            if node() == graph.target:
-                statistics = Statistics.from_graph(node, graph)
-                logger.debug("solution statistics: %s", str(statistics))
-                return Solution(node, source_node, statistics)
+    except NoExpandableNodes:
+        logger.debug("no futher graph expansion possible")
 
     return None
 
@@ -76,7 +73,7 @@ class Statistics(namedtuple("Statistics", ["depth", "branching_factor", "nodes_c
         statistics = cls(
             depth=node.depth(),
             branching_factor=branching_factor(graph),
-            nodes_count=len(graph.nodes()),
+            nodes_count=len(graph.nodes),
         )
         return statistics
 
@@ -86,7 +83,7 @@ class Statistics(namedtuple("Statistics", ["depth", "branching_factor", "nodes_c
 
 def branching_factor(graph):
     children = defaultdict(set)
-    for node in graph.nodes():
+    for node in graph.nodes:
         if isinstance(node, Function):
             for parent in node.args:
                 children[parent].add(node)
