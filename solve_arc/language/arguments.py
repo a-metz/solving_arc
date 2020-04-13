@@ -39,11 +39,13 @@ class _Base:
     def __eq__(self, other):
         return isinstance(other, self.__class__) and hash(self) == hash(other)
 
-    def __str__(self):
-        return "{}(<{}, {}>)".format(self.__class__.__name__, shape[0], shape[1])
+    def __str__(self, str_element=str):
+        return "\n".join(
+            [" ".join([str_element(element) for element in row]) for row in self.state]
+        )
 
     def __repr__(self):
-        return "{}({})".format(self.__class__.__name__, self.state.tolist())
+        return "{}(<{}, {}>)".format(self.__class__.__name__, self.shape[0], self.shape[1])
 
 
 class Grid(_Base):
@@ -68,9 +70,6 @@ class Grid(_Base):
     def used_colors(self):
         """returns list of colors used in grid"""
         return np.unique(self.state)
-
-    def __str__(self):
-        return "\n".join([" ".join([str(char) for char in row]) for row in self.state])
 
 
 class Selection(_Base):
@@ -103,7 +102,7 @@ class Selection(_Base):
         return np.any(self.state)
 
     def __str__(self):
-        return "\n".join([" ".join(["#" if value else "." for value in row]) for row in self.state])
+        return super().__str__(str_element=lambda element: "#" if element else ".")
 
 
 def filtered_elements(string):
@@ -112,7 +111,7 @@ def filtered_elements(string):
 
 class _Sequence(tuple):
     def __str__(self):
-        return "{}({})".format(self.__class__.__name__, ", ".join(str(element) for element in self))
+        return "\n---\n".join(str(element) for element in self)
 
     def __repr__(self):
         return "{}([{}])".format(
