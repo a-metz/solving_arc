@@ -29,7 +29,7 @@ class Graph:
         self._process(initial_nodes)
 
     def expand(self):
-        sample_size = min(len(self.expandable_nodes), 100)
+        sample_size = min(len(self.expandable_nodes), 500)
         expand_next = NodeCollection(random.sample(self.expandable_nodes, sample_size))
         self.expandable_nodes -= expand_next
         logger.debug(
