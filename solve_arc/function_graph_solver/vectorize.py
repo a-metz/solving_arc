@@ -47,6 +47,14 @@ class vectorize(_FunctionWrapper):
         return Vector(self.func(*args) for args in zip(*arg_tuples))
 
 
+# break naming conventions for consistent decorator naming
+class reduce_all(_FunctionWrapper):
+    """vectorized application of function"""
+
+    def __call__(self, *arg_tuples):
+        return all(self.func(*args) for args in zip(*arg_tuples))
+
+
 class _ValueWrapper:
     """wrapped value with hash only dependent on value"""
 

@@ -65,7 +65,7 @@ def take_first(sequence):
 
 
 def take_last(sequence):
-    if len(sequence) == 0:
+    if len(sequence) < 2:
         return None
 
     return sequence[-1]

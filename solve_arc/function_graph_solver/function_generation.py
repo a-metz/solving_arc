@@ -15,9 +15,12 @@ logger = logging.getLogger(__name__)
 # TODO: move generate functions into graph, inline functions and give access to self (=graph)
 # TODO: add operation counts and/or other heuristics of evaluation subtree as map (node->value) (?)
 class Graph:
-    def __init__(self, initial_nodes, target, max_depth):
+    def __init__(self, initial_nodes, target, max_depth, expand_size=500):
         self.target = target
         self.max_depth = max_depth
+        self.expand_size = expand_size
+
+        self.random = random.Random(0)  # seed for determinism
 
         # all nodes that have been generated, for checking for new nodes
         self.nodes = set()
@@ -29,8 +32,8 @@ class Graph:
         self._process(initial_nodes)
 
     def expand(self):
-        sample_size = min(len(self.expandable_nodes), 500)
-        expand_next = NodeCollection(random.sample(self.expandable_nodes, sample_size))
+        sample_size = min(len(self.expandable_nodes), self.expand_size)
+        expand_next = NodeCollection(self.random.sample(self.expandable_nodes, sample_size))
         self.expandable_nodes -= expand_next
         logger.debug(
             "expand %d nodes (Grid: %d, Grids: %d, Selection: %d, Selections: %d)",
@@ -56,7 +59,7 @@ class Graph:
     def _process(self, new_nodes):
         self.nodes |= new_nodes
         self.expandable_nodes |= {
-            node for node in new_nodes if is_valid(node) and node.depth() < self.max_depth
+            node for node in new_nodes if is_valid(node()) and node.depth() < self.max_depth
         }
         logger.debug(
             "total expandable: %d, total nodes: %d", len(self.expandable_nodes), len(self.nodes),
@@ -72,6 +75,11 @@ class Graph:
 
 class NoExpandableNodes(Exception):
     pass
+
+
+@reduce_all
+def is_valid(value):
+    return value is not None
 
 
 class NodeCollection(set):
@@ -112,6 +120,7 @@ def generate_functions(nodes, graph):
         | logic_functions(nodes, graph)
         | symmetry_functions(nodes, graph)
         | concatenate_functions(nodes, graph)
+        | concatenate_sequence_functions(nodes, graph)
         | split_functions(nodes, graph)
         | extract_islands_functions(nodes, graph)
         | extract_color_patches_functions(nodes, graph)
@@ -178,9 +187,9 @@ def filter_selections_functions(nodes, graph):
 
 def merge_selections_functions(nodes, graph):
     return {
-        Function(vectorize(merge_selections), selections)
-        for selections in nodes.of_type(Selections)
-        if is_matching_shape(selections)
+        Function(vectorize(merge_selections), selections_node)
+        for selections_node in nodes.of_type(Selections)
+        if is_matching_shape(selections_node())
     }
 
 
@@ -210,7 +219,7 @@ def extract_selected_areas_functions(nodes, graph):
         Function(vectorize(extract_selected_areas), grid_node, selections_node)
         for grid_node, selections_node in product(nodes.of_type(Grid), nodes.of_type(Selections))
         # can only process nodes ofs length 2 further
-        if is_matching_shape(selections_node) and shape(grid_node()) == shape(selections_node()[0])
+        if is_matching_shape(append(selections_node(), grid_node()))
         # heuristic: if target has different shape
         and shape(grid_node()) != shape(graph.target)
     }
@@ -272,6 +281,22 @@ def concatenate_functions(nodes, graph):
     return functions
 
 
+def concatenate_sequence_functions(nodes, graph):
+    functions = set()
+    for sequence_node in nodes.of_type(Grids):
+        # heuristic: only do concatenations if matching target dimensions
+        if is_matching_width(append(sequence_node(), graph.target)) and height_sum(
+            sequence_node()
+        ) == height(graph.target):
+            functions.add(Function(vectorize(concatenate_top_to_bottom), sequence_node))
+
+        if is_matching_height(append(sequence_node(), graph.target)) and width_sum(
+            sequence_node()
+        ) == width(graph.target):
+            functions.add(Function(vectorize(concatenate_left_to_right), sequence_node))
+    return functions
+
+
 def split_functions(nodes, graph):
     functions = set()
     # heuristic: only do concatenations for shape target.shape * num_splits
@@ -292,7 +317,7 @@ def split_functions(nodes, graph):
 def logic_functions(nodes, graph):
     functions = set()
     for sequence in nodes.of_type(Grids):
-        if is_matching_shape_pair(sequence):
+        if is_matching_shape_pair(sequence()):
             a = Function(vectorize(take_first), sequence)
             b = Function(vectorize(take_last), sequence)
             functions.add(Function(vectorize(elementwise_equal_and), a, b))
@@ -326,20 +351,40 @@ def used_colors(grid_vector):
     return set.intersection(*used_colors)
 
 
-def is_matching_shape_pair(sequence_node):
+@reduce_all
+def is_matching_shape_pair(sequence):
     """assume type is already checked"""
-    return all(
-        len(sequence) == 2 and sequence[0].shape == sequence[1].shape
-        for sequence in sequence_node()
-    )
+    return len(sequence) == 2 and sequence[0].shape == sequence[1].shape
 
 
-def is_matching_shape(sequence_node):
+@reduce_all
+def is_matching_shape(sequence):
     """assume type is already checked"""
-    return all(
-        len(sequence) >= 2 and all(scalar.shape == sequence[0].shape for scalar in sequence[1:])
-        for sequence in sequence_node()
-    )
+    if len(sequence) < 2:
+        return False
+
+    shape = sequence[0].shape
+    return all(scalar.shape == shape for scalar in sequence[1:])
+
+
+@reduce_all
+def is_matching_height(sequence):
+    """assume type is already checked"""
+    if len(sequence) < 2:
+        return False
+
+    height = sequence[0].shape[0]
+    return all(scalar.shape[0] == height for scalar in sequence[1:])
+
+
+@reduce_all
+def is_matching_width(sequence):
+    """assume type is already checked"""
+    if len(sequence) < 2:
+        return False
+
+    width = sequence[0].shape[1]
+    return all(scalar.shape[1] == width for scalar in sequence[1:])
 
 
 @vectorize
@@ -357,9 +402,20 @@ def width(element):
     return element.shape[1]
 
 
+@vectorize
+def height_sum(sequence):
+    return sum(scalar.shape[0] for scalar in sequence)
+
+
+@vectorize
+def width_sum(sequence):
+    return sum(scalar.shape[1] for scalar in sequence)
+
+
 def multiply(vector, factor):
-    return tuple(element * factor for element in vector)
+    return tuple(scalar * factor for scalar in vector)
 
 
-def is_valid(node):
-    return all(element is not None for element in node())
+@vectorize
+def append(sequence, scalar):
+    return sequence.append(scalar)

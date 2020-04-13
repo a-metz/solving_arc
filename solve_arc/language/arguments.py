@@ -110,6 +110,9 @@ def filtered_elements(string):
 
 
 class _Sequence(tuple):
+    def append(self, element):
+        return self.__class__(self + (element,))
+
     def __str__(self):
         return "\n---\n".join(str(element) for element in self)
 
