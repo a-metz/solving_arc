@@ -80,15 +80,31 @@ def _get_neighbors_no_diag(index):
 
 
 def filter_selections_touching_edge(selections):
-    return Selections(
+    selections = Selections(
         selection for selection in selections if _is_selection_touching_edge(selection)
     )
 
+    if len(selections) == 1:
+        return selections[0]
+
+    if len(selections) == 0:
+        return None
+
+    return selections
+
 
 def filter_selections_not_touching_edge(selections):
-    return Selections(
+    selections = Selections(
         selection for selection in selections if not _is_selection_touching_edge(selection)
     )
+
+    if len(selections) == 1:
+        return selections[0]
+
+    if len(selections) == 0:
+        return None
+
+    return selections
 
 
 def _is_selection_touching_edge(selection):
