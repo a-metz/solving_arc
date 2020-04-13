@@ -19,8 +19,8 @@ def test_format_results():
     results = [test_0_result, test_1_result]
 
     results_string = format_results(task_id, results)
-    assert results_string[0] == "0520fde7_0,|101|011|"
-    assert results_string[1] == "0520fde7_1,|12|34| |56|78|"
+    assert results_string[0] == "0520fde7_0,|101|011| |00|00| |00|00|"
+    assert results_string[1] == "0520fde7_1,|12|34| |56|78| |00|00|"
 
 
 @pytest.mark.slow
@@ -29,5 +29,6 @@ def test_generate_submission_smoketest():
 
     submission = open("submission.csv", "r").readlines()
     assert submission[0] == "output_id,output\n"
-    assert submission[1] == "0520fde7_0,|202|000|000|\n"
-    assert submission[2] == "7c008303_0,|00|00|\n"  # default result because no solution found
+    assert submission[1] == "0520fde7_0,|202|000|000| |00|00| |00|00|\n"
+    # default result because no solution found
+    assert submission[2] == "7c008303_0,|00|00| |00|00| |00|00|\n"

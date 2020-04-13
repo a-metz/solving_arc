@@ -58,7 +58,7 @@ def format_results(task_id, results):
         if not hasattr(result, "__len__"):
             result = [result]
 
-        assert len(result) <= 3
+        result += [DEFAULT_RESULT] * (3 - len(result))
 
         result_string = " ".join(format_grid(grid) for grid in result)
         row_strings.append("{}_{},{}".format(task_id, index, result_string))
