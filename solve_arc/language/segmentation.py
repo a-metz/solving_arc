@@ -55,3 +55,11 @@ def concatenate_left_to_right(grids):
 
 def concatenate_top_to_bottom(grids):
     return Grid(np.vstack([grid.state for grid in grids]))
+
+
+def take_first(sequence):
+    return sequence.first()
+
+
+def take_last(sequence):
+    return sequence.last()

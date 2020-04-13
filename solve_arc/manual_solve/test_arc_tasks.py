@@ -316,11 +316,11 @@ def test_5614dbcf(input_, expected):
 
 
 def test_5bd6f4ac(input_, expected):
-    return
-    # split thirds horizontal
-    # take last
-    # split thirds vertical
-    # take first
+    splits = split_left_middle_right(input_)
+    right_most = take_last(splits)
+    splits = split_top_middle_bottom(right_most)
+    result = take_first(splits)
+    assert result == expected
 
 
 def test_60b61512(input_, expected):
