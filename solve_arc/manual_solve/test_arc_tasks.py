@@ -188,16 +188,10 @@ def test_3428a4f5(input_, expected):
 
 def test_8d5021e8(input_, expected):
     return
-    # extend flip_horizontal left
-    # extend identity bottom
-    # extend identity bottom
-    #
-    # (duplicate)
-    # flip horizontal
-    # concatenate horizontal
-    # (duplicate)
-    # concatenate vertical
-    # concatenate vertical
+    flipped = flip_left_right(input_)
+    row = concatenate_left_right(flipped, input_)
+    result = concatenate_top_bottom(result, row)
+    result = concatenate_top_bottom(result, row)
 
 
 def test_25ff71a9(input_, expected):
