@@ -4,7 +4,16 @@ from .arguments import *
 
 
 def extract_selected_areas(grid, selections):
-    return Grids(extract_selected_area(grid, selection) for selection in selections)
+    extracted_areas = []
+    for selection in selections:
+        extracted_area = extract_selected_area(grid, selection)
+        if extracted_area is not None:
+            extracted_areas.append(extracted_area)
+
+    if len(extracted_areas) == 0:
+        return None
+
+    return Grids(extracted_areas)
 
 
 def extract_selected_area(grid, selection):
