@@ -110,12 +110,6 @@ def filtered_elements(string):
 
 
 class _Sequence(tuple):
-    def first(self):
-        return self[0]
-
-    def last(self):
-        return self[-1]
-
     def __str__(self):
         return "\n---\n".join(str(element) for element in self)
 

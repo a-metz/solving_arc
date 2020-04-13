@@ -108,6 +108,7 @@ def generate_functions(nodes, graph):
         | split_selection_into_connected_areas_functions(nodes, graph)
         | switch_color_functions(nodes, graph)
         | map_color_functions(nodes, graph)
+        | take_functions(nodes, graph)
         | logic_functions(nodes, graph)
         | symmetry_functions(nodes, graph)
         | concatenate_functions(nodes, graph)
@@ -292,8 +293,8 @@ def logic_functions(nodes, graph):
     functions = set()
     for sequence in nodes.of_type(Grids):
         if is_matching_shape_pair(sequence):
-            a = Function(get_item, sequence, Constant(repeat(0)))
-            b = Function(get_item, sequence, Constant(repeat(1)))
+            a = Function(vectorize(take_first), sequence)
+            b = Function(vectorize(take_last), sequence)
             functions.add(Function(vectorize(elementwise_equal_and), a, b))
             functions.add(Function(vectorize(elementwise_equal_or), a, b))
             functions.add(Function(vectorize(elementwise_xor), a, b))
@@ -308,6 +309,14 @@ def symmetry_functions(nodes, graph):
         functions.add(Function(vectorize(rotate_90), node))
         functions.add(Function(vectorize(rotate_180), node))
         functions.add(Function(vectorize(rotate_270), node))
+    return functions
+
+
+def take_functions(nodes, graph):
+    functions = set()
+    for sequence in nodes.of_type(Grids) | nodes.of_type(Selections):
+        functions.add(Function(vectorize(take_first), sequence))
+        functions.add(Function(vectorize(take_last), sequence))
     return functions
 
 
@@ -350,11 +359,6 @@ def width(element):
 
 def multiply(vector, factor):
     return tuple(element * factor for element in vector)
-
-
-@vectorize
-def get_item(elements, index):
-    return elements[index]
 
 
 def is_valid(node):

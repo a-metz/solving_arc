@@ -58,8 +58,14 @@ def concatenate_top_to_bottom(grids):
 
 
 def take_first(sequence):
-    return sequence.first()
+    if len(sequence) == 0:
+        return None
+
+    return sequence[0]
 
 
 def take_last(sequence):
-    return sequence.last()
+    if len(sequence) == 0:
+        return None
+
+    return sequence[-1]
