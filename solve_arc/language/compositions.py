@@ -11,9 +11,6 @@ def extract_color_patches(grid, ignore=0):
             if patch is not None:
                 patches.append(patch)
 
-    if len(patches) == 1:
-        return patches[0]
-
     if len(patches) == 0:
         return None
 
@@ -41,9 +38,6 @@ def extract_islands(grid, ignore=0):
         island = extract_selected_area(grid, selection)
         if island is not None:
             islands.append(island)
-
-    if len(islands) == 1:
-        return islands[0]
 
     if len(islands) == 0:
         return None

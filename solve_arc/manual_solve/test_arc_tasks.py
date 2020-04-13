@@ -143,7 +143,8 @@ def test_1c786137(input_, expected):
 
 def test_1cf80156(input_, expected):
     islands = extract_islands(input_, ignore=0)
-    assert islands == expected
+    result = take_first(islands)
+    assert result == expected
 
 
 def test_1e0a9b12(input_, expected):
