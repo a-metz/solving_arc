@@ -9,10 +9,18 @@ def distance(grid, target):
 
 def shape_distance(grid, target):
     distance = 0
+    # height is not equal
     if grid.shape[0] != target.shape[0]:
-        distance += 0.50
+        distance += 0.25
+    # height is not multiple
+    if grid.shape[0] % target.shape[0] != 0 and target.shape[0] % grid.shape[0] != 0:
+        distance += 0.25
+    # width is not equal
     if grid.shape[1] != target.shape[1]:
-        distance += 0.50
+        distance += 0.25
+    # width is not multiple
+    if grid.shape[0] % target.shape[0] != 0 and target.shape[0] % grid.shape[0] != 0:
+        distance += 0.25
     return distance
 
 

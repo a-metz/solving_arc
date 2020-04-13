@@ -48,6 +48,20 @@ def test_distance__monotonic_with_wrong_shape_dimensions(example_target):
         6 5 4
         """
     )
+    height_multiple = Grid.from_string(
+        """
+        6 5 4
+        4 5 6
+        6 5 4
+        4 5 6
+        """
+    )
+    width_multiple = Grid.from_string(
+        """
+        6
+        4
+        """
+    )
     wrong_width = Grid.from_string(
         """
         6 5
@@ -72,6 +86,7 @@ def test_distance__monotonic_with_wrong_shape_dimensions(example_target):
     assert (
         0
         <= distance(correct_shape, example_target)
+        < distance(width_multiple, example_target)
         < distance(wrong_width, example_target)
         < distance(wrong_shape, example_target)
         <= 1
@@ -79,6 +94,7 @@ def test_distance__monotonic_with_wrong_shape_dimensions(example_target):
     assert (
         0
         <= distance(correct_shape, example_target)
+        < distance(height_multiple, example_target)
         < distance(wrong_height, example_target)
         < distance(wrong_shape, example_target)
         <= 1
