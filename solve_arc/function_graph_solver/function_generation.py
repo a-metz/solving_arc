@@ -16,9 +16,10 @@ logger = logging.getLogger(__name__)
 # TODO: move generate functions into graph, inline functions and give access to self (=graph)
 # TODO: add operation counts and/or other heuristics of evaluation subtree as map (node->value) (?)
 class Graph:
-    def __init__(self, initial_nodes, target, max_depth, expand_size=1000):
+    def __init__(self, initial_nodes, target, max_depth, max_expansions, expand_size=1000):
         self.target = target
         self.max_depth = max_depth
+        self.max_expansions = max_expansions
         self.expand_size = expand_size
 
         self.random = random.Random(0)  # seed for determinism
@@ -33,14 +34,10 @@ class Graph:
         self._process(initial_nodes)
 
     def expand(self):
-        if len(self.expandable_nodes) == 0:
-            raise NoExpandableNodes()
-
-        sample_size = min(len(self.expandable_nodes), self.expand_size)
-        sample_candidates = list(self.expandable_nodes)
-        sample_likelihoods = self._get_sample_likelihoods(sample_candidates)
+        candidates, likelihoods = self._get_sample_candidates_with_likelihoods()
+        sample_size = min(len(candidates), self.expand_size)
         expand_next = NodeCollection(
-            self.random.choices(sample_candidates, weights=sample_likelihoods, k=sample_size)
+            self.random.choices(candidates, weights=likelihoods, k=sample_size)
         )
         logger.debug(
             "expand %d nodes (Grid: %d, Grids: %d, Selection: %d, Selections: %d)",
@@ -60,15 +57,24 @@ class Graph:
 
         return self._process(new_nodes)
 
-    def _get_sample_likelihoods(self, nodes):
-        min_likelihood = 0.1
-        sample_likelihoods = [
-            min_likelihood + (1 / loss(node, self.target, self.expanded_count[node]))
-            for node in nodes
+    def _get_sample_candidates_with_likelihoods(self):
+        candidates = [
+            node
+            for node in self.expandable_nodes
+            if self.expanded_count[node] <= self.max_expansions
         ]
-        assert not np.isinf(sample_likelihoods).any()
 
-        return sample_likelihoods
+        if len(candidates) == 0:
+            raise NoExpandableNodes()
+
+        def likelihood(node):
+            min_likelihood = 0.1
+            return min_likelihood + (1 / loss(node, self.target, self.expanded_count[node]))
+
+        likelihoods = [likelihood(node) for node in candidates]
+        assert not np.isinf(likelihoods).any()
+
+        return candidates, likelihoods
 
     def _process(self, new_nodes):
         self.nodes |= new_nodes

@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 @click.option("--debug/--no-debug", default=False)
 @click.option("--max-seconds-per-task", default=10.0)
 @click.option("--max-search-depth", default=5)
+@click.option("--max-expansions-per-node", default=10)
 @click.argument("args", nargs=-1)
 def evaluate(debug, args, **kwargs):
     if debug:
@@ -49,7 +50,7 @@ def _get_tasks(task_ids):
     return [(task_id, all_tasks[task_id]) for task_id in task_ids]
 
 
-def _evaluate(tasks, max_seconds_per_task=10, max_search_depth=5):
+def _evaluate(tasks, max_seconds_per_task=10, max_search_depth=5, max_expansions_per_node=10):
     score = 0
     solved = []
     statistics = []
@@ -60,7 +61,9 @@ def _evaluate(tasks, max_seconds_per_task=10, max_search_depth=5):
 
         try:
             solution = timeout(
-                timeout=max_seconds_per_task, func=solve, args=(constraints, max_search_depth)
+                timeout=max_seconds_per_task,
+                func=solve,
+                args=(constraints, max_search_depth, max_expansions_per_node),
             )
             if solution is not None:
                 statistics.append(solution.statistics)

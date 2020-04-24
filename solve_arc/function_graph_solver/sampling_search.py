@@ -14,14 +14,14 @@ logger = logging.getLogger(__name__)
 Constraint = namedtuple("Constraint", ["source", "target"])
 
 
-def solve(constraints, max_depth):
+def solve(constraints, max_depth, max_expansions):
     target = Vector(constraint.target for constraint in constraints)
     source_node = Source(Vector(constraint.source for constraint in constraints))
 
     if source_node() == target:
         return Solution(source_node, source_node)
 
-    graph = Graph({source_node}, target, max_depth)
+    graph = Graph({source_node}, target, max_depth, max_expansions)
 
     try:
         for step in count():
