@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, Counter
 from itertools import product, combinations, combinations_with_replacement
 from statistics import mean
 import logging
@@ -7,15 +7,16 @@ import random
 from ..language import *
 from .nodes import Function, Constant
 from .vectorize import *
-from .loss import distance
+from .loss import loss
 
 logger = logging.getLogger(__name__)
 
 
+# TODO: expand by randomly (weighted?) selecting function, then randomly (weighted?) selecting arguments
 # TODO: move generate functions into graph, inline functions and give access to self (=graph)
 # TODO: add operation counts and/or other heuristics of evaluation subtree as map (node->value) (?)
 class Graph:
-    def __init__(self, initial_nodes, target, max_depth, expand_size=500):
+    def __init__(self, initial_nodes, target, max_depth, expand_size=1000):
         self.target = target
         self.max_depth = max_depth
         self.expand_size = expand_size
@@ -26,15 +27,21 @@ class Graph:
         self.nodes = set()
 
         # nodes that have already been expanded
-        self.expanded_nodes = set()
+        self.expanded_count = Counter()
         self.expandable_nodes = set()
 
         self._process(initial_nodes)
 
     def expand(self):
+        if len(self.expandable_nodes) == 0:
+            raise NoExpandableNodes()
+
         sample_size = min(len(self.expandable_nodes), self.expand_size)
-        expand_next = NodeCollection(self.random.sample(self.expandable_nodes, sample_size))
-        self.expandable_nodes -= expand_next
+        sample_candidates = list(self.expandable_nodes)
+        sample_likelihoods = self._get_sample_likelihoods(sample_candidates)
+        expand_next = NodeCollection(
+            self.random.choices(sample_candidates, weights=sample_likelihoods, k=sample_size)
+        )
         logger.debug(
             "expand %d nodes (Grid: %d, Grids: %d, Selection: %d, Selections: %d)",
             len(expand_next),
@@ -44,17 +51,24 @@ class Graph:
             len(expand_next.of_type(Selections)),
         )
 
-        if len(expand_next) == 0:
-            raise NoExpandableNodes()
-
         new_nodes = generate_functions(expand_next, self) - self.nodes
-        self.expanded_nodes |= expand_next
+        self.expanded_count.update(expand_next)
 
         logger.debug(
-            "new nodes: %d, expanded: %d", len(new_nodes), len(self.expanded_nodes),
+            "new nodes: %d", len(new_nodes),
         )
 
         return self._process(new_nodes)
+
+    def _get_sample_likelihoods(self, nodes):
+        min_likelihood = 0.1
+        sample_likelihoods = [
+            min_likelihood + (1 / loss(node, self.target, self.expanded_count[node]))
+            for node in nodes
+        ]
+        assert not np.isinf(sample_likelihoods).any()
+
+        return sample_likelihoods
 
     def _process(self, new_nodes):
         self.nodes |= new_nodes
