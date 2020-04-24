@@ -29,9 +29,9 @@ def test_loss__monotonic_with_depth(example_target):
 
     assert (
         0
-        <= loss(node_depth_0, repeat_once(example_target), expanded_count=1, max_depth=10)
-        < loss(node_depth_1, repeat_once(example_target), expanded_count=1, max_depth=10)
-        < loss(node_depth_2, repeat_once(example_target), expanded_count=1, max_depth=10)
+        <= loss(node_depth_0, repeat_once(example_target), expanded_count=1)
+        < loss(node_depth_1, repeat_once(example_target), expanded_count=1)
+        < loss(node_depth_2, repeat_once(example_target), expanded_count=1)
         <= 1
     )
 
@@ -48,9 +48,9 @@ def test_loss__monotonic_with_expanded_count(example_target):
 
     assert (
         0
-        <= loss(node, target, expanded_count=0, max_depth=10)
-        < loss(node, target, expanded_count=1, max_depth=10)
-        < loss(node, target, expanded_count=2, max_depth=10)
+        <= loss(node, target, expanded_count=0)
+        < loss(node, target, expanded_count=1)
+        < loss(node, target, expanded_count=2)
         <= 1
     )
 
