@@ -32,8 +32,8 @@ def evaluate(debug, args, **kwargs):
             logger.info("evaluating performance on training tasks")
             _evaluate(training_tasks().items(), **kwargs)
         elif args[0] == "evaluation":
-            logger.info("evaluating performance on training tasks")
-            _evaluate(training_tasks().items(), **kwargs)
+            logger.info("evaluating performance on evaluation tasks")
+            _evaluate(evaluation_tasks().items(), **kwargs)
         else:
             logger.info("evaluating performance on {}".format(", ".join(args)))
             _evaluate(_get_tasks(args), **kwargs)
