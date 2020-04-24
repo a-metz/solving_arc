@@ -339,6 +339,25 @@ def test_a740d043(input_, expected):
     return
 
 
+def test_f25ffba3(input_, expected):
+    splits = split_top_bottom(input_)
+    bottom = take_last(splits)
+    top = flip_up_down(bottom)
+    result = concatenate_top_bottom(top, bottom)
+    assert result == expected
+
+
+def test_f2829549(input_, expected):
+    mapped = map_color(input_, 0, 3)
+    mapped = map_color(mapped, 7, 0)
+    mapped = map_color(mapped, 5, 0)
+    islands = extract_islands(mapped, ignore=1)
+    left = take_first(islands)
+    right = take_last(islands)
+    result = elementwise_equal_and(left, right)
+    assert result == expected
+
+
 # general missing concepts
 # * color as non-constant argument
 # * counts as pixels (e.g. progressbar)
