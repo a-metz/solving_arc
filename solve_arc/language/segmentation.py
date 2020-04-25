@@ -66,6 +66,13 @@ def concatenate_top_to_bottom(grids):
     return Grid(np.vstack([grid.state for grid in grids]))
 
 
+def merge_grids_with_mask(a, b, mask):
+    if not (a.shape == b.shape == mask.shape):
+        return None
+
+    return Grid(np.where(mask.state, a.state, b.state))
+
+
 def take_first(sequence):
     if len(sequence) == 0:
         return None
@@ -84,3 +91,29 @@ def sort_by_area(sequence):
     return sequence.__class__(
         sorted(sequence, key=lambda element: element.shape[0] * element.shape[1])
     )
+
+
+def take_grid_with_unique_colors(grids):
+    # no definition of uniqueness for less than 3 elements
+    if len(grids) < 3:
+        return None
+
+    unique_colors_grids = {}
+    common_colors = set()
+
+    for grid in grids:
+        used_colors = grid.used_colors()
+        if used_colors in common_colors:
+            continue
+
+        if used_colors in unique_colors_grids.keys():
+            del unique_colors_grids[used_colors]
+            common_colors.add(used_colors)
+            continue
+
+        unique_colors_grids[used_colors] = grid
+
+    if len(unique_colors_grids) == 1:
+        return next(iter(unique_colors_grids.values()))
+
+    return None

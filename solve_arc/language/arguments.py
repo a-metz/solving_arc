@@ -70,8 +70,8 @@ class Grid(_Base):
         return cls(elements)
 
     def used_colors(self):
-        """returns list of colors used in grid"""
-        return np.unique(self.state)
+        """returns tuple of colors used in grid"""
+        return tuple(np.unique(self.state))
 
 
 class Selection(_Base):

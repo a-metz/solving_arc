@@ -174,6 +174,48 @@ def test_concatenate_top_to_bottom(vertical_grid):
 
 
 @pytest.fixture
+def same_shape_grids():
+    return Grids(
+        [
+            Grid.from_string(
+                """
+                1 1
+                2 2
+                """
+            ),
+            Grid.from_string(
+                """
+                3 3
+                4 4
+                """
+            ),
+        ]
+    )
+
+
+@pytest.fixture
+def same_shape_mask():
+    return Selection.from_string(
+        """
+        # .
+        . #
+        """
+    )
+
+
+def test_merge_grids_with_mask(same_shape_grids, same_shape_mask):
+    a, b = same_shape_grids
+    expected = Grid.from_string(
+        """
+        1 3
+        4 2
+        """
+    )
+
+    assert merge_grids_with_mask(a, b, same_shape_mask) == expected
+
+
+@pytest.fixture
 def different_size_grids():
     small = Grid.from_string(
         """
@@ -201,3 +243,62 @@ def test_sort_by_area(different_size_grids):
     sorted_grids = sort_by_area(unsorted_grids)
 
     assert sorted_grids == Grids([small, medium, large])
+
+
+@pytest.fixture
+def different_colored_grids():
+    same_colors_0 = Grid.from_string(
+        """
+        0 1
+        """
+    )
+    same_colors_1 = Grid.from_string(
+        """
+        1 0
+        """
+    )
+    unique_colors = Grid.from_string(
+        """
+        2 0
+        """
+    )
+    return Grids([same_colors_0, same_colors_1, unique_colors])
+
+
+def test_take_grid_with_unique_color(different_colored_grids):
+    same_colors_0, same_colors_1, unique_colors = different_colored_grids
+    grids = Grids([same_colors_0, unique_colors, same_colors_1])
+
+    assert take_grid_with_unique_colors(grids) == unique_colors
+
+
+@pytest.fixture
+def no_unique_colors_grids():
+    return Grids(
+        [
+            Grid.from_string(
+                """
+                0 1
+                """
+            ),
+            Grid.from_string(
+                """
+                1 0
+                """
+            ),
+            Grid.from_string(
+                """
+                2 0
+                """
+            ),
+            Grid.from_string(
+                """
+                0 2
+                """
+            ),
+        ]
+    )
+
+
+def test_take_grid_with_unique_color__no_unique(no_unique_colors_grids):
+    assert take_grid_with_unique_colors(no_unique_colors_grids) == None
