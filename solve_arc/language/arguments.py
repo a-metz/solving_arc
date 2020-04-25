@@ -49,6 +49,8 @@ class _Base:
 
 
 class Grid(_Base):
+    """ main representation of pixel grids for arc dataset inputs and outputs """
+
     def __init__(self, state):
         super().__init__(state)
 
@@ -73,6 +75,8 @@ class Grid(_Base):
 
 
 class Selection(_Base):
+    """ representation of boolean masks for intermediate selections """
+
     def __init__(self, state):
         super().__init__(state)
 
@@ -110,6 +114,8 @@ def filtered_elements(string):
 
 
 class _Sequence(tuple):
+    """ base class for sequences of grids / selections for operations resulting in mutiple values """
+
     def append(self, element):
         return self.__class__(self + (element,))
 

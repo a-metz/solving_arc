@@ -16,18 +16,18 @@ logger = logging.getLogger(__name__)
 # TODO: move generate functions into graph, inline functions and give access to self (=graph)
 # TODO: add operation counts and/or other heuristics of evaluation subtree as map (node->value) (?)
 class Graph:
-    def __init__(self, initial_nodes, target, max_depth, max_expansions, expand_size=1000):
+    def __init__(self, initial_nodes, target, max_depth, max_expansions, expand_batch_size=1000):
         self.target = target
         self.max_depth = max_depth
         self.max_expansions = max_expansions
-        self.expand_size = expand_size
+        self.expand_batch_size = expand_batch_size
 
         self.random = random.Random(0)  # seed for determinism
 
         # all nodes that have been generated, for checking for new nodes
         self.nodes = set()
 
-        # nodes that have already been expanded
+        # count nodes that have already been expanded
         self.expanded_count = Counter()
         self.expandable_nodes = set()
 
@@ -35,7 +35,7 @@ class Graph:
 
     def expand(self):
         candidates, likelihoods = self._get_sample_candidates_with_likelihoods()
-        sample_size = min(len(candidates), self.expand_size)
+        sample_size = min(len(candidates), self.expand_batch_size)
         expand_next = NodeCollection(
             self.random.choices(candidates, weights=likelihoods, k=sample_size)
         )
