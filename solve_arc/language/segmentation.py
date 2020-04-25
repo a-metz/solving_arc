@@ -78,3 +78,9 @@ def take_last(sequence):
         return None
 
     return sequence[-1]
+
+
+def sort_by_area(sequence):
+    return sequence.__class__(
+        sorted(sequence, key=lambda element: element.shape[0] * element.shape[1])
+    )

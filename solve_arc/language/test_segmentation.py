@@ -171,3 +171,33 @@ def test_concatenate_top_to_bottom(vertical_grid):
     grids = split_top_middle_bottom(vertical_grid)
 
     assert concatenate_top_to_bottom(grids) == vertical_grid
+
+
+@pytest.fixture
+def different_size_grids():
+    small = Grid.from_string(
+        """
+        1
+        """
+    )
+    medium = Grid.from_string(
+        """
+        1 1 1
+        """
+    )
+    large = Grid.from_string(
+        """
+        1 1
+        1 1
+        """
+    )
+    return small, medium, large
+
+
+def test_sort_by_area(different_size_grids):
+    small, medium, large = different_size_grids
+    unsorted_grids = Grids([large, small, medium])
+
+    sorted_grids = sort_by_area(unsorted_grids)
+
+    assert sorted_grids == Grids([small, medium, large])
