@@ -1,6 +1,5 @@
 numpy
 pytest
-pytest-profile
 schema
 kagglize-module
 func_timeout
