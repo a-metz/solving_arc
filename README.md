@@ -1,5 +1,7 @@
 # Solving ARC
 
+![Pytest badge](https://github.com/wahtak/solving_arc/workflows/Pytest/badge.svg)
+
 ## Usage
 
 Run tests:
