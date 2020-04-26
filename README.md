@@ -33,3 +33,14 @@ Generate code for kaggle submission to `kaggle_submission.py`:
 cd <repository root dir>
 ./create_kaggle_submission.sh
 ```
+
+## TODO
+
+  * expand step by step: sample random operation (weigthed), then random args for operation (weighted)
+  * add type intenum for color
+  * apply operations for scalar grid/selection to sequences
+  * colors / color sequences as operation result
+  * color constants as permanent nodes in graph (?)
+  * targets for all constraints as one sequence node in graph
+  * mapping operation for mapping sequence to sequence
+    (i.e. map colors to elements in grid sequence: take_for_color(grids, color))

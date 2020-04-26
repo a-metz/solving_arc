@@ -12,9 +12,6 @@ from .loss import loss
 logger = logging.getLogger(__name__)
 
 
-# TODO: expand by randomly (weighted?) selecting function, then randomly (weighted?) selecting arguments
-# TODO: move generate functions into graph, inline functions and give access to self (=graph)
-# TODO: add operation counts and/or other heuristics of evaluation subtree as map (node->value) (?)
 class Graph:
     def __init__(self, initial_nodes, target, max_depth, max_expansions, expand_batch_size=1000):
         self.target = target
@@ -122,8 +119,6 @@ class NodeCollection(set):
         return self._by_type[type_]
 
 
-# TODO: switch completely to selection based functions(?)
-# TODO: write unpack function which unpacks first, second, last(?), largest, smallest, tallest, widest, ... as new nodes
 def generate_functions(nodes, graph):
     functions = (
         select_color_functions(nodes, graph)
