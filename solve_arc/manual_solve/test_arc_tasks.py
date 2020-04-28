@@ -261,11 +261,6 @@ def test_3af2c5a8(input_, expected):
     flipped = flip_up_down(result)
     result = concatenate_top_bottom(result, flipped)
     assert result == expected
-    # (duplicate)
-    # flip horizontal
-    # concatenate horizontal
-    # (duplicate)
-    # concatenate vertical
 
 
 def test_4c4377d9(input_, expected):
@@ -352,9 +347,7 @@ def test_f2829549(input_, expected):
     mapped = map_color(mapped, 7, 0)
     mapped = map_color(mapped, 5, 0)
     islands = extract_islands(mapped, ignore=1)
-    left = take_first(islands)
-    right = take_last(islands)
-    result = elementwise_equal_and(left, right)
+    result = elementwise_equal_and(*islands)
     assert result == expected
 
 
