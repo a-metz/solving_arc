@@ -2,6 +2,7 @@
 
 ![Pytest badge](https://github.com/wahtak/solving_arc/workflows/Pytest/badge.svg)
 
+
 ## Usage
 
 Run tests:
@@ -33,6 +34,7 @@ Generate code for kaggle submission to `kaggle_submission.py`:
 cd <repository root dir>
 ./create_kaggle_submission.sh
 ```
+
 
 ## TODO
 
