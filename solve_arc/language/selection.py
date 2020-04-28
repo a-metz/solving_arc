@@ -79,6 +79,20 @@ def _get_neighbors_no_diag(index):
     }
 
 
+def extend_selection_to_bounds(selection):
+    indices = np.argwhere(selection.state)
+
+    top, left = np.min(indices, axis=0)
+    bottom, right = np.max(indices, axis=0) + 1
+    extended = selection.copy()
+    extended.state[top:bottom, left:right] = True
+    return extended
+
+
+def extend_selections_to_bounds(selections):
+    return Selections([extend_selection_to_bounds(selection) for selection in selections])
+
+
 def filter_selections_touching_edge(selections):
     selections = Selections(
         selection for selection in selections if _is_selection_touching_edge(selection)

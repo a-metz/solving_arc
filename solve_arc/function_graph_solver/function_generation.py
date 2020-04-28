@@ -1,5 +1,5 @@
 from collections import defaultdict, Counter
-from itertools import product, combinations, combinations_with_replacement
+from itertools import product, combinations, combinations_with_replacement, permutations
 from statistics import mean
 import logging
 import random
@@ -121,25 +121,31 @@ class NodeCollection(set):
 
 def generate_functions(nodes, graph):
     functions = (
-        select_color_functions(nodes, graph)
+        set()
+        | map_color_functions(nodes, graph)
+        | map_color_in_selection_functions(nodes, graph)
+        | switch_color_functions(nodes, graph)
+        | set_selected_to_color_functions(nodes, graph)
+        | select_color_functions(nodes, graph)
         | select_all_colors_functions(nodes, graph)
+        | split_selection_into_connected_areas_functions(nodes, graph)
+        | filter_selections_functions(nodes, graph)
+        | merge_selections_functions(nodes, graph)
+        | extend_selection_to_bounds_functions(nodes, graph)
+        | extend_selections_to_bounds_functions(nodes, graph)
         | extract_selected_area_functions(nodes, graph)
         | extract_selected_areas_functions(nodes, graph)
-        | set_selected_to_color_functions(nodes, graph)
-        | merge_selections_functions(nodes, graph)
-        | filter_selections_functions(nodes, graph)
-        | split_selection_into_connected_areas_functions(nodes, graph)
-        | switch_color_functions(nodes, graph)
-        | map_color_functions(nodes, graph)
-        | take_functions(nodes, graph)
-        | logic_functions(nodes, graph)
-        | symmetry_functions(nodes, graph)
-        | concatenate_functions(nodes, graph)
-        | concatenate_sequence_functions(nodes, graph)
-        | split_functions(nodes, graph)
         | extract_islands_functions(nodes, graph)
         | extract_color_patches_functions(nodes, graph)
         | extract_color_patch_functions(nodes, graph)
+        | concatenate_functions(nodes, graph)
+        | concatenate_sequence_functions(nodes, graph)
+        | split_functions(nodes, graph)
+        | logic_functions(nodes, graph)
+        | symmetry_functions(nodes, graph)
+        | take_functions(nodes, graph)
+        | sort_by_area_functions(nodes, graph)
+        | select_color_functions(nodes, graph)
     )
     return functions
 
@@ -157,12 +163,40 @@ def map_color_functions(nodes, graph):
     }
 
 
+def map_color_in_selection_functions(nodes, graph):
+    return {
+        Function(
+            vectorize(map_color_in_selection),
+            grid_node,
+            selection_node,
+            # heuristic: only map background
+            Constant(repeat(0)),
+            Constant(repeat(color)),
+        )
+        for grid_node, selection_node in product(nodes.of_type(Grid), nodes.of_type(Selection))
+        if shape(grid_node()) == shape(selection_node())
+        # heuristic: only map to colors used in target
+        for color in used_colors(graph.target)
+    }
+
+
 def switch_color_functions(nodes, graph):
     return {
         Function(vectorize(switch_color), node, Constant(repeat(a)), Constant(repeat(b)))
         for node in nodes.of_type(Grid)
         if not (isinstance(node, Function) and node.callable_ == vectorize(switch_color))
         for a, b in combinations(used_colors(node()), 2)
+    }
+
+
+def set_selected_to_color_functions(nodes, graph):
+    return {
+        Function(
+            vectorize(set_selected_to_color), grid_node, selection_node, Constant(repeat(color))
+        )
+        for grid_node, selection_node in product(nodes.of_type(Grid), nodes.of_type(Selection))
+        if shape(grid_node()) == shape(selection_node())
+        for color in used_colors(graph.target)
     }
 
 
@@ -208,14 +242,17 @@ def merge_selections_functions(nodes, graph):
     }
 
 
-def set_selected_to_color_functions(nodes, graph):
+def extend_selection_to_bounds_functions(nodes, graph):
     return {
-        Function(
-            vectorize(set_selected_to_color), grid_node, selection_node, Constant(repeat(color))
-        )
-        for grid_node, selection_node in product(nodes.of_type(Grid), nodes.of_type(Selection))
-        if shape(grid_node()) == shape(selection_node())
-        for color in used_colors(graph.target)
+        Function(vectorize(extend_selection_to_bounds), selection_node)
+        for selection_node in nodes.of_type(Selection)
+    }
+
+
+def extend_selections_to_bounds_functions(nodes, graph):
+    return {
+        Function(vectorize(extend_selections_to_bounds), selection_node)
+        for selection_node in nodes.of_type(Selections)
     }
 
 
@@ -327,8 +364,6 @@ def split_functions(nodes, graph):
     return functions
 
 
-# TODO: also enumerate all combinations of two scalar grids with same shape
-# TODO: refactor logical functions to also take grid sequences (?)
 def logic_functions(nodes, graph):
     functions = set()
     for sequence in nodes.of_type(Grids):
@@ -338,6 +373,14 @@ def logic_functions(nodes, graph):
             functions.add(Function(vectorize(elementwise_equal_and), a, b))
             functions.add(Function(vectorize(elementwise_equal_or), a, b))
             functions.add(Function(vectorize(elementwise_xor), a, b))
+
+    # scalars = nodes.of_type(Grid)
+    # for a, b in permutations(scalars, 2):
+    #     if shape(a()) == shape(b()):
+    #         functions.add(Function(vectorize(elementwise_equal_and), a, b))
+    #         functions.add(Function(vectorize(elementwise_equal_or), a, b))
+    #         functions.add(Function(vectorize(elementwise_xor), a, b))
+
     return functions
 
 
@@ -357,7 +400,18 @@ def take_functions(nodes, graph):
     for sequence in nodes.of_type(Grids) | nodes.of_type(Selections):
         functions.add(Function(vectorize(take_first), sequence))
         functions.add(Function(vectorize(take_last), sequence))
+
+    for sequence in nodes.of_type(Grids):
+        functions.add(Function(vectorize(take_grid_with_unique_colors), sequence))
+
     return functions
+
+
+def sort_by_area_functions(nodes, graph):
+    return {
+        Function(vectorize(sort_by_area), sequence)
+        for sequence in nodes.of_type(Grids) | nodes.of_type(Selections)
+    }
 
 
 def used_colors(grid_vector):

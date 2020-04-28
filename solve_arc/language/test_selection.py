@@ -203,3 +203,42 @@ def test_filter_selections_not_touching_edge(connected_areas_selections):
 
 def test_merge_selections(connected_areas_selections, example_selection):
     assert merge_selections(connected_areas_selections) == example_selection
+
+
+def test_extend_selection_to_bounds():
+    example_selection = Selection.from_string(
+        """
+        . # . . .
+        . # . # .
+        . . . # .
+        . . . . .
+        """
+    )
+    expected_selection = Selection.from_string(
+        """
+        . # # # .
+        . # # # .
+        . # # # .
+        . . . . .
+        """
+    )
+
+    assert extend_selection_to_bounds(example_selection) == expected_selection
+
+
+def test_extend_selections_to_bounds(example_selection):
+    selections = split_selection_into_connected_areas(example_selection)
+
+    expected_selection = Selection.from_string(
+        """
+        # # # . . .
+        # # # . # #
+        . . . . # #
+        . # # . # #
+        . # # . # #
+        . # # . # #
+        . . . . . .
+        """
+    )
+
+    assert merge_selections(extend_selections_to_bounds(selections)) == expected_selection
