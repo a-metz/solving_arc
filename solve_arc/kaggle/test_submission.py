@@ -25,7 +25,12 @@ def test_format_results():
 
 @pytest.mark.slow
 def test_generate_submission_smoketest():
-    generate_submission("solve_arc/kaggle/test_data", max_search_depth=4, max_seconds_per_task=10)
+    generate_submission(
+        "solve_arc/kaggle/test_data",
+        max_search_depth=4,
+        max_seconds_per_task=10,
+        max_expansions_per_node=10,
+    )
 
     submission = open("submission.csv", "r").readlines()
     assert submission[0] == "output_id,output\n"
