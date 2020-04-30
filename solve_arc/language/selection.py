@@ -90,7 +90,7 @@ def extend_selection_to_bounds(selection):
 
 
 def extend_selections_to_bounds(selections):
-    return Selections([extend_selection_to_bounds(selection) for selection in selections])
+    return selections.apply(extend_selection_to_bounds)
 
 
 def filter_selections_touching_edge(selections):

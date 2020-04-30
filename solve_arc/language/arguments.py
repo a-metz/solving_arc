@@ -119,6 +119,9 @@ class _Sequence(tuple):
     def append(self, element):
         return self.__class__(self + (element,))
 
+    def apply(self, func, *args):
+        return self.__class__(func(element, *args) for element in self)
+
     def __str__(self):
         return "\n---\n".join(str(element) for element in self)
 
