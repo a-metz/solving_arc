@@ -18,6 +18,9 @@ def extract_selected_areas(grid, selections):
 
 def extract_selected_area(grid, selection):
     """extract box bounding selection from grid"""
+    if selection.shape != grid.shape:
+        return None
+
     if not selection.any():
         return None
 
