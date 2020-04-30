@@ -392,6 +392,16 @@ def symmetry_functions(nodes, graph):
         functions.add(Function(vectorize(rotate_90), node))
         functions.add(Function(vectorize(rotate_180), node))
         functions.add(Function(vectorize(rotate_270), node))
+
+    for grid_node, selection_node in product(nodes.of_type(Grid), nodes.of_type(Selection)):
+        if shape(grid_node()) != shape(selection_node()):
+            continue
+        functions.add(Function(vectorize(flip_up_down_within_bounds), grid_node, selection_node))
+        functions.add(Function(vectorize(flip_left_right_within_bounds), grid_node, selection_node))
+        functions.add(Function(vectorize(rotate_90_within_bounds), grid_node, selection_node))
+        functions.add(Function(vectorize(rotate_180_within_bounds), grid_node, selection_node))
+        functions.add(Function(vectorize(rotate_270_within_bounds), grid_node, selection_node))
+
     return functions
 
 
