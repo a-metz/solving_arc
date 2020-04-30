@@ -14,11 +14,18 @@ from .timeout import timeout
 DEFAULT_RESULT = Grid.empty((2, 2))
 
 
-def generate_submission(data_path, max_seconds_per_task, max_search_depth, max_expansions_per_node):
+def generate_submission(
+    data_path,
+    max_seconds_per_task,
+    max_search_depth,
+    max_expansions_per_node,
+    task_range=slice(None),
+):
     with open("submission.csv", "w") as submission:
         submission.write("output_id,output\n")
 
         tasks = load_tasks(data_path)
+        selected_task_ids = sorted(tasks.keys())[task_range]
 
         score = 0
         for task_id, task in tasks.items():
@@ -29,9 +36,12 @@ def generate_submission(data_path, max_seconds_per_task, max_search_depth, max_e
                 for subtask in task["train"]
             ]
 
-            solution = timeout(max_seconds_per_task)(solve)(
-                constraints, max_search_depth, max_expansions_per_node
-            )
+            solution = None
+
+            if task_id in selected_task_ids:
+                solution = timeout(max_seconds_per_task)(solve)(
+                    constraints, max_search_depth, max_expansions_per_node
+                )
 
             if solution is not None:
                 print(solution, end=" -> ")

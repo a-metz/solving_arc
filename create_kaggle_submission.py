@@ -7,6 +7,7 @@ parameters = {
     "max_search_depth": 10,
     "max_seconds_per_task": 90,
     "max_expansions_per_node": 20,
+    "task_range": slice(None, None, None),
 }
 
 filename_regex = r"^(?!(test_))[a-z_]+\.py\$"
