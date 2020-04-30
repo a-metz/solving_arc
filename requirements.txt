@@ -4,3 +4,4 @@ schema
 kagglize-module
 func_timeout
 click
+gitpython

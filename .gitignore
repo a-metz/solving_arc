@@ -7,5 +7,5 @@ __pycache__/
 .pytest_cache/
 *.prof
 
-kaggle_submission.py
+kaggle_submission_*.py
 submission.csv
