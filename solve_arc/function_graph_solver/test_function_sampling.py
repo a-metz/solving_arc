@@ -13,6 +13,13 @@ def example_source():
 
 
 @pytest.fixture
+def example_selection():
+    return Vector(
+        [Selection.from_string(". #"), Selection.from_string(". # ."), Selection.from_string("# .")]
+    )
+
+
+@pytest.fixture
 def example_target():
     return Vector([Grid.from_string("0 2"), Grid.from_string("0 2 0"), Grid.from_string("2 4")])
 
@@ -32,6 +39,7 @@ def test_graph_create(graph, initial_nodes):
 
 
 def test_graph_expand__once(graph, initial_nodes):
+    graph.function_sampler.operation_probs = {map_color: 1.0}
     graph.expand()
 
     # expect one new node
@@ -59,13 +67,13 @@ def test_graph_expand__find_target(example_source, example_target):
     source_node = Constant(example_source)
     graph = Graph({source_node}, target=example_target)
 
-    function_sampling.operation_probs = {map_color: 1.0}
-    function_sampling.color_probs = {Color(1): epsilon, Color(2): 1.0 - epsilon}
+    graph.function_sampler.operation_probs = {map_color: 1.0}
+    graph.function_sampler.color_probs = {Color(1): epsilon, Color(2): 1.0 - epsilon}
     solution = graph.expand()
 
     assert solution is None
 
-    function_sampling.color_probs = {Color(1): 1.0 - epsilon, Color(2): epsilon}
+    graph.function_sampler.color_probs = {Color(1): 1.0 - epsilon, Color(2): epsilon}
     solution = graph.expand()
 
     assert solution == Function(
@@ -73,8 +81,18 @@ def test_graph_expand__find_target(example_source, example_target):
     )
 
 
-def test_generate_functions_smoketest(example_source):
-    graph = Graph({Constant(example_source)})
+def _patch_operation_probs(value):
+    return patch("solve_arc.function_graph_solver.function_sampling.operation_probs", value)
 
-    for operation in operation_probs.keys():
-        Function(vectorize(operation), *generate_args[operation](graph))
+
+def _patch_color_probs(value):
+    return patch("solve_arc.function_graph_solver.function_sampling.color_probs", value)
+
+
+def test_function_sampler__all_functions_smoketest(example_source, example_selection):
+    graph = Graph({Constant(example_source), Constant(example_selection)})
+    function_sampler = FunctionSampler()
+
+    for operation in function_sampler.operation_probs.keys():
+        function = Function(vectorize(operation), *function_sampler.generate_args[operation](graph))
+        assert function() is not None
