@@ -7,7 +7,7 @@ from func_timeout import func_timeout, FunctionTimedOut
 import click
 
 from .loader import training_tasks, evaluation_tasks
-from .solved_tasks import SOLVED_TASK_IDS
+from .task_ids import SOLVED_TASK_IDS, REGRESSION_TASK_IDS
 from ..function_graph_solver.sampling_search import solve, Constraint, Statistics
 
 
@@ -29,6 +29,12 @@ def evaluate(debug, args, **kwargs):
         if args[0] == "solved":
             logger.info("evaluating performance on known solved tasks")
             _evaluate(_get_tasks(SOLVED_TASK_IDS), **kwargs)
+        if args[0] == "unsolved":
+            logger.info("evaluating performance on unsolved tasks")
+            _evaluate(_get_all_tasks(except_task_ids=SOLVED_TASK_IDS), **kwargs)
+        elif args[0] == "regression":
+            logger.info("evaluating performance on regression tasks")
+            _evaluate(_get_tasks(REGRESSION_TASK_IDS), **kwargs)
         elif args[0] == "training":
             logger.info("evaluating performance on training tasks")
             _evaluate(training_tasks().items(), **kwargs)
@@ -39,14 +45,20 @@ def evaluate(debug, args, **kwargs):
             logger.info("evaluating performance on {}".format(", ".join(args)))
             _evaluate(_get_tasks(args), **kwargs)
     else:
-        logger.info("evaluating performance on training tasks")
-        _evaluate(training_tasks().items(), **kwargs)
+        logger.info("evaluating performance on all tasks")
+        _evaluate(_get_all_tasks(), **kwargs)
         logger.info("evaluating performance on evaluation tasks")
         _evaluate(evaluation_tasks().items(), **kwargs)
 
 
 def _get_tasks(task_ids):
     all_tasks = {**training_tasks(), **evaluation_tasks()}
+    return [(task_id, all_tasks[task_id]) for task_id in task_ids]
+
+
+def _get_all_tasks(except_task_ids=tuple()):
+    all_tasks = {**training_tasks(), **evaluation_tasks()}
+    task_ids = set(all_tasks.keys()) - set(except_task_ids)
     return [(task_id, all_tasks[task_id]) for task_id in task_ids]
 
 
