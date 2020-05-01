@@ -122,6 +122,50 @@ def test_split_selection_into_connected_areas_no_diagonals(example_selection):
 
 
 @pytest.fixture
+def example_selection__with_large_gaps():
+    return Selection.from_string(
+        """
+        # . . . . .
+        . # . . # #
+        . . . . # #
+        . . . . . #
+        . # # . # .
+        . . # . # .
+        . . . . . .
+        """
+    )
+
+
+def test_split_selection_into_connected_areas_skip_gaps(example_selection__with_large_gaps):
+    areas = split_selection_into_connected_areas_skip_gaps(example_selection__with_large_gaps)
+
+    assert set(areas) == {
+        Selection.from_string(
+            """
+        # . . . . .
+        . # . . . .
+        . . . . . .
+        . . . . . .
+        . . . . . .
+        . . . . . .
+        . . . . . .
+        """
+        ),
+        Selection.from_string(
+            """
+        . . . . . .
+        . . . . # #
+        . . . . # #
+        . . . . . #
+        . # # . # .
+        . . # . # .
+        . . . . . .
+        """
+        ),
+    }
+
+
+@pytest.fixture
 def connected_areas_selections(example_selection):
     """ A sequence of selections with some connected areas
     - without diagonal connection

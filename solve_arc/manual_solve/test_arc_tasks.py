@@ -223,11 +223,13 @@ def test_3428a4f5(input_, expected):
 
 
 def test_36fdfd69(input_, expected):
-    return
-    selection = select_color(input_, color=1)
-    # fill_selection_bounds
-    # select all colors in selection (ignore=2)
-    # set_selected_to_color
+    selection = select_color(input_, color=2)
+    islands = split_selection_into_connected_areas_skip_gaps(selection)
+    bounds = extend_selections_to_bounds(islands)
+    merged = merge_selections(bounds)
+    selected = selection_elementwise_xor(selection, merged)
+    result = set_selected_to_color(input_, selected, 4)
+    assert result == expected
 
 
 def test_3906de3d(input_, expected):

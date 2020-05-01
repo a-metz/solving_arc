@@ -223,6 +223,7 @@ def split_selection_into_connected_areas_functions(nodes, graph):
     for node in nodes.of_type(Selection):
         functions.add(Function(vectorize(split_selection_into_connected_areas), node))
         functions.add(Function(vectorize(split_selection_into_connected_areas_no_diagonals), node))
+        functions.add(Function(vectorize(split_selection_into_connected_areas_skip_gaps), node))
     return functions
 
 

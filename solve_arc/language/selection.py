@@ -24,6 +24,10 @@ def split_selection_into_connected_areas_no_diagonals(selection):
     return _split_selection_into_connected_areas(selection, _get_neighbors_no_diag)
 
 
+def split_selection_into_connected_areas_skip_gaps(selection):
+    return _split_selection_into_connected_areas(selection, _get_neighbors_skip_gaps)
+
+
 def _split_selection_into_connected_areas(selection, get_neighbors):
     unassigned = {tuple(index) for index in np.argwhere(selection.state)}
 
@@ -76,6 +80,37 @@ def _get_neighbors_no_diag(index):
         (y + 1, x),
         (y, x - 1),
         (y, x + 1),
+    }
+
+
+def _get_neighbors_skip_gaps(index):
+    y, x = index
+    # slower and just as readable: set(product(range(y - 2, y + 3), range(x - 2, x + 3))) - {(y, x)}
+    return {
+        (y - 2, x - 2),
+        (y - 2, x - 1),
+        (y - 2, x),
+        (y - 2, x + 1),
+        (y - 2, x + 2),
+        (y - 1, x - 2),
+        (y - 1, x - 1),
+        (y - 1, x),
+        (y - 1, x + 1),
+        (y - 1, x + 2),
+        (y, x - 2),
+        (y, x - 1),
+        (y, x + 1),
+        (y, x + 2),
+        (y + 1, x - 2),
+        (y + 1, x - 1),
+        (y + 1, x),
+        (y + 1, x + 1),
+        (y + 1, x + 2),
+        (y + 2, x - 2),
+        (y + 2, x - 1),
+        (y + 2, x),
+        (y + 2, x + 1),
+        (y + 2, x + 2),
     }
 
 
