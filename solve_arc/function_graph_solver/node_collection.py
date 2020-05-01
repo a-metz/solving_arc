@@ -19,15 +19,14 @@ class NodeCollection(set):
         self._process(node)
 
     def _process(self, node):
-        # add by type
-        vector_iter = iter(node())
-        type_ = type(next(vector_iter))
-        # only valid if all are equal
-        if all(type_ == type(element) for element in vector_iter):
+        # sort by type
+        types = {type(element) for element in node()}
+        if len(types) == 1:
+            type_ = types.pop()
             self._by_type[type_].add(node)
 
-            if type_ == Grid or type_ == Selection:
-                # add by shape
+            if type_ in {Grid, Selection, Grids, Selections}:
+                # sort by shape
                 self._by_shape[shape(node())].add(node)
 
     def with_type(self, type_):

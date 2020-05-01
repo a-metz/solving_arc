@@ -56,7 +56,7 @@ def selection_node_2():
 
 
 @pytest.fixture
-def selection_node_wrong_size():
+def selection_node_3():
     return Constant(
         repeat_once(
             Selection.from_string(
@@ -79,6 +79,31 @@ def grids_node():
                         """
                         1 1
                         1 0
+                        """
+                    ),
+                    Grid.from_string(
+                        """
+                        0 1
+                        1 0
+                        """
+                    ),
+                ]
+            )
+        )
+    )
+
+
+@pytest.fixture
+def grids_node_different_sizes():
+    return Constant(
+        repeat_once(
+            Grids(
+                [
+                    Grid.from_string(
+                        """
+                        1 2 3
+                        4 5 6
+                        7 8 9
                         """
                     ),
                     Grid.from_string(
@@ -118,15 +143,32 @@ def selections_node():
 
 
 def test_node_collections(
-    invalid_node, grid_node, grids_node, selection_node_1, selection_node_2, selections_node
+    invalid_node,
+    grid_node,
+    selection_node_1,
+    selection_node_2,
+    selection_node_3,
+    grids_node,
+    grids_node_different_sizes,
+    selections_node,
 ):
     nodes = NodeCollection(
-        [invalid_node, grid_node, grids_node, selection_node_1, selection_node_2, selections_node]
+        [
+            invalid_node,
+            grid_node,
+            selection_node_1,
+            selection_node_2,
+            selection_node_3,
+            grids_node,
+            grids_node_different_sizes,
+            selections_node,
+        ]
     )
 
-    assert len(nodes) == 6
+    assert len(nodes) == 8
     assert nodes.with_type(Grid) == {grid_node}
-    assert nodes.with_type(Grids) == {grids_node}
-    assert nodes.with_type(Selection) == {selection_node_1, selection_node_2}
+    assert nodes.with_type(Grids) == {grids_node, grids_node_different_sizes}
+    assert nodes.with_type(Selection) == {selection_node_1, selection_node_2, selection_node_3}
     assert nodes.with_type(Selections) == {selections_node}
     assert nodes.with_shape(((3, 3),)) == {grid_node, selection_node_1, selection_node_2}
+    assert nodes.with_shape(((2, 2),)) == {selection_node_3, grids_node, selections_node}

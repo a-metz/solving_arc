@@ -137,6 +137,14 @@ class _Sequence(tuple):
     def apply(self, func, *args):
         return self.__class__(func(element, *args) for element in self)
 
+    @property
+    def shape(self):
+        shapes = {element.shape for element in self}
+        if len(shapes) != 1:
+            return None
+
+        return shapes.pop()
+
     def __str__(self):
         return "\n---\n".join(str(element) for element in self)
 
