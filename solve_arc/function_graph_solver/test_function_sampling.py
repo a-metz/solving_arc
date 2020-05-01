@@ -81,14 +81,6 @@ def test_graph_expand__find_target(example_source, example_target):
     )
 
 
-def _patch_operation_probs(value):
-    return patch("solve_arc.function_graph_solver.function_sampling.operation_probs", value)
-
-
-def _patch_color_probs(value):
-    return patch("solve_arc.function_graph_solver.function_sampling.color_probs", value)
-
-
 def test_function_sampler__all_functions_smoketest(example_source, example_selection):
     graph = Graph({Constant(example_source), Constant(example_selection)})
     function_sampler = FunctionSampler()
