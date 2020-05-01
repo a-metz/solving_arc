@@ -12,21 +12,21 @@ def test_function__lazy_evaluation_and_caching():
             self.call_count += 1
             return 42
 
-    callable_ = CountCalls()
-    function = Function(callable_)
+    operation = CountCalls()
+    function = Function(operation)
 
     # expect lazy evaluation
-    assert callable_.call_count == 0
+    assert operation.call_count == 0
     assert function() == 42
-    assert callable_.call_count == 1
+    assert operation.call_count == 1
 
     # expect returning of cached result
     assert function() == 42
-    assert callable_.call_count == 1
+    assert operation.call_count == 1
 
     # expect reevaluting result
     assert function(use_cache=False) == 42
-    assert callable_.call_count == 2
+    assert operation.call_count == 2
 
 
 def test_function__lazy_evaluation_with_multiple_arguments():

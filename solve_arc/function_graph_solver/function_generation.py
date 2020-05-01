@@ -184,7 +184,7 @@ def switch_color_functions(nodes, graph):
     return {
         Function(vectorize(switch_color), node, Constant(repeat(a)), Constant(repeat(b)))
         for node in nodes.of_type(Grid)
-        if not (isinstance(node, Function) and node.callable_ == vectorize(switch_color))
+        if not (isinstance(node, Function) and node.operation == vectorize(switch_color))
         for a, b in combinations(used_colors(node()), 2)
     }
 
