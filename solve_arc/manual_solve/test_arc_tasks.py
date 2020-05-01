@@ -209,11 +209,10 @@ def test_31d5ba1a(input_, expected):
 
 
 def test_32597951(input_, expected):
-    return
-    selection = select_color(input_, color=1)
-    # fill_selection_bounds
-    # select color in selection
-    # set_selected_to_color
+    selection = select_color(input_, color=8)
+    bounds = extend_selection_to_bounds(selection)
+    result = map_color_in_selection(input_, bounds, 1, 3)
+    assert result == expected
 
 
 def test_3428a4f5(input_, expected):
