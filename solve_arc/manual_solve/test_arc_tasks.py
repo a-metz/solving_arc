@@ -2,32 +2,20 @@ import pytest
 
 from ..language import *
 
-# colors
-# 0: black
-# 1: blue
-# 2: red
-# 3: green
-# 4: yellow
-# 5: gray
-# 6: pink
-# 7: orange
-# 8: azure
-# 9: crimson
-
 
 def test_00d62c1b(input_, expected):
-    selection = select_color(input_, color=0)
+    selection = select_color(input_, color=Color.BLACK)
     areas = split_selection_into_connected_areas_no_diagonals(selection)
     areas = filter_selections_not_touching_edge(areas)
     selection = merge_selections(areas)
-    result = set_selected_to_color(input_, selection, color=4)
+    result = set_selected_to_color(input_, selection, color=Color.YELLOW)
     assert result == expected
 
 
 def test_0520fde7(input_, expected):
-    islands = extract_islands(input_, ignore=5)
+    islands = extract_islands(input_, ignore=Color.GRAY)
     merged = elementwise_equal_and(*islands)
-    result = switch_color(merged, 1, 2)
+    result = switch_color(merged, Color.BLUE, Color.RED)
     assert result == expected
 
 
@@ -41,7 +29,7 @@ def test_05f2a901(input_, expected):
 
 def test_08ed6ac7(input_, expected):
     return
-    selection = select_all_colors(input_, ignore=0)
+    selection = select_all_colors(input_, ignore=Color.BLACK)
     areas = split_selection_into_connected_areas(grid, selection)
     # sort areas by size
     # unpack first
@@ -56,7 +44,7 @@ def test_08ed6ac7(input_, expected):
 
 def test_0a938d79(input_, expected):
     return
-    selection = select_all_colors(input_, ignore=0)
+    selection = select_all_colors(input_, ignore=Color.BLACK)
     areas = split_selection_into_connected_areas(selection)
     # get directional relation first to second
     # extrude stepwise first in direction
@@ -74,19 +62,19 @@ def test_0b148d64(input_, expected):
 
 def test_0ca9ddb6(input_, expected):
     return
-    selection = select_color(input_, color=2)
+    selection = select_color(input_, color=Color.RED)
     # select in direction all diagonals
-    result = set_selected_to_color(result, selection, color=7)
-    selection = select_color(input_, color=1)
+    result = set_selected_to_color(result, selection, color=Color.ORANGE)
+    selection = select_color(input_, color=Color.BLUE)
     # select in direction all main directions
-    result = set_selected_to_color(result, selection, color=7)
+    result = set_selected_to_color(result, selection, color=Color.ORANGE)
 
 
 def test_0d3d703e(input_, expected):
-    result = switch_color(input_, 3, 4)
-    result = switch_color(result, 1, 5)
-    result = switch_color(result, 2, 6)
-    result = switch_color(result, 8, 9)
+    result = switch_color(input_, Color.GREEN, Color.YELLOW)
+    result = switch_color(result, Color.BLUE, Color.GRAY)
+    result = switch_color(result, Color.RED, Color.PINK)
+    result = switch_color(result, Color.AZURE, Color.CRIMSON)
     assert result == expected
 
 
@@ -96,14 +84,14 @@ def test_10fcaaa3(input_, expected):
     # concatenate horizontal
     # (duplicate)
     # concatenate vertical
-    # selection = select_all_colors(result, ignore=0)
+    # selection = select_all_colors(result, ignore=Color.BLACK)
     # select in direction all diagonals
     # result = set_selected_to_color(result, selection, color=light_blue)
 
 
 def test_11852cab(input_, expected):
     return
-    selection = select_all_colors(input_, ignore=0)
+    selection = select_all_colors(input_, ignore=Color.BLACK)
     # extrude rotate num_times=1 in selection bounds
     # extrude rotate num_times=1 in selection bounds
     # extrude rotate num_times=1 in selection bounds
@@ -111,10 +99,10 @@ def test_11852cab(input_, expected):
 
 def test_178fcbfb(input_, expected):
     return
-    # selection2 = select_color(input_, color=2)
+    # selection2 = select_color(input_, color=Color.RED)
     # extrude selected stepwise to top
     # extrude selected stepwise to bottom
-    # selection1 = select_color(input_, color=1)
+    # selection1 = select_color(input_, color=Color.BLUE)
     # selection3 = select_color(input_, color=3)
     # selection = selection_logical_or(selection1, selection3)
     # extrude selected stepwise to left
@@ -122,10 +110,10 @@ def test_178fcbfb(input_, expected):
 
 
 def test_1b2d62fb(input_, expected):
-    islands = extract_islands(input_, ignore=1)
+    islands = extract_islands(input_, ignore=Color.BLUE)
     merged = elementwise_equal_or(*islands)
-    result = switch_color(merged, 0, 9)
-    result = switch_color(result, 8, 9)
+    result = switch_color(merged, Color.BLACK, Color.CRIMSON)
+    result = switch_color(result, Color.AZURE, Color.CRIMSON)
     assert result == expected
 
 
@@ -142,7 +130,7 @@ def test_1c786137(input_, expected):
 
 
 def test_1cf80156(input_, expected):
-    islands = extract_islands(input_, ignore=0)
+    islands = extract_islands(input_, ignore=Color.BLACK)
     result = take_first(islands)
     assert result == expected
 
@@ -209,26 +197,26 @@ def test_31d5ba1a(input_, expected):
 
 
 def test_32597951(input_, expected):
-    selection = select_color(input_, color=8)
+    selection = select_color(input_, color=Color.AZURE)
     bounds = extend_selection_to_bounds(selection)
-    result = map_color_in_selection(input_, bounds, 1, 3)
+    result = map_color_in_selection(input_, bounds, Color.BLUE, Color.GREEN)
     assert result == expected
 
 
 def test_3428a4f5(input_, expected):
-    islands = extract_islands(input_, ignore=4)
+    islands = extract_islands(input_, ignore=Color.YELLOW)
     merged = elementwise_xor(*islands)
-    result = switch_color(merged, 2, 3)
+    result = switch_color(merged, Color.RED, Color.GREEN)
     assert result == expected
 
 
 def test_36fdfd69(input_, expected):
-    selection = select_color(input_, color=2)
+    selection = select_color(input_, color=Color.RED)
     islands = split_selection_into_connected_areas_skip_gaps(selection)
     bounds = extend_selections_to_bounds(islands)
     merged = merge_selections(bounds)
     selected = selection_elementwise_xor(selection, merged)
-    result = set_selected_to_color(input_, selected, 4)
+    result = set_selected_to_color(input_, selected, Color.YELLOW)
     assert result == expected
 
 
@@ -264,19 +252,19 @@ def test_4c4377d9(input_, expected):
 
 def test_50cb2852(input_, expected):
     return
-    # select_all_colors(result, ignore=0)
+    # select_all_colors(result, ignore=Color.BLACK)
     # shrink selection
 
 
 def test_5117e062(input_, expected):
     return
-    # select_all_colors(result, ignore=0)
+    # select_all_colors(result, ignore=Color.BLACK)
     # filter_selections_not_containing_color
 
 
 def test_54d9e175(input_, expected):
     return
-    # selection = select_all_colors(result, ignore=5)
+    # selection = select_all_colors(result, ignore=Color.GRAY)
     # areas = split_selection_into_connected_areas_no_diagonals(selection)
     # islands = extract_selected_areas()
     # color = get_most_common_color
@@ -285,13 +273,13 @@ def test_54d9e175(input_, expected):
 
 def test_5521c0d9(input_, expected):
     return
-    # selection = select_all_colors(result, ignore=0)
+    # selection = select_all_colors(result, ignore=Color.BLACK)
     # move all stepwise in direction bottom
 
 
 def test_5614dbcf(input_, expected):
     return
-    # selection = select_all_colors(result, ignore=5)
+    # selection = select_all_colors(result, ignore=Color.GRAY)
     # areas = split_selection_into_color_areas(grid, selection)
     # islands = extract_selected_areas(areas)
     # color = get_most_common_color
@@ -308,11 +296,11 @@ def test_5bd6f4ac(input_, expected):
 
 def test_60b61512(input_, expected):
     return
-    selection = select_all_colors(input_, ignore=0)
+    selection = select_all_colors(input_, ignore=Color.BLACK)
     areas = split_selection_into_connected_areas(selection)
     # fill_selection_bounds
     # select color in selection
-    # set_selected_to_color(color=7)
+    # set_selected_to_color(color=Color.ORANGE)
 
 
 def test_62c24649(input_, expected):
@@ -344,10 +332,10 @@ def test_f25ffba3(input_, expected):
 
 
 def test_f2829549(input_, expected):
-    mapped = map_color(input_, 0, 3)
-    mapped = map_color(mapped, 7, 0)
-    mapped = map_color(mapped, 5, 0)
-    islands = extract_islands(mapped, ignore=1)
+    mapped = map_color(input_, Color.BLACK, Color.GREEN)
+    mapped = map_color(mapped, Color.ORANGE, Color.BLACK)
+    mapped = map_color(mapped, Color.GRAY, Color.BLACK)
+    islands = extract_islands(mapped, ignore=Color.BLUE)
     result = elementwise_equal_and(*islands)
     assert result == expected
 

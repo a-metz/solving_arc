@@ -1,4 +1,19 @@
 import numpy as np
+from enum import IntEnum
+
+
+class Color(IntEnum):
+    BLACK = 0
+    BLUE = 1
+    RED = 2
+    GREEN = 3
+    YELLOW = 4
+    GRAY = 5
+    PINK = 6
+    ORANGE = 7
+    AZURE = 8
+    CRIMSON = 9
+
 
 # TODO: inherit from numpy array (?)
 class _Base:
