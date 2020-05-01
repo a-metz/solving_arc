@@ -8,6 +8,7 @@ from .nodes import *
 from .node_collection import *
 
 
+# TODO: extend to replace function_generation.Graph
 class Graph:
     def __init__(self, initial_nodes, target=None, max_expansions=10):
         self.target = target

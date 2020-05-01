@@ -379,6 +379,7 @@ def logic_functions(nodes, graph):
     for a, b in combinations(scalars, 2):
         if shape(a()) == shape(b()):
             functions.add(Function(vectorize(elementwise_equal_or), a, b))
+            # makes stuff too slow:
             # functions.add(Function(vectorize(elementwise_equal_and), a, b))
             # functions.add(Function(vectorize(elementwise_xor), a, b))
 
