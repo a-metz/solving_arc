@@ -179,21 +179,6 @@ def test_23b5c85d(input_, expected):
     # extract_selected_area
 
 
-def test_3428a4f5(input_, expected):
-    islands = extract_islands(input_, ignore=4)
-    merged = elementwise_xor(*islands)
-    result = switch_color(merged, 2, 3)
-    assert result == expected
-
-
-def test_8d5021e8(input_, expected):
-    return
-    flipped = flip_left_right(input_)
-    row = concatenate_left_right(flipped, input_)
-    result = concatenate_top_bottom(result, row)
-    result = concatenate_top_bottom(result, row)
-
-
 def test_25ff71a9(input_, expected):
     return
     selection = select_all_colors(input_)
@@ -229,6 +214,13 @@ def test_32597951(input_, expected):
     # fill_selection_bounds
     # select color in selection
     # set_selected_to_color
+
+
+def test_3428a4f5(input_, expected):
+    islands = extract_islands(input_, ignore=4)
+    merged = elementwise_xor(*islands)
+    result = switch_color(merged, 2, 3)
+    assert result == expected
 
 
 def test_36fdfd69(input_, expected):
@@ -328,6 +320,14 @@ def test_62c24649(input_, expected):
     flipped = flip_up_down(result)
     result = concatenate_top_bottom(result, flipped)
     assert result == expected
+
+
+def test_8d5021e8(input_, expected):
+    return
+    flipped = flip_left_right(input_)
+    row = concatenate_left_right(flipped, input_)
+    result = concatenate_top_bottom(result, row)
+    result = concatenate_top_bottom(result, row)
 
 
 def test_a740d043(input_, expected):
