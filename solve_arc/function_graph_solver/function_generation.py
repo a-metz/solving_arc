@@ -374,12 +374,12 @@ def logic_functions(nodes, graph):
             functions.add(Function(vectorize(elementwise_equal_or), a, b))
             functions.add(Function(vectorize(elementwise_xor), a, b))
 
-    # scalars = nodes.of_type(Grid)
-    # for a, b in permutations(scalars, 2):
-    #     if shape(a()) == shape(b()):
-    #         functions.add(Function(vectorize(elementwise_equal_and), a, b))
-    #         functions.add(Function(vectorize(elementwise_equal_or), a, b))
-    #         functions.add(Function(vectorize(elementwise_xor), a, b))
+    scalars = nodes.of_type(Grid)
+    for a, b in combinations(scalars, 2):
+        if shape(a()) == shape(b()):
+            functions.add(Function(vectorize(elementwise_equal_or), a, b))
+            # functions.add(Function(vectorize(elementwise_equal_and), a, b))
+            # functions.add(Function(vectorize(elementwise_xor), a, b))
 
     return functions
 
