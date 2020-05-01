@@ -38,8 +38,7 @@ cd <repository root dir>
 
 ## TODO
 
-  * expand step by step: sample random operation (weigthed), then random args for operation (weighted)
-  * add type intenum for color
+  * expand step by step: sample random operation (weighted), then random args for operation (weighted)
   * apply operations for scalar grid/selection to sequences
   * colors / color sequences as operation result
   * color constants as permanent nodes in graph (?)
