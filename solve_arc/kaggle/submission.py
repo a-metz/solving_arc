@@ -19,7 +19,8 @@ def generate_submission(
     max_seconds_per_task,
     max_search_depth,
     max_expansions_per_node,
-    task_range=slice(None),
+    max_score=None,
+    task_range=slice(None, None, None),
 ):
     with open("submission.csv", "w") as submission:
         submission.write("output_id,output\n")
@@ -37,8 +38,9 @@ def generate_submission(
             ]
 
             solution = None
+            max_score_reached = max_score is not None and score >= max_score
 
-            if task_id in selected_task_ids:
+            if task_id in selected_task_ids and not max_score_reached:
                 solution = timeout(max_seconds_per_task)(solve)(
                     constraints, max_search_depth, max_expansions_per_node
                 )

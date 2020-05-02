@@ -62,3 +62,18 @@ def test_generate_submission__only_selected_range(default_kwargs):
     # two test subtasks
     assert submission[3] == "ed36ccf7_0,|005|005|050| |00|00| |00|00|\n"
     assert submission[4] == "ed36ccf7_1,|100|011|100| |00|00| |00|00|\n"
+
+
+@pytest.mark.slow
+def test_generate_submission__finish_after_max_score_reached(default_kwargs):
+    generate_submission(
+        "solve_arc/kaggle/test_data", max_score=1, **default_kwargs,
+    )
+
+    submission = open("submission.csv", "r").readlines()
+    assert submission[0] == "output_id,output\n"
+    assert submission[1] == "0520fde7_0,|202|000|000| |00|00| |00|00|\n"
+    # not solved because max score already reached
+    assert submission[2] == "7c008303_0,|00|00| |00|00| |00|00|\n"
+    assert submission[3] == "ed36ccf7_0,|00|00| |00|00| |00|00|\n"
+    assert submission[4] == "ed36ccf7_1,|00|00| |00|00| |00|00|\n"
