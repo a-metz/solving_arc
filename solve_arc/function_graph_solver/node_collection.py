@@ -12,6 +12,7 @@ class NodeCollection(set):
         self._by_type = defaultdict(set)
         self._by_shape = defaultdict(set)
         self._by_length = defaultdict(set)
+        self._matching_shape_sequences = set()
         for node in nodes:
             self._process(node)
 
@@ -26,11 +27,17 @@ class NodeCollection(set):
             type_ = types.pop()
             self._by_type[type_].add(node)
 
-            if type_ in {Grid, Selection, Grids, Selections}:
-                # sort by shape
+            if type_ in {Grid, Selection}:
+                # sort scalars by shape
                 self._by_shape[shape(node())].add(node)
 
             if type_ in {Grids, Selections}:
+                # sort sequences by shape
+                shape_ = shape(node())
+                if all([element is not None for element in shape_]):
+                    self._by_shape[shape_].add(node)
+                    self._matching_shape_sequences.add(node)
+
                 # sort by sequence length
                 lengths = {len(element) for element in node()}
                 if len(lengths) == 1:
@@ -44,6 +51,9 @@ class NodeCollection(set):
 
     def with_length(self, length):
         return self._by_length[length]
+
+    def matching_shape_sequences(self):
+        return self._matching_shape_sequences
 
 
 def used_colors(grid_vector):

@@ -74,9 +74,9 @@ class FunctionSampler:
             extract_color_patch: 1.0,
             extract_islands: 1.0,
             # logic
-            elementwise_equal_and: NOT_IMPLEMENTED,
-            elementwise_equal_or: NOT_IMPLEMENTED,
-            elementwise_xor: NOT_IMPLEMENTED,
+            elementwise_equal_and: 1.0,
+            elementwise_equal_or: 1.0,
+            elementwise_xor: 1.0,
             selection_elementwise_and: DISABLED,
             selection_elementwise_or: DISABLED,
             selection_elementwise_xor: DISABLED,
@@ -135,9 +135,9 @@ class FunctionSampler:
             extract_color_patch: self.sample_extract_args,
             extract_islands: self.sample_extract_args,
             # logic
-            elementwise_equal_and: None,
-            elementwise_equal_or: None,
-            elementwise_xor: None,
+            elementwise_equal_and: self.sample_matching_shape_grids_from_sequence,
+            elementwise_equal_or: self.sample_matching_shape_grids_from_sequence,
+            elementwise_xor: self.sample_matching_shape_grids_from_sequence,
             selection_elementwise_and: None,
             selection_elementwise_or: None,
             selection_elementwise_xor: None,
@@ -186,6 +186,7 @@ class FunctionSampler:
     def __call__(self):
         operation = sample(self.operation_probs)
         args = self.sample_args[operation]()
+        # vectorize operation to as nodes contain all values for all constraints
         return Function(vectorize(operation), *args)
 
     def sample_map_color_args(self):
@@ -215,6 +216,18 @@ class FunctionSampler:
         # TODO: sample from_color only from used_colors(grid_node)
         color = sample(self.color_probs)
         return grid_node, Constant(repeat(color))
+
+    def sample_matching_shape_grids_from_sequence(self):
+        # TODO: rely on take functions and use scalar grids instead of sequence
+        sample_matching_shape_grids = sample_uniform(
+            self.graph.nodes.with_type(Grids)
+            & self.graph.nodes.with_length(2)
+            & self.graph.nodes.matching_shape_sequences()
+        )
+        return (
+            Function(vectorize(take_first), sample_matching_shape_grids),
+            Function(vectorize(take_last), sample_matching_shape_grids),
+        )
 
     def sample_matching_selection_node(self, grid_node):
         return sample_uniform(

@@ -81,13 +81,53 @@ def test_graph_expand__find_target(example_source, example_target):
     )
 
 
-def test_function_sampler__all_functions_smoketest(example_source, example_selection):
-    graph = Graph({Constant(example_source), Constant(example_selection)})
+@pytest.fixture
+def all_args(example_source, example_selection):
+    return {
+        # scalar grid
+        Constant(Vector([Grid.from_string("0 1"), Grid.from_string("0 1 2")])),
+        # scalar selection
+        Constant(Vector([Selection.from_string(". #"), Selection.from_string(". # #")])),
+        # matching shape grids
+        Constant(
+            Vector(
+                [
+                    Grids([Grid.from_string("0 1"), Grid.from_string("1 1")]),
+                    Grids([Grid.from_string("0 1 2"), Grid.from_string("1 1 1")]),
+                ]
+            )
+        ),
+        # matching shape selections
+        Constant(
+            Vector(
+                [
+                    Selections([Selection.from_string(". #"), Selection.from_string("# #")]),
+                    Selections([Selection.from_string(". # #"), Selection.from_string("# # #")]),
+                ]
+            )
+        ),
+    }
+
+
+def test_function_sampler__all_functions_smoketest(all_args, example_target):
+    graph = Graph(all_args, target=example_target)
     function_sampler = FunctionSampler(graph)
 
     for operation in function_sampler.operation_probs.keys():
         sample_args = function_sampler.sample_args[operation]
 
         if sample_args is not None:
-            function = Function(vectorize(operation), *())
+            try:
+                args = sample_args()
+            except Exception as exception:
+                print("sampling args for operation {} failed".format(operation.__name__))
+                raise
+
+            function = Function(vectorize(operation), *args)
+
+            try:
+                value = function()
+            except Exception as exception:
+                pytest.fail("function call {!r} failed with {}".format(function, exception))
+
             assert function() is not None
