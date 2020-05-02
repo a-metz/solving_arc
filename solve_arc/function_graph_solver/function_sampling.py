@@ -12,9 +12,9 @@ from .node_collection import *
 class Graph:
     def __init__(self, initial_nodes, target=None, max_expansions=10):
         self.target = target
-        self.function_sampler = FunctionSampler()
 
         self.nodes = NodeCollection(initial_nodes)
+        self.function_sampler = FunctionSampler(self)
         self.remaining_expansions = max_expansions
 
     def expand(self):
@@ -23,7 +23,7 @@ class Graph:
         self.remaining_expansions -= 1
 
         try:
-            node = self.function_sampler(self)
+            node = self.function_sampler()
             self.nodes.add(node)
 
             if node() == self.target:
@@ -40,7 +40,9 @@ class NoRemainingExpansions(Exception):
 
 
 class FunctionSampler:
-    def __init__(self):
+    def __init__(self, graph):
+        self.graph = graph
+
         # probabilities all colors
         self.color_probs = {
             Color.BLACK: 0.55,
@@ -59,28 +61,38 @@ class FunctionSampler:
         self.operation_probs = {map_color: 0.5, map_color_in_selection: 0.5}
 
         # map for operation -> function to generate args for operation
-        self.generate_args = {
+        self.sample_args = {
             map_color: self.sample_map_color_args,
             map_color_in_selection: self.sample_map_color_in_selection_args,
         }
 
-    def __call__(self, graph):
+    def __call__(self):
         operation = sample(self.operation_probs)
-        args = self.generate_args[operation](graph)
+        args = self.sample_args[operation]()
         return Function(vectorize(operation), *args)
 
-    def sample_map_color_args(self, graph):
-        node = sample_uniform(graph.nodes.with_type(Grid))
+    def sample_map_color_args(self):
+        node = sample_uniform(self.graph.nodes.with_type(Grid))
         from_color, to_color = sample_permutation(self.color_probs, 2)
         return node, Constant(repeat(from_color)), Constant(repeat(to_color))
 
-    def sample_map_color_in_selection_args(self, graph):
-        grid_node = sample_uniform(graph.nodes.with_type(Grid))
-        selection_node = sample_uniform(
-            graph.nodes.with_type(Selection) & graph.nodes.with_shape(shape(grid_node()))
-        )
+    def sample_map_color_in_selection_args(self):
+        grid_node = sample_uniform(self.graph.nodes.with_type(Grid))
+        selection_node = self.sample_matching_selection_node(grid_node)
+        # TODO: better heuristics
         from_color, to_color = sample_permutation(self.color_probs, 2)
         return grid_node, selection_node, Constant(repeat(from_color)), Constant(repeat(to_color))
+
+    def sample_set_selected_to_color_args(self):
+        grid_node = sample_uniform(self.graph.nodes.with_type(Grid))
+        selection_node = self.sample_matching_selection_node(grid_node)
+        color = sample(self.color_probs)
+        return grid_node, selection_node, Constant(repeat(color))
+
+    def sample_matching_selection_node(self, grid_node):
+        return sample_uniform(
+            self.graph.nodes.with_type(Selection) & self.graph.nodes.with_shape(shape(grid_node()))
+        )
 
 
 def sample_uniform(iterable):

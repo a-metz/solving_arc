@@ -83,8 +83,11 @@ def test_graph_expand__find_target(example_source, example_target):
 
 def test_function_sampler__all_functions_smoketest(example_source, example_selection):
     graph = Graph({Constant(example_source), Constant(example_selection)})
-    function_sampler = FunctionSampler()
+    function_sampler = FunctionSampler(graph)
 
     for operation in function_sampler.operation_probs.keys():
-        function = Function(vectorize(operation), *function_sampler.generate_args[operation](graph))
-        assert function() is not None
+        sample_args = function_sampler.sample_args[operation]
+
+        if sample_args is not None:
+            function = Function(vectorize(operation), *())
+            assert function() is not None
