@@ -70,9 +70,9 @@ class FunctionSampler:
             set_selected_to_color: 1.0,
             fill_grid: DISABLED,
             # compositions
-            extract_color_patches: NOT_IMPLEMENTED,
-            extract_color_patch: NOT_IMPLEMENTED,
-            extract_islands: NOT_IMPLEMENTED,
+            extract_color_patches: 1.0,
+            extract_color_patch: 1.0,
+            extract_islands: 1.0,
             # logic
             elementwise_equal_and: NOT_IMPLEMENTED,
             elementwise_equal_or: NOT_IMPLEMENTED,
@@ -131,9 +131,9 @@ class FunctionSampler:
             set_selected_to_color: self.sample_set_selected_to_color_args,
             fill_grid: None,
             # compositions
-            extract_color_patches: None,
-            extract_color_patch: None,
-            extract_islands: None,
+            extract_color_patches: self.sample_extract_args,
+            extract_color_patch: self.sample_extract_args,
+            extract_islands: self.sample_extract_args,
             # logic
             elementwise_equal_and: None,
             elementwise_equal_or: None,
@@ -196,15 +196,25 @@ class FunctionSampler:
     def sample_map_color_in_selection_args(self):
         grid_node = sample_uniform(self.graph.nodes.with_type(Grid))
         selection_node = self.sample_matching_selection_node(grid_node)
-        # TODO: better heuristics
+        # TODO: sample from_color only from used_colors(grid_node)
+        # TODO: sample to_color higher prob for used_colors(target)
         from_color, to_color = sample_permutation(self.color_probs, 2)
         return grid_node, selection_node, Constant(repeat(from_color)), Constant(repeat(to_color))
 
     def sample_set_selected_to_color_args(self):
         grid_node = sample_uniform(self.graph.nodes.with_type(Grid))
         selection_node = self.sample_matching_selection_node(grid_node)
+        # TODO: sample to_color higher prob for used_colors(target)
         color = sample(self.color_probs)
         return grid_node, selection_node, Constant(repeat(color))
+
+    def sample_extract_args(self):
+        grid_node = sample_uniform(
+            self.graph.nodes.with_type(Grid) - self.graph.nodes.with_shape(shape(self.graph.target))
+        )
+        # TODO: sample from_color only from used_colors(grid_node)
+        color = sample(self.color_probs)
+        return grid_node, Constant(repeat(color))
 
     def sample_matching_selection_node(self, grid_node):
         return sample_uniform(

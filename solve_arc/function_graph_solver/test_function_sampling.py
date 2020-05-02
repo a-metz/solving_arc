@@ -52,9 +52,9 @@ def test_graph_expand__once(graph, initial_nodes):
     assert set(expanded_node.args) > set(initial_nodes)
 
 
-def test_graph_expand__max_expansions(initial_nodes):
+def test_graph_expand__max_expansions(initial_nodes, example_target):
     max_expansions = 10
-    graph = Graph(initial_nodes, max_expansions)
+    graph = Graph(initial_nodes, target=example_target, max_expansions=max_expansions)
 
     for _ in range(max_expansions):
         graph.expand()
