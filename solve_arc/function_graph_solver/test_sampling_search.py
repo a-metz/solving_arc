@@ -134,7 +134,7 @@ def test_solve__complex__multiple_constraints():
         Constraint(source=Grid([[1, 0], [2, 2], [0, 0]]), target=Grid([[3, 0]])),
     ]
 
-    solution = solve(constraints, max_depth=4, max_expansions=1)
+    solution = solve(constraints, max_depth=3, max_expansions=1)
 
     assert solution is not None
     for source, target in constraints:
@@ -142,7 +142,6 @@ def test_solve__complex__multiple_constraints():
     assert solution(Grid([[1, 1], [2, 2], [1, 0]])) == Grid([[0, 3]])
 
 
-@pytest.mark.skip
 def test_solve__split_and_get_first__multiple_constraints():
     constraints = [
         Constraint(source=Grid([[1, 2], [3, 4]]), target=Grid([[1, 2]])),
