@@ -150,3 +150,34 @@ def test_selection_string_representation():
     expected_string = "# #\n# ."
 
     assert str(selection) == expected_string
+
+
+def test_sequence_append():
+    grids = Grids([Grid([[1, 2]]), Grid([[3, 4]])])
+
+    appended = grids.append(Grid([[5, 6]]))
+
+    assert grids == Grids([Grid([[1, 2]]), Grid([[3, 4]])])
+    assert appended == Grids([Grid([[1, 2]]), Grid([[3, 4]]), Grid([[5, 6]])])
+
+
+def test_sequence_apply():
+    grids = Grids([Grid([[1, 2]]), Grid([[3, 4]])])
+
+    def set_first_element_zero(grid):
+        grid = grid.copy()
+        grid.state[0, 0] = 0
+        return grid
+
+    applied = grids.apply(set_first_element_zero)
+
+    assert grids == Grids([Grid([[1, 2]]), Grid([[3, 4]])])
+    assert applied == Grids([Grid([[0, 2]]), Grid([[0, 4]])])
+
+
+def test_sequence_shape():
+    matching_grids = Grids([Grid([[1, 2]]), Grid([[3, 4]])])
+    mismatching_grids = Grids([Grid([[1, 2]]), Grid([[3, 4, 5]])])
+
+    assert matching_grids.shape == (1, 2)
+    assert mismatching_grids.shape == None
