@@ -114,6 +114,10 @@ def _get_neighbors_skip_gaps(index):
     }
 
 
+def extend_selections_to_bounds(selections):
+    return selections.apply(extend_selection_to_bounds)
+
+
 def extend_selection_to_bounds(selection):
     indices = np.argwhere(selection.state)
 
@@ -122,10 +126,6 @@ def extend_selection_to_bounds(selection):
     extended = selection.copy()
     extended.state[top:bottom, left:right] = True
     return extended
-
-
-def extend_selections_to_bounds(selections):
-    return selections.apply(extend_selection_to_bounds)
 
 
 def filter_selections_touching_edge(selections):
