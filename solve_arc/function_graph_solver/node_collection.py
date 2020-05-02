@@ -11,6 +11,7 @@ class NodeCollection(set):
         super().__init__(nodes)
         self._by_type = defaultdict(set)
         self._by_shape = defaultdict(set)
+        self._by_length = defaultdict(set)
         for node in nodes:
             self._process(node)
 
@@ -29,11 +30,20 @@ class NodeCollection(set):
                 # sort by shape
                 self._by_shape[shape(node())].add(node)
 
+            if type_ in {Grids, Selections}:
+                # sort by sequence length
+                lengths = {len(element) for element in node()}
+                if len(lengths) == 1:
+                    self._by_length[lengths.pop()].add(node)
+
     def with_type(self, type_):
         return self._by_type[type_]
 
     def with_shape(self, shape_):
         return self._by_shape[shape_]
+
+    def with_length(self, length):
+        return self._by_length[length]
 
 
 def used_colors(grid_vector):
