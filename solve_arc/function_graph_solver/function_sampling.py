@@ -141,9 +141,9 @@ class FunctionSampler:
             extract_color_patch: self.sample_extract_args,
             extract_islands: self.sample_extract_args,
             # logic
-            elementwise_equal_and: self.sample_matching_shape_grids_from_sequence,
-            elementwise_equal_or: self.sample_matching_shape_grids_from_sequence,
-            elementwise_xor: self.sample_matching_shape_grids_from_sequence,
+            elementwise_equal_and: self.sample_logic_args,
+            elementwise_equal_or: self.sample_logic_args,
+            elementwise_xor: self.sample_logic_args,
             selection_elementwise_and: None,
             selection_elementwise_or: None,
             selection_elementwise_xor: None,
@@ -233,7 +233,7 @@ class FunctionSampler:
         color = sample(self.color_probs)
         return grid_node, Constant(repeat(color))
 
-    def sample_matching_shape_grids_from_sequence(self):
+    def sample_logic_args(self):
         # TODO: rely on take functions and use scalar grids instead of sequence
         sample_matching_shape_grids = sample_uniform(
             self.graph.nodes.with_type(Grids)
