@@ -1,4 +1,5 @@
 import random
+from collections import Counter
 
 import numpy as np
 
@@ -249,20 +250,35 @@ class FunctionSampler:
             self.graph.nodes.with_type(Selection) & self.graph.nodes.with_shape(shape(grid_node()))
         )
 
-    def sample_matching_shape_nodes(self, a_type, b_type):
-        a_candidates = set()
-        b_candidates = set()
-        for shape_ in self.graph.nodes.shapes():
-            shape_candidates = self.graph.nodes.with_shape(shape_)
-            a_candidates_for_shape = self.graph.nodes.with_type(a_type) & shape_candidates
-            b_candidates_for_shape = self.graph.nodes.with_type(b_type) & shape_candidates
-            if len(a_candidates_for_shape) > 0 and len(b_candidates_for_shape) > 0:
-                a_candidates |= a_candidates_for_shape
-                b_candidates |= b_candidates_for_shape
+    def sample_matching_shape_nodes(self, *types, replace=True):
+        if replace:
+            num_required = {type_: 1 for type_ in types}
+        else:
+            num_required = Counter(types)
 
-        a_node = sample_uniform(a_candidates)
-        b_node = sample_uniform(b_candidates & self.graph.nodes.with_shape(shape(a_node())))
-        return a_node, b_node
+        candidates_by_type = [set() for _ in types]
+
+        for shape_ in self.graph.nodes.shapes():
+            nodes_for_shape = self.graph.nodes.with_shape(shape_)
+            nodes_by_type = [self.graph.nodes.with_type(type_) & nodes_for_shape for type_ in types]
+
+            if all(len(nodes) >= num_required[type_] for type_, nodes in zip(types, nodes_by_type)):
+                for candidates, nodes in zip(candidates_by_type, nodes_by_type):
+                    candidates |= nodes
+
+        if any(len(candidates) == 0 for candidates in candidates_by_type):
+            raise NoSample()
+
+        sampled_nodes = []
+        sampled_nodes.append(sample_uniform(candidates_by_type[0]))
+        nodes_with_matching_shape = self.graph.nodes.with_shape(shape(sampled_nodes[0]()))
+        for candidates in candidates_by_type[1:]:
+            candidates &= nodes_with_matching_shape
+            if not replace:
+                candidates -= set(sampled_nodes)
+            sampled_nodes.append(sample_uniform(candidates))
+
+        return tuple(sampled_nodes)
 
 
 def sample_uniform(iterable):

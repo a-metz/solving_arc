@@ -90,6 +90,8 @@ def all_args(example_source, example_selection):
     return {
         # scalar grid
         Constant(Vector([Grid.from_string("0 1"), Grid.from_string("0 1 2")])),
+        Constant(Vector([Grid.from_string("0 2"), Grid.from_string("0 2 4")])),
+        Constant(Vector([Grid.from_string("1 0"), Grid.from_string("1 0 0")])),
         # scalar selection
         Constant(Vector([Selection.from_string(". #"), Selection.from_string(". # #")])),
         # matching shape grids
@@ -110,19 +112,40 @@ def all_args(example_source, example_selection):
                 ]
             )
         ),
+        # different shape grid
+        Constant(Vector([Grid.from_string("0 1"), Grid.from_string("0 1")])),
     }
 
 
-def test_function_sampler__sample_matching_shape_nodes(all_args):
+@pytest.mark.parametrize(
+    "types",
+    [
+        (Grid, Grid),
+        (Grid, Selection),
+        (Grid, Selections),
+        (Grid, Grid, Grid),
+        (Grid, Grid, Selection),
+        (Grid, Grids, Selection),
+    ],
+)
+@pytest.mark.parametrize("replace", [True, False])
+def test_function_sampler__sample_matching_shape_nodes(all_args, types, replace):
     graph = Graph(all_args)
     function_sampler = FunctionSampler(graph)
 
-    for a_type, b_type in product([Grid, Grids, Selection, Selections], repeat=2):
-        for _ in range(1000):
-            a_node, b_node = function_sampler.sample_matching_shape_nodes(a_type, b_type)
-            assert common_type(a_node()) == a_type
-            assert common_type(b_node()) == b_type
-            assert shape(a_node()) == shape(b_node())
+    for _ in range(1000):
+        nodes = function_sampler.sample_matching_shape_nodes(*types, replace=replace)
+
+        # assert correct type
+        for node, type_ in zip(nodes, types):
+            assert common_type(node()) == type_
+
+        # assert equal shape
+        assert len({shape(node()) for node in nodes}) == 1
+
+        # assert no equal nodes
+        if not replace:
+            assert len(set(nodes)) == len(nodes)
 
 
 def test_function_sampler__all_functions_smoketest(all_args, example_target):
