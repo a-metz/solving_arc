@@ -19,8 +19,11 @@ def default_kwargs():
 @pytest.mark.slow
 def test_regression(default_kwargs):
     expect_solve = set(REGRESSION_TASK_IDS)
-    solved = set(_evaluate(_get_tasks(expect_solve), **default_kwargs))
 
-    assert expect_solve == solved, "failed to solve: {}".format(
-        ", ".join(sorted(expect_solve - solved))
-    )
+    unsolved = set(expect_solve)
+    retries = 3
+    while len(unsolved) > 0 and retries > 0:
+        unsolved -= set(_evaluate(_get_tasks(unsolved), **default_kwargs))
+        retries -= 1
+
+    assert len(unsolved) == 0, "failed to solve: {}".format(", ".join(sorted(unsolved)))
