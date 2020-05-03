@@ -71,13 +71,13 @@ def test_graph_expand__find_target(example_source, example_target):
     source_node = Constant(example_source)
     graph = Graph({source_node}, target=example_target)
 
-    graph.function_sampler.operation_probs = {map_color: 1.0}
-    graph.function_sampler.color_probs = {Color(1): epsilon, Color(2): 1.0 - epsilon}
+    # todo replace operation for which args exist in initial nodes
+    graph.function_sampler.operation_probs = {map_color_in_selection: 1.0}
     solution = graph.expand()
 
     assert solution is None
 
-    graph.function_sampler.color_probs = {Color(1): 1.0 - epsilon, Color(2): epsilon}
+    graph.function_sampler.operation_probs = {map_color: 1.0}
     solution = graph.expand()
 
     assert solution == Function(

@@ -47,7 +47,7 @@ class FunctionSampler:
     def __init__(self, graph):
         self.graph = graph
 
-        # probabilities all colors
+        # prior probabilities all colors
         self.color_probs = {
             Color.BLACK: 0.55,
             Color.BLUE: 0.05,
@@ -61,7 +61,7 @@ class FunctionSampler:
             Color.CRIMSON: 0.05,
         }
 
-        # probabilities all operations
+        # prior probabilities all operations
         self.operation_probs = {
             # color
             switch_color: DISABLED,
@@ -193,13 +193,15 @@ class FunctionSampler:
 
     def sample_map_color_args(self):
         node = sample_uniform(self.graph.nodes.with_type(Grid))
-        from_color, to_color = sample_permutation(self.color_probs, 2)
+        # TODO: sample colors based on updated probabilities
+        from_color = sample_uniform(used_colors(node()))
+        to_color = sample_uniform(used_colors(self.graph.target) - {from_color})
         return node, Constant(repeat(from_color)), Constant(repeat(to_color))
 
     def sample_map_color_in_selection_args(self):
         grid_node, selection_node = self.sample_matching_shape_nodes(Grid, Selection)
-        # TODO: sample from_color only from used_colors(grid_node)
-        # TODO: sample to_color higher prob for used_colors(target)
+        from_color = sample_uniform(used_colors(grid_node()))
+        to_color = sample_uniform(used_colors(self.graph.target) - {from_color})
         from_color, to_color = sample_permutation(self.color_probs, 2)
         return grid_node, selection_node, Constant(repeat(from_color)), Constant(repeat(to_color))
 
