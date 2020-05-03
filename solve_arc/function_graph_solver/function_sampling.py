@@ -10,21 +10,26 @@ from .node_collection import *
 
 # TODO: extend to replace function_generation.Graph
 class Graph:
-    def __init__(self, initial_nodes, target=None, max_expansions=10):
+    def __init__(self, initial_nodes, target=None, max_depth=None, max_expansions=None):
         self.target = target
+        self.max_depth = max_depth if max_depth is not None else float("inf")
+        self.max_expansions = max_expansions if max_expansions else float("inf")
 
         self.nodes = NodeCollection(initial_nodes)
         self.function_sampler = FunctionSampler(self)
-        self.remaining_expansions = max_expansions
+        self.expansion_count = 0
 
     def expand(self):
-        if self.remaining_expansions == 0:
+        if self.expansion_count >= self.max_expansions:
             raise NoRemainingExpansions()
-        self.remaining_expansions -= 1
+
+        self.expansion_count += 1
 
         try:
             node = self.function_sampler()
-            self.nodes.add(node)
+
+            if node.depth() < self.max_depth:
+                self.nodes.add(node)
 
             if node() == self.target:
                 return node
