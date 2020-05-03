@@ -195,16 +195,14 @@ class FunctionSampler:
         return node, Constant(repeat(from_color)), Constant(repeat(to_color))
 
     def sample_map_color_in_selection_args(self):
-        grid_node = sample_uniform(self.graph.nodes.with_type(Grid))
-        selection_node = self.sample_matching_selection_node(grid_node)
+        grid_node, selection_node = self.sample_matching_shape_nodes(Grid, Selection)
         # TODO: sample from_color only from used_colors(grid_node)
         # TODO: sample to_color higher prob for used_colors(target)
         from_color, to_color = sample_permutation(self.color_probs, 2)
         return grid_node, selection_node, Constant(repeat(from_color)), Constant(repeat(to_color))
 
     def sample_set_selected_to_color_args(self):
-        grid_node = sample_uniform(self.graph.nodes.with_type(Grid))
-        selection_node = self.sample_matching_selection_node(grid_node)
+        grid_node, selection_node = self.sample_matching_shape_nodes(Grid, Selection)
         # TODO: sample to_color higher prob for used_colors(target)
         color = sample(self.color_probs)
         return grid_node, selection_node, Constant(repeat(color))
