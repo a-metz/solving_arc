@@ -135,15 +135,10 @@ def test_function_sampler__all_functions_smoketest(all_args, example_target):
         if sample_args is not None:
             try:
                 args = sample_args()
-            except Exception as exception:
-                print("sampling args for operation {} failed".format(operation.__name__))
-                raise
-
-            function = Function(vectorize(operation), *args)
-
-            try:
+                function = Function(vectorize(operation), *args)
                 value = function()
             except Exception as exception:
-                pytest.fail("function call {!r} failed with {}".format(function, exception))
+                print("failed for operation: {}".format(operation.__name__))
+                raise
 
-            assert function() is not None
+            assert value is not None
