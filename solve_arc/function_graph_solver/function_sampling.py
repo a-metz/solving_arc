@@ -83,8 +83,8 @@ class FunctionSampler:
             selection_elementwise_eq: DISABLED,
             selection_elementwise_not: DISABLED,
             # segmentation
-            extract_selected_areas: NOT_IMPLEMENTED,
-            extract_selected_area: NOT_IMPLEMENTED,
+            extract_selected_areas: 1.0,
+            extract_selected_area: 1.0,
             split_left_right: NOT_IMPLEMENTED,
             split_left_middle_right: NOT_IMPLEMENTED,
             split_top_bottom: NOT_IMPLEMENTED,
@@ -144,8 +144,10 @@ class FunctionSampler:
             selection_elementwise_eq: None,
             selection_elementwise_not: None,
             # segmentation
-            extract_selected_areas: None,
-            extract_selected_area: None,
+            # TODO: sample with highter prob for shape != shape(target)
+            extract_selected_areas: lambda: self.sample_matching_shape_nodes(Grid, Selections),
+            # TODO: sample with highter prob for shape != shape(target)
+            extract_selected_area: lambda: self.sample_matching_shape_nodes(Grid, Selection),
             split_left_right: None,
             split_left_middle_right: None,
             split_top_bottom: None,
