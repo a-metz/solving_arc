@@ -234,6 +234,21 @@ class FunctionSampler:
             self.graph.nodes.with_type(Selection) & self.graph.nodes.with_shape(shape(grid_node()))
         )
 
+    def sample_matching_shape_nodes(self, a_type, b_type):
+        a_candidates = set()
+        b_candidates = set()
+        for shape_ in self.graph.nodes.shapes():
+            shape_candidates = self.graph.nodes.with_shape(shape_)
+            a_candidates_for_shape = self.graph.nodes.with_type(a_type) & shape_candidates
+            b_candidates_for_shape = self.graph.nodes.with_type(b_type) & shape_candidates
+            if len(a_candidates_for_shape) > 0 and len(b_candidates_for_shape) > 0:
+                a_candidates |= a_candidates_for_shape
+                b_candidates |= b_candidates_for_shape
+
+        a_node = sample_uniform(a_candidates)
+        b_node = sample_uniform(b_candidates & self.graph.nodes.with_shape(shape(a_node())))
+        return a_node, b_node
+
 
 def sample_uniform(iterable):
     if len(iterable) == 0:

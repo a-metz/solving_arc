@@ -22,9 +22,8 @@ class NodeCollection(set):
 
     def _process(self, node):
         # sort by type
-        types = {type(element) for element in node()}
-        if len(types) == 1:
-            type_ = types.pop()
+        type_ = common_type(node())
+        if type_ is not None:
             self._by_type[type_].add(node)
 
             if type_ in {Grid, Selection}:
@@ -48,6 +47,9 @@ class NodeCollection(set):
 
     def with_shape(self, shape_):
         return self._by_shape[shape_]
+
+    def shapes(self):
+        return set(self._by_shape.keys())
 
     def with_length(self, length):
         return self._by_length[length]
@@ -101,6 +103,14 @@ def is_matching_width(sequence):
 @vectorize
 def shape(element):
     return element.shape
+
+
+def common_type(argument_vector):
+    types = {type(element) for element in argument_vector}
+    if len(types) == 1:
+        return types.pop()
+
+    return None
 
 
 @vectorize

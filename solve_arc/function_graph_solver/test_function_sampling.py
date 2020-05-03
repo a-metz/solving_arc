@@ -1,8 +1,12 @@
-import pytest
 import sys
+import warnings
+from itertools import product
+
+import pytest
 
 from . import function_sampling
 from .function_sampling import *
+from .node_collection import *
 
 epsilon = sys.float_info.epsilon
 
@@ -107,6 +111,18 @@ def all_args(example_source, example_selection):
             )
         ),
     }
+
+
+def test_function_sampler__sample_matching_shape_nodes(all_args):
+    graph = Graph(all_args)
+    function_sampler = FunctionSampler(graph)
+
+    for a_type, b_type in product([Grid, Grids, Selection, Selections], repeat=2):
+        for _ in range(1000):
+            a_node, b_node = function_sampler.sample_matching_shape_nodes(a_type, b_type)
+            assert common_type(a_node()) == a_type
+            assert common_type(b_node()) == b_type
+            assert shape(a_node()) == shape(b_node())
 
 
 def test_function_sampler__all_functions_smoketest(all_args, example_target):
