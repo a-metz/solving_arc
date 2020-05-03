@@ -64,7 +64,7 @@ class FunctionSampler:
         # prior probabilities all operations
         self.operation_probs = {
             # color
-            switch_color: DISABLED,
+            switch_color: 1.0,
             map_color: 1.0,
             map_color_in_selection: 1.0,
             set_selected_to_color: 1.0,
@@ -125,7 +125,7 @@ class FunctionSampler:
         # map for operation -> function to generate args for operation
         self.sample_args = {
             # color
-            switch_color: None,
+            switch_color: self.sample_swap_color_args,
             map_color: self.sample_map_color_args,
             map_color_in_selection: self.sample_map_color_in_selection_args,
             set_selected_to_color: self.sample_set_selected_to_color_args,
@@ -190,6 +190,14 @@ class FunctionSampler:
         args = self.sample_args[operation]()
         # vectorize operation to as nodes contain all values for all constraints
         return Function(vectorize(operation), *args)
+
+    def sample_swap_color_args(self):
+        node = sample_uniform(self.graph.nodes.with_type(Grid))
+        # TODO: sample colors based on updated probabilities
+        color_candidates = used_colors(node())
+        from_color = sample_uniform(color_candidates)
+        to_color = sample_uniform(color_candidates - {from_color})
+        return node, Constant(repeat(from_color)), Constant(repeat(to_color))
 
     def sample_map_color_args(self):
         node = sample_uniform(self.graph.nodes.with_type(Grid))
