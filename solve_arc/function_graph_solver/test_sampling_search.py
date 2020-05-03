@@ -126,6 +126,7 @@ def test_solve__select_color_and_extract_selected_area__multiple_contraints():
     assert solution(Grid([[1, 2, 2]])) == Grid([[2, 2]])
 
 
+@pytest.mark.skip
 def test_solve__complex__multiple_constraints():
     constraints = [
         # undefined / no color swap
