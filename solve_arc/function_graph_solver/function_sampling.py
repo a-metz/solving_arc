@@ -51,7 +51,8 @@ NOT_IMPLEMENTED = 0
 
 class FunctionSampler:
     def __init__(self, graph):
-        self.graph = graph
+        self.nodes = graph.nodes
+        self.target = graph.target
 
         # prior probabilities all colors
         self.color_probs = {
@@ -202,7 +203,7 @@ class FunctionSampler:
         return Function(vectorize(operation), *args)
 
     def sample_swap_color_args(self):
-        node = sample_uniform(self.graph.nodes.with_type(Grid))
+        node = sample_uniform(self.nodes.with_type(Grid))
         # TODO: sample colors based on updated probabilities
         color_candidates = used_colors(node())
         from_color = sample_uniform(color_candidates)
@@ -210,16 +211,16 @@ class FunctionSampler:
         return node, Constant(repeat(from_color)), Constant(repeat(to_color))
 
     def sample_map_color_args(self):
-        node = sample_uniform(self.graph.nodes.with_type(Grid))
+        node = sample_uniform(self.nodes.with_type(Grid))
         # TODO: sample colors based on updated probabilities
         from_color = sample_uniform(used_colors(node()))
-        to_color = sample_uniform(used_colors(self.graph.target) - {from_color})
+        to_color = sample_uniform(used_colors(self.target) - {from_color})
         return node, Constant(repeat(from_color)), Constant(repeat(to_color))
 
     def sample_map_color_in_selection_args(self):
         grid_node, selection_node = self.sample_matching_shape_args(Grid, Selection)
         from_color = sample_uniform(used_colors(grid_node()))
-        to_color = sample_uniform(used_colors(self.graph.target) - {from_color})
+        to_color = sample_uniform(used_colors(self.target) - {from_color})
         from_color, to_color = sample_permutation(self.color_probs, 2)
         return grid_node, selection_node, Constant(repeat(from_color)), Constant(repeat(to_color))
 
@@ -232,7 +233,7 @@ class FunctionSampler:
     def sample_extract_args(self):
         # TODO: sample all, but same shape as target with elss prob
         node = sample_uniform(
-            self.graph.nodes.with_type(Grid) - self.graph.nodes.with_shape(shape(self.graph.target))
+            self.nodes.with_type(Grid) - self.nodes.with_shape(shape(self.target))
         )
         # TODO: sample from_color only from used_colors(node)
         color = sample_uniform(used_colors(node()))
@@ -241,9 +242,9 @@ class FunctionSampler:
     def sample_logic_args(self):
         # TODO: rely on take functions and use scalar grids instead of sequence
         sample_matching_shape_grids = sample_uniform(
-            self.graph.nodes.with_type(Grids)
-            & self.graph.nodes.with_length(2)
-            & self.graph.nodes.with_shape.matching_sequences
+            self.nodes.with_type(Grids)
+            & self.nodes.with_length(2)
+            & self.nodes.with_shape.matching_sequences
         )
         return (
             Function(vectorize(take_first), sample_matching_shape_grids),
@@ -252,14 +253,14 @@ class FunctionSampler:
 
     def sample_type_args(self, *types):
         if len(types) > 1:
-            candidates = set.union(*(self.graph.nodes.with_type(type_) for type_ in types))
+            candidates = set.union(*(self.nodes.with_type(type_) for type_ in types))
         else:
-            candidates = self.graph.nodes.with_type(types[0])
+            candidates = self.nodes.with_type(types[0])
         return (sample_uniform(candidates),)
 
     def sample_matching_selection_node(self, grid_node):
         return sample_uniform(
-            self.graph.nodes.with_type(Selection) & self.graph.nodes.with_shape(shape(grid_node()))
+            self.nodes.with_type(Selection) & self.nodes.with_shape(shape(grid_node()))
         )
 
     # TODO: extend to include height / width
@@ -271,9 +272,9 @@ class FunctionSampler:
 
         candidates_by_type = [set() for _ in types]
 
-        for shape_ in self.graph.nodes.with_shape.values:
-            nodes_for_shape = self.graph.nodes.with_shape(shape_)
-            nodes_by_type = [self.graph.nodes.with_type(type_) & nodes_for_shape for type_ in types]
+        for shape_ in self.nodes.with_shape.values:
+            nodes_for_shape = self.nodes.with_shape(shape_)
+            nodes_by_type = [self.nodes.with_type(type_) & nodes_for_shape for type_ in types]
 
             if all(len(nodes) >= num_required[type_] for type_, nodes in zip(types, nodes_by_type)):
                 for candidates, nodes in zip(candidates_by_type, nodes_by_type):
@@ -284,7 +285,7 @@ class FunctionSampler:
 
         sampled_nodes = []
         sampled_nodes.append(sample_uniform(candidates_by_type[0]))
-        nodes_with_matching_shape = self.graph.nodes.with_shape(shape(sampled_nodes[0]()))
+        nodes_with_matching_shape = self.nodes.with_shape(shape(sampled_nodes[0]()))
         for candidates in candidates_by_type[1:]:
             candidates &= nodes_with_matching_shape
             if not replace:
