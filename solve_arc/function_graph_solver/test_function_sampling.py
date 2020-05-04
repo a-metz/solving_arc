@@ -129,12 +129,12 @@ def all_args(example_source, example_selection):
     ],
 )
 @pytest.mark.parametrize("replace", [True, False])
-def test_function_sampler__sample_matching_shape_nodes(all_args, types, replace):
+def test_function_sampler__sample_matching_shape_args(all_args, types, replace):
     graph = Graph(all_args)
     function_sampler = FunctionSampler(graph)
 
     for _ in range(1000):
-        nodes = function_sampler.sample_matching_shape_nodes(*types, replace=replace)
+        nodes = function_sampler.sample_matching_shape_args(*types, replace=replace)
 
         # assert correct type
         for node, type_ in zip(nodes, types):

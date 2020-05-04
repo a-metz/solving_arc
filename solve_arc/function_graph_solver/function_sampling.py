@@ -99,33 +99,33 @@ class FunctionSampler:
             concatenate_left_right: NOT_IMPLEMENTED,
             concatenate_top_to_bottom: NOT_IMPLEMENTED,
             concatenate_left_to_right: NOT_IMPLEMENTED,
-            merge_grids_with_mask: DISABLED,
-            take_first: NOT_IMPLEMENTED,
-            take_last: NOT_IMPLEMENTED,
-            sort_by_area: NOT_IMPLEMENTED,
-            take_grid_with_unique_colors: NOT_IMPLEMENTED,
+            merge_grids_with_mask: 1.0,
+            take_first: 1.0,
+            take_last: 1.0,
+            sort_by_area: 1.0,
+            take_grid_with_unique_colors: 1.0,
             # selection
             select_color: NOT_IMPLEMENTED,
             select_all_colors: NOT_IMPLEMENTED,
-            split_selection_into_connected_areas: NOT_IMPLEMENTED,
-            split_selection_into_connected_areas_no_diagonals: NOT_IMPLEMENTED,
-            split_selection_into_connected_areas_skip_gaps: NOT_IMPLEMENTED,
-            extend_selections_to_bounds: NOT_IMPLEMENTED,
-            extend_selection_to_bounds: NOT_IMPLEMENTED,
-            filter_selections_touching_edge: NOT_IMPLEMENTED,
-            filter_selections_not_touching_edge: NOT_IMPLEMENTED,
+            split_selection_into_connected_areas: 1.0,
+            split_selection_into_connected_areas_no_diagonals: 1.0,
+            split_selection_into_connected_areas_skip_gaps: 1.0,
+            extend_selections_to_bounds: 1.0,
+            extend_selection_to_bounds: 1.0,
+            filter_selections_touching_edge: 1.0,
+            filter_selections_not_touching_edge: 1.0,
             merge_selections: NOT_IMPLEMENTED,
             # symmetry
-            flip_up_down: NOT_IMPLEMENTED,
-            flip_left_right: NOT_IMPLEMENTED,
-            rotate_90: NOT_IMPLEMENTED,
-            rotate_180: NOT_IMPLEMENTED,
-            rotate_270: NOT_IMPLEMENTED,
-            flip_up_down_within_bounds: NOT_IMPLEMENTED,
-            flip_left_right_within_bounds: NOT_IMPLEMENTED,
-            rotate_90_within_bounds: NOT_IMPLEMENTED,
-            rotate_180_within_bounds: NOT_IMPLEMENTED,
-            rotate_270_within_bounds: NOT_IMPLEMENTED,
+            flip_up_down: 1.0,
+            flip_left_right: 1.0,
+            rotate_90: 1.0,
+            rotate_180: 1.0,
+            rotate_270: 1.0,
+            flip_up_down_within_bounds: 1.0,
+            flip_left_right_within_bounds: 1.0,
+            rotate_90_within_bounds: 1.0,
+            rotate_180_within_bounds: 1.0,
+            rotate_270_within_bounds: 1.0,
         }
 
         # map for operation -> function to generate args for operation
@@ -151,9 +151,9 @@ class FunctionSampler:
             selection_elementwise_not: None,
             # segmentation
             # TODO: sample with highter prob for shape != shape(target)
-            extract_selected_areas: lambda: self.sample_matching_shape_nodes(Grid, Selections),
+            extract_selected_areas: lambda: self.sample_matching_shape_args(Grid, Selections),
             # TODO: sample with highter prob for shape != shape(target)
-            extract_selected_area: lambda: self.sample_matching_shape_nodes(Grid, Selection),
+            extract_selected_area: lambda: self.sample_matching_shape_args(Grid, Selection),
             split_left_right: None,
             split_left_middle_right: None,
             split_top_bottom: None,
@@ -162,33 +162,37 @@ class FunctionSampler:
             concatenate_left_right: None,
             concatenate_top_to_bottom: None,
             concatenate_left_to_right: None,
-            merge_grids_with_mask: None,
-            take_first: None,
-            take_last: None,
-            sort_by_area: None,
-            take_grid_with_unique_colors: None,
+            merge_grids_with_mask: lambda: self.sample_matching_shape_args(Grid, Grid, Selection),
+            take_first: lambda: self.sample_type_args(Grids, Selections),
+            take_last: lambda: self.sample_type_args(Grids, Selections),
+            sort_by_area: lambda: self.sample_type_args(Grids, Selections),
+            take_grid_with_unique_colors: lambda: self.sample_type_args(Grids),
             # selection
             select_color: None,
             select_all_colors: None,
-            split_selection_into_connected_areas: None,
-            split_selection_into_connected_areas_no_diagonals: None,
-            split_selection_into_connected_areas_skip_gaps: None,
-            extend_selections_to_bounds: None,
-            extend_selection_to_bounds: None,
-            filter_selections_touching_edge: None,
-            filter_selections_not_touching_edge: None,
+            split_selection_into_connected_areas: lambda: self.sample_type_args(Selection),
+            split_selection_into_connected_areas_no_diagonals: lambda: self.sample_type_args(
+                Selection
+            ),
+            split_selection_into_connected_areas_skip_gaps: lambda: self.sample_type_args(
+                Selection
+            ),
+            extend_selections_to_bounds: lambda: self.sample_type_args(Selections),
+            extend_selection_to_bounds: lambda: self.sample_type_args(Selection),
+            filter_selections_touching_edge: lambda: self.sample_type_args(Selections),
+            filter_selections_not_touching_edge: lambda: self.sample_type_args(Selections),
             merge_selections: None,
             # symmetry
-            flip_up_down: None,
-            flip_left_right: None,
-            rotate_90: None,
-            rotate_180: None,
-            rotate_270: None,
-            flip_up_down_within_bounds: None,
-            flip_left_right_within_bounds: None,
-            rotate_90_within_bounds: None,
-            rotate_180_within_bounds: None,
-            rotate_270_within_bounds: None,
+            flip_up_down: lambda: self.sample_type_args(Grid),
+            flip_left_right: lambda: self.sample_type_args(Grid),
+            rotate_90: lambda: self.sample_type_args(Grid),
+            rotate_180: lambda: self.sample_type_args(Grid),
+            rotate_270: lambda: self.sample_type_args(Grid),
+            flip_up_down_within_bounds: lambda: self.sample_matching_shape_args(Grid, Selection),
+            flip_left_right_within_bounds: lambda: self.sample_matching_shape_args(Grid, Selection),
+            rotate_90_within_bounds: lambda: self.sample_matching_shape_args(Grid, Selection),
+            rotate_180_within_bounds: lambda: self.sample_matching_shape_args(Grid, Selection),
+            rotate_270_within_bounds: lambda: self.sample_matching_shape_args(Grid, Selection),
         }
 
     def __call__(self):
@@ -213,25 +217,26 @@ class FunctionSampler:
         return node, Constant(repeat(from_color)), Constant(repeat(to_color))
 
     def sample_map_color_in_selection_args(self):
-        grid_node, selection_node = self.sample_matching_shape_nodes(Grid, Selection)
+        grid_node, selection_node = self.sample_matching_shape_args(Grid, Selection)
         from_color = sample_uniform(used_colors(grid_node()))
         to_color = sample_uniform(used_colors(self.graph.target) - {from_color})
         from_color, to_color = sample_permutation(self.color_probs, 2)
         return grid_node, selection_node, Constant(repeat(from_color)), Constant(repeat(to_color))
 
     def sample_set_selected_to_color_args(self):
-        grid_node, selection_node = self.sample_matching_shape_nodes(Grid, Selection)
+        grid_node, selection_node = self.sample_matching_shape_args(Grid, Selection)
         # TODO: sample to_color higher prob for used_colors(target)
         color = sample(self.color_probs)
         return grid_node, selection_node, Constant(repeat(color))
 
     def sample_extract_args(self):
-        grid_node = sample_uniform(
+        # TODO: sample all, but same shape as target with elss prob
+        node = sample_uniform(
             self.graph.nodes.with_type(Grid) - self.graph.nodes.with_shape(shape(self.graph.target))
         )
-        # TODO: sample from_color only from used_colors(grid_node)
-        color = sample(self.color_probs)
-        return grid_node, Constant(repeat(color))
+        # TODO: sample from_color only from used_colors(node)
+        color = sample_uniform(used_colors(node()))
+        return node, Constant(repeat(color))
 
     def sample_logic_args(self):
         # TODO: rely on take functions and use scalar grids instead of sequence
@@ -245,12 +250,20 @@ class FunctionSampler:
             Function(vectorize(take_last), sample_matching_shape_grids),
         )
 
+    def sample_type_args(self, *types):
+        if len(types) > 1:
+            candidates = set.union(*(self.graph.nodes.with_type(type_) for type_ in types))
+        else:
+            candidates = self.graph.nodes.with_type(types[0])
+        return (sample_uniform(candidates),)
+
     def sample_matching_selection_node(self, grid_node):
         return sample_uniform(
             self.graph.nodes.with_type(Selection) & self.graph.nodes.with_shape(shape(grid_node()))
         )
 
-    def sample_matching_shape_nodes(self, *types, replace=True):
+    # TODO: extend to include height / width
+    def sample_matching_shape_args(self, *types, replace=True):
         if replace:
             num_required = {type_: 1 for type_ in types}
         else:
