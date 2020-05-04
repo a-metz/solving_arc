@@ -10,9 +10,10 @@ class NodeCollection(set):
     def __init__(self, nodes):
         super().__init__(nodes)
         self._by_type = defaultdict(set)
-        self._by_shape = defaultdict(set)
         self._by_length = defaultdict(set)
-        self._matching_shape_sequences = set()
+        self.with_shape = _ByProperty(shape)
+        self.with_height = _ByProperty(height)
+        self.with_width = _ByProperty(width)
         for node in nodes:
             self._process(node)
 
@@ -26,17 +27,11 @@ class NodeCollection(set):
         if type_ is not None:
             self._by_type[type_].add(node)
 
-            if type_ in {Grid, Selection}:
-                # sort scalars by shape
-                self._by_shape[shape(node())].add(node)
+            self.with_shape.process(node, type_)
+            self.with_height.process(node, type_)
+            self.with_width.process(node, type_)
 
             if type_ in {Grids, Selections}:
-                # sort sequences by shape
-                shape_ = shape(node())
-                if all([element is not None for element in shape_]):
-                    self._by_shape[shape_].add(node)
-                    self._matching_shape_sequences.add(node)
-
                 # sort by sequence length
                 lengths = {len(element) for element in node()}
                 if len(lengths) == 1:
@@ -45,17 +40,37 @@ class NodeCollection(set):
     def with_type(self, type_):
         return self._by_type[type_]
 
-    def with_shape(self, shape_):
-        return self._by_shape[shape_]
-
-    def shapes(self):
-        return set(self._by_shape.keys())
-
     def with_length(self, length):
         return self._by_length[length]
 
-    def matching_shape_sequences(self):
-        return self._matching_shape_sequences
+
+class _ByProperty:
+    applicable_types = {Grid, Selection, Grids, Selections}
+    sequence_types = {Grids, Selections}
+
+    def __init__(self, get_property):
+        self._get_property = get_property
+        self._by_property = defaultdict(set)
+        self.matching_sequences = set()
+
+    def process(self, node, type_):
+        if type_ in self.applicable_types:
+            property_vector = self._get_property(node())
+            self._by_property[property_vector].add(node)
+
+            # when sequence does not match, property will be None
+            # check for all sequences in property vector
+            if type_ in self.sequence_types and all(
+                [element is not None for element in property_vector]
+            ):
+                self.matching_sequences.add(node)
+
+    def __call__(self, value):
+        return self._by_property[value]
+
+    @property
+    def values(self):
+        return self._by_property.keys()
 
 
 def used_colors(grid_vector):
@@ -64,53 +79,17 @@ def used_colors(grid_vector):
     return set.intersection(*used_colors)
 
 
-@reduce_all
-def is_matching_shape_pair(sequence):
-    """assume type is already checked"""
-    return len(sequence) == 2 and sequence[0].shape == sequence[1].shape
-
-
-@reduce_all
-def is_matching_shape(sequence):
-    """assume type is already checked"""
-    if len(sequence) < 2:
-        return False
-
-    shape = sequence[0].shape
-    return all(scalar.shape == shape for scalar in sequence[1:])
-
-
-@reduce_all
-def is_matching_height(sequence):
-    """assume type is already checked"""
-    if len(sequence) < 2:
-        return False
-
-    height = sequence[0].shape[0]
-    return all(scalar.shape[0] == height for scalar in sequence[1:])
-
-
-@reduce_all
-def is_matching_width(sequence):
-    """assume type is already checked"""
-    if len(sequence) < 2:
-        return False
-
-    width = sequence[0].shape[1]
-    return all(scalar.shape[1] == width for scalar in sequence[1:])
-
-
-@vectorize
-def shape(element):
-    return element.shape
-
-
 def common_type(argument_vector):
     types = {type(element) for element in argument_vector}
     if len(types) == 1:
         return types.pop()
 
     return None
+
+
+@vectorize
+def shape(element):
+    return element.shape
 
 
 @vectorize
@@ -131,12 +110,3 @@ def height_sum(sequence):
 @vectorize
 def width_sum(sequence):
     return sum(scalar.width for scalar in sequence)
-
-
-def multiply(vector, factor):
-    return tuple(scalar * factor for scalar in vector)
-
-
-@vectorize
-def append(sequence, scalar):
-    return sequence.append(scalar)

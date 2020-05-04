@@ -11,7 +11,7 @@ def invalid_node():
 
 
 @pytest.fixture
-def grid_node():
+def grid_node_1():
     return Constant(
         repeat_once(
             Grid.from_string(
@@ -19,6 +19,20 @@ def grid_node():
                 1 2 3
                 4 5 6
                 7 8 9
+                """
+            )
+        )
+    )
+
+
+@pytest.fixture
+def grid_node_2():
+    return Constant(
+        repeat_once(
+            Grid.from_string(
+                """
+                1 1 1
+                1 1 1
                 """
             )
         )
@@ -144,7 +158,8 @@ def selections_node():
 
 def test_node_collections(
     invalid_node,
-    grid_node,
+    grid_node_1,
+    grid_node_2,
     selection_node_1,
     selection_node_2,
     selection_node_3,
@@ -155,7 +170,8 @@ def test_node_collections(
     nodes = NodeCollection(
         [
             invalid_node,
-            grid_node,
+            grid_node_1,
+            grid_node_2,
             selection_node_1,
             selection_node_2,
             selection_node_3,
@@ -165,12 +181,27 @@ def test_node_collections(
         ]
     )
 
-    assert len(nodes) == 8
-    assert nodes.with_type(Grid) == {grid_node}
+    assert len(nodes) == 9
+
+    assert nodes.with_type(Grid) == {grid_node_1, grid_node_2}
     assert nodes.with_type(Grids) == {grids_node, grids_node_different_sizes}
     assert nodes.with_type(Selection) == {selection_node_1, selection_node_2, selection_node_3}
     assert nodes.with_type(Selections) == {selections_node}
-    assert nodes.with_shape(((3, 3),)) == {grid_node, selection_node_1, selection_node_2}
-    assert nodes.with_shape(((2, 2),)) == {selection_node_3, grids_node, selections_node}
+
     assert nodes.with_length(2) == {grids_node, grids_node_different_sizes, selections_node}
-    assert nodes.matching_shape_sequences() == {grids_node, selections_node}
+
+    assert nodes.with_shape.values == {(None,), ((3, 3),), ((2, 3),), ((2, 2),)}
+    assert nodes.with_shape(((3, 3),)) == {grid_node_1, selection_node_1, selection_node_2}
+    assert nodes.with_shape(((2, 3),)) == {grid_node_2}
+    assert nodes.with_shape(((2, 2),)) == {selection_node_3, grids_node, selections_node}
+    assert nodes.with_shape.matching_sequences == {grids_node, selections_node}
+
+    assert nodes.with_height.values == {(None,), (3,), (2,)}
+    assert nodes.with_height((3,)) == {grid_node_1, selection_node_1, selection_node_2}
+    assert nodes.with_height((2,)) == {grid_node_2, selection_node_3, grids_node, selections_node}
+    assert nodes.with_height.matching_sequences == {grids_node, selections_node}
+
+    assert nodes.with_width.values == {(None,), (3,), (2,)}
+    assert nodes.with_width((3,)) == {grid_node_1, grid_node_2, selection_node_1, selection_node_2}
+    assert nodes.with_width((2,)) == {selection_node_3, grids_node, selections_node}
+    assert nodes.with_width.matching_sequences == {grids_node, selections_node}

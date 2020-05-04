@@ -243,7 +243,7 @@ class FunctionSampler:
         sample_matching_shape_grids = sample_uniform(
             self.graph.nodes.with_type(Grids)
             & self.graph.nodes.with_length(2)
-            & self.graph.nodes.matching_shape_sequences()
+            & self.graph.nodes.with_shape.matching_sequences
         )
         return (
             Function(vectorize(take_first), sample_matching_shape_grids),
@@ -271,7 +271,7 @@ class FunctionSampler:
 
         candidates_by_type = [set() for _ in types]
 
-        for shape_ in self.graph.nodes.shapes():
+        for shape_ in self.graph.nodes.with_shape.values:
             nodes_for_shape = self.graph.nodes.with_shape(shape_)
             nodes_by_type = [self.graph.nodes.with_type(type_) & nodes_for_shape for type_ in types]
 
