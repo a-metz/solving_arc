@@ -38,34 +38,58 @@ def extract_selected_area(grid, selection):
 
 
 def split_left_right(grid):
+    if grid.width % 2 != 0:
+        return None
+
     return Grids(Grid(split) for split in np.hsplit(grid.state, 2))
 
 
 def split_left_middle_right(grid):
+    if grid.width % 3 != 0:
+        return None
+
     return Grids(Grid(split) for split in np.hsplit(grid.state, 3))
 
 
 def split_top_bottom(grid):
+    if grid.height % 2 != 0:
+        return None
+
     return Grids(Grid(split) for split in np.vsplit(grid.state, 2))
 
 
 def split_top_middle_bottom(grid):
+    if grid.height % 3 != 0:
+        return None
+
     return Grids(Grid(split) for split in np.vsplit(grid.state, 3))
 
 
 def concatenate_left_right(a, b):
+    if a.height != b.height:
+        return None
+
     return Grid(np.hstack([a.state, b.state]))
 
 
 def concatenate_top_bottom(a, b):
+    if a.width != b.width:
+        return None
+
     return Grid(np.vstack([a.state, b.state]))
 
 
 def concatenate_left_to_right(grids):
+    if a.height is None:
+        return None
+
     return Grid(np.hstack([grid.state for grid in grids]))
 
 
 def concatenate_top_to_bottom(grids):
+    if a.width is None:
+        return None
+
     return Grid(np.vstack([grid.state for grid in grids]))
 
 

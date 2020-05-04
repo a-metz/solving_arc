@@ -38,6 +38,14 @@ class _Base:
     def shape(self):
         return self.state.shape
 
+    @property
+    def width(self):
+        return self.state.shape[1]
+
+    @property
+    def height(self):
+        return self.state.shape[0]
+
     def __getitem__(self, *args, **kwargs):
         substate = self.state.__getitem__(*args, **kwargs)
 
@@ -139,11 +147,30 @@ class _Sequence(tuple):
 
     @property
     def shape(self):
+        """ shape of elements in sequence if identical, else None"""
         shapes = {element.shape for element in self}
         if len(shapes) != 1:
             return None
 
         return shapes.pop()
+
+    @property
+    def height(self):
+        """ height of elements in sequence if identical, else None"""
+        heights = {element.height for element in self}
+        if len(heights) != 1:
+            return None
+
+        return heights.pop()
+
+    @property
+    def width(self):
+        """ width of elements in sequence if identical, else None"""
+        widths = {element.width for element in self}
+        if len(widths) != 1:
+            return None
+
+        return widths.pop()
 
     def __str__(self):
         return "\n---\n".join(str(element) for element in self)

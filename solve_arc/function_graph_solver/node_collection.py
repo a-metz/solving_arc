@@ -115,22 +115,22 @@ def common_type(argument_vector):
 
 @vectorize
 def height(element):
-    return element.shape[0]
+    return element.height
 
 
 @vectorize
 def width(element):
-    return element.shape[1]
+    return element.width
 
 
 @vectorize
 def height_sum(sequence):
-    return sum(scalar.shape[0] for scalar in sequence)
+    return sum(scalar.height for scalar in sequence)
 
 
 @vectorize
 def width_sum(sequence):
-    return sum(scalar.shape[1] for scalar in sequence)
+    return sum(scalar.width for scalar in sequence)
 
 
 def multiply(vector, factor):
