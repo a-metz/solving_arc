@@ -57,7 +57,7 @@ class _Base:
 
     def __hash__(self):
         # only consider state for hash
-        return hash(self.state.tobytes())
+        return hash(self.state.shape) ^ hash(self.state.tobytes())
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and hash(self) == hash(other)

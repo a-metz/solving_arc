@@ -55,6 +55,12 @@ def test_grid_inequality():
     assert a != b
 
 
+def test_grid_inequality__single_column_vs_single_row():
+    a = Grid([[1, 2]])
+    b = Grid([[1], [2]])
+    assert a != b
+
+
 def test_grid_create_from_string():
     string = """
     1 2
