@@ -106,8 +106,8 @@ class FunctionSampler:
             sort_by_area: 1.0,
             take_grid_with_unique_colors: 1.0,
             # selection
-            select_color: NOT_IMPLEMENTED,
-            select_all_colors: NOT_IMPLEMENTED,
+            select_color: 1.0,
+            select_all_colors: 1.0,
             split_selection_into_connected_areas: 1.0,
             split_selection_into_connected_areas_no_diagonals: 1.0,
             split_selection_into_connected_areas_skip_gaps: 1.0,
@@ -115,7 +115,7 @@ class FunctionSampler:
             extend_selection_to_bounds: 1.0,
             filter_selections_touching_edge: 1.0,
             filter_selections_not_touching_edge: 1.0,
-            merge_selections: NOT_IMPLEMENTED,
+            merge_selections: 1.0,
             # symmetry
             flip_up_down: 1.0,
             flip_left_right: 1.0,
@@ -169,8 +169,8 @@ class FunctionSampler:
             sort_by_area: lambda: self.sample_type_args(Grids, Selections),
             take_grid_with_unique_colors: lambda: self.sample_type_args(Grids),
             # selection
-            select_color: None,
-            select_all_colors: None,
+            select_color: self.sample_select_color_args,
+            select_all_colors: self.sample_select_color_args,
             split_selection_into_connected_areas: lambda: self.sample_type_args(Selection),
             split_selection_into_connected_areas_no_diagonals: lambda: self.sample_type_args(
                 Selection
@@ -182,7 +182,7 @@ class FunctionSampler:
             extend_selection_to_bounds: lambda: self.sample_type_args(Selection),
             filter_selections_touching_edge: lambda: self.sample_type_args(Selections),
             filter_selections_not_touching_edge: lambda: self.sample_type_args(Selections),
-            merge_selections: None,
+            merge_selections: self.sample_merge_selection_args,
             # symmetry
             flip_up_down: lambda: self.sample_type_args(Grid),
             flip_left_right: lambda: self.sample_type_args(Grid),
@@ -251,6 +251,17 @@ class FunctionSampler:
             Function(vectorize(take_first), sample_matching_shape_grids),
             Function(vectorize(take_last), sample_matching_shape_grids),
         )
+
+    def sample_select_color_args(self):
+        node = sample_uniform(self.nodes.with_type(Grid))
+        color = sample_uniform(used_colors(node()))
+        return node, Constant(repeat(color))
+
+    def sample_merge_selection_args(self):
+        node = sample_uniform(
+            self.nodes.with_type(Selections) & self.nodes.with_shape.matching_sequences
+        )
+        return (node,)
 
     def sample_type_args(self, *types):
         if len(types) > 1:
