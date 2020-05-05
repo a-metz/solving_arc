@@ -92,7 +92,11 @@ def all_args(example_source, example_selection):
         Constant(Vector([Grid.from_string("0 1"), Grid.from_string("0 1 2")])),
         Constant(Vector([Grid.from_string("0 2"), Grid.from_string("0 2 4")])),
         Constant(Vector([Grid.from_string("1 0"), Grid.from_string("1 0 0")])),
+        Constant(Vector([Grid.from_string("1 0 1"), Grid.from_string("1 0 0")])),
         Constant(Vector([Grid.from_string("0 1"), Grid.from_string("0 1")])),
+        Constant(Vector([Grid.from_string("0 1"), Grid.from_string("0 1 2 3")])),
+        Constant(Vector([Grid.from_string("0\n1"), Grid.from_string("0\n1\n2\n3")])),
+        Constant(Vector([Grid.from_string("0\n1\n2"), Grid.from_string("1\n2\n3")])),
         # scalar selection
         Constant(Vector([Selection.from_string(". #"), Selection.from_string(". # #")])),
         Constant(Vector([Selection.from_string(". # #"), Selection.from_string(". # #")])),
@@ -151,6 +155,7 @@ def test_function_sampler__sample_matching_shape_args(all_args, types, replace):
     repetitions = 100
     graph = Graph(all_args)
     function_sampler = FunctionSampler(graph)
+    assert len(function_sampler.nodes.with_type(Grid)) == 8
 
     for _ in range(repetitions):
         nodes = function_sampler.sample_matching_shape_args(*types, replace=replace)

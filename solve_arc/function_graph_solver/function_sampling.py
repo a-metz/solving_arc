@@ -46,7 +46,6 @@ class NoRemainingExpansions(Exception):
 
 
 DISABLED = 0
-NOT_IMPLEMENTED = 0
 
 
 class FunctionSampler:
@@ -92,14 +91,14 @@ class FunctionSampler:
             # segmentation
             extract_selected_areas: 1.0,
             extract_selected_area: 1.0,
-            split_left_right: NOT_IMPLEMENTED,
-            split_left_middle_right: NOT_IMPLEMENTED,
-            split_top_bottom: NOT_IMPLEMENTED,
-            split_top_middle_bottom: NOT_IMPLEMENTED,
-            concatenate_top_bottom: NOT_IMPLEMENTED,
-            concatenate_left_right: NOT_IMPLEMENTED,
-            concatenate_top_to_bottom: NOT_IMPLEMENTED,
-            concatenate_left_to_right: NOT_IMPLEMENTED,
+            split_left_right: 1.0,
+            split_left_middle_right: 1.0,
+            split_top_bottom: 1.0,
+            split_top_middle_bottom: 1.0,
+            concatenate_top_bottom: 1.0,
+            concatenate_left_right: 1.0,
+            concatenate_top_to_bottom: 1.0,
+            concatenate_left_to_right: 1.0,
             merge_grids_with_mask: 1.0,
             take_first: 1.0,
             take_last: 1.0,
@@ -155,14 +154,14 @@ class FunctionSampler:
             extract_selected_areas: lambda: self.sample_matching_shape_args(Grid, Selections),
             # TODO: sample with highter prob for shape != shape(target)
             extract_selected_area: lambda: self.sample_matching_shape_args(Grid, Selection),
-            split_left_right: None,
-            split_left_middle_right: None,
-            split_top_bottom: None,
-            split_top_middle_bottom: None,
-            concatenate_top_bottom: None,
-            concatenate_left_right: None,
-            concatenate_top_to_bottom: None,
-            concatenate_left_to_right: None,
+            split_left_right: lambda: self.sample_split_args(width_segments=2),
+            split_left_middle_right: lambda: self.sample_split_args(width_segments=3),
+            split_top_bottom: lambda: self.sample_split_args(height_segments=2),
+            split_top_middle_bottom: lambda: self.sample_split_args(height_segments=3),
+            concatenate_top_bottom: self.sample_concatenate_top_bottom_args,
+            concatenate_left_right: self.sample_concatenate_left_right_args,
+            concatenate_top_to_bottom: self.sample_concatenate_top_to_bottom_args,
+            concatenate_left_to_right: self.sample_concatenate_left_to_right_args,
             merge_grids_with_mask: lambda: self.sample_matching_shape_args(Grid, Grid, Selection),
             take_first: lambda: self.sample_type_args(Grids, Selections),
             take_last: lambda: self.sample_type_args(Grids, Selections),
@@ -263,9 +262,56 @@ class FunctionSampler:
         )
         return (node,)
 
+    def sample_split_args(self, height_segments=1, width_segments=1):
+        # TODO: sample with higher prob when not target shape
+        candidates = set(self.nodes.with_type(Grid))
+
+        def nodes_with_splittable_dimension(nodes_with_dimension, num_segments):
+            splittable_dimensions = {
+                dimension
+                for dimension in nodes_with_dimension.values
+                if all(element is not None and element % num_segments == 0 for element in dimension)
+            }
+            if len(splittable_dimensions) == 0:
+                raise NoSample()
+            return union(nodes_with_dimension(dim) for dim in splittable_dimensions)
+
+        if height_segments > 1:
+            candidates &= nodes_with_splittable_dimension(self.nodes.with_height, height_segments)
+        if width_segments > 1:
+            candidates &= nodes_with_splittable_dimension(self.nodes.with_width, width_segments)
+
+        return (sample_uniform(candidates),)
+
+    def sample_concatenate_top_bottom_args(self):
+        # TODO: sample with higher prob when not target shape
+        # TODO: sample with lower prob when concatentate same node
+        candidates = self.nodes.with_type(Grid)
+        top_node = sample_uniform(candidates)
+        bottom_node = sample_uniform(candidates & self.nodes.with_width(width(top_node())))
+        return top_node, bottom_node
+
+    def sample_concatenate_left_right_args(self):
+        # TODO: sample with higher prob when not target shape
+        # TODO: sample with lower prob when concatentate same node
+        candidates = self.nodes.with_type(Grid)
+        top_node = sample_uniform(candidates)
+        bottom_node = sample_uniform(candidates & self.nodes.with_height(height(top_node())))
+        return top_node, bottom_node
+
+    def sample_concatenate_top_to_bottom_args(self):
+        # TODO: sample with higher prob when not target shape
+        candidates = self.nodes.with_type(Grids) & self.nodes.with_width.matching_sequences
+        return (sample_uniform(candidates),)
+
+    def sample_concatenate_left_to_right_args(self):
+        # TODO: sample with higher prob when not target shape
+        candidates = self.nodes.with_type(Grids) & self.nodes.with_height.matching_sequences
+        return (sample_uniform(candidates),)
+
     def sample_type_args(self, *types):
         if len(types) > 1:
-            candidates = set.union(*(self.nodes.with_type(type_) for type_ in types))
+            candidates = union(self.nodes.with_type(type_) for type_ in types)
         else:
             candidates = self.nodes.with_type(types[0])
         return (sample_uniform(candidates),)
@@ -320,6 +366,14 @@ def sample(probs):
 
 def sample_permutation(probs, size):
     return _np_random.choice(list(probs.keys()), size=size, replace=False, p=list(probs.values()))
+
+
+def union(iterable):
+    elements = list(iterable)
+    if len(elements) == 0:
+        return set()
+
+    return set.union(*elements)
 
 
 class NoSample(Exception):

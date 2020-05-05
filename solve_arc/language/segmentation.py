@@ -80,14 +80,14 @@ def concatenate_top_bottom(a, b):
 
 
 def concatenate_left_to_right(grids):
-    if a.height is None:
+    if grids.height is None:
         return None
 
     return Grid(np.hstack([grid.state for grid in grids]))
 
 
 def concatenate_top_to_bottom(grids):
-    if a.width is None:
+    if grids.width is None:
         return None
 
     return Grid(np.vstack([grid.state for grid in grids]))

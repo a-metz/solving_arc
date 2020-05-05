@@ -121,6 +121,9 @@ def extend_selections_to_bounds(selections):
 def extend_selection_to_bounds(selection):
     indices = np.argwhere(selection.state)
 
+    if len(indices) == 0:
+        return None
+
     top, left = np.min(indices, axis=0)
     bottom, right = np.max(indices, axis=0) + 1
     extended = selection.copy()
@@ -157,4 +160,7 @@ def _is_selection_touching_edge(selection):
 
 # TODO: move to logical functions?
 def merge_selections(selections):
+    if selections.shape == None:
+        return None
+
     return Selection(reduce(np.logical_or, (selection.state for selection in selections)))
