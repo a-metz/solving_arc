@@ -213,15 +213,16 @@ class FunctionSampler:
     def sample_map_color_args(self):
         node = sample_uniform(self.nodes.with_type(Grid))
         # TODO: sample colors based on updated probabilities
-        from_color = sample_uniform(used_colors(node()))
-        to_color = sample_uniform(used_colors(self.target) - {from_color})
+        target_colors = used_colors(self.target)
+        from_color = sample_uniform(used_colors(node()) - target_colors)
+        to_color = sample_uniform(target_colors - {from_color})
         return node, Constant(repeat(from_color)), Constant(repeat(to_color))
 
     def sample_map_color_in_selection_args(self):
         grid_node, selection_node = self.sample_matching_shape_args(Grid, Selection)
-        from_color = sample_uniform(used_colors(grid_node()))
-        to_color = sample_uniform(used_colors(self.target) - {from_color})
-        from_color, to_color = sample_permutation(self.color_probs, 2)
+        target_colors = used_colors(self.target)
+        from_color = sample_uniform(used_colors(grid_node()) - target_colors)
+        to_color = sample_uniform(target_colors - {from_color})
         return grid_node, selection_node, Constant(repeat(from_color)), Constant(repeat(to_color))
 
     def sample_set_selected_to_color_args(self):
@@ -231,7 +232,7 @@ class FunctionSampler:
         return grid_node, selection_node, Constant(repeat(color))
 
     def sample_extract_args(self):
-        # TODO: sample all, but same shape as target with elss prob
+        # TODO: sample all, but same shape as target with less prob
         node = sample_uniform(
             self.nodes.with_type(Grid) - self.nodes.with_shape(shape(self.target))
         )

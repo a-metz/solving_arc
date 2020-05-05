@@ -130,10 +130,11 @@ def all_args(example_source, example_selection):
 )
 @pytest.mark.parametrize("replace", [True, False])
 def test_function_sampler__sample_matching_shape_args(all_args, types, replace):
+    repetitions = 100
     graph = Graph(all_args)
     function_sampler = FunctionSampler(graph)
 
-    for _ in range(1000):
+    for _ in range(repetitions):
         nodes = function_sampler.sample_matching_shape_args(*types, replace=replace)
 
         # assert correct type
@@ -149,6 +150,7 @@ def test_function_sampler__sample_matching_shape_args(all_args, types, replace):
 
 
 def test_function_sampler__all_functions_smoketest(all_args, example_target):
+    repetitions = 100
     graph = Graph(all_args, target=example_target)
     function_sampler = FunctionSampler(graph)
 
@@ -156,12 +158,13 @@ def test_function_sampler__all_functions_smoketest(all_args, example_target):
         sample_args = function_sampler.sample_args[operation]
 
         if sample_args is not None:
-            try:
-                args = sample_args()
-                function = Function(vectorize(operation), *args)
-                value = function()
-            except Exception as exception:
-                print("failed for operation: {}".format(operation.__name__))
-                raise
+            for _ in range(repetitions):
+                try:
+                    args = sample_args()
+                    function = Function(vectorize(operation), *args)
+                    value = function()
+                except Exception as exception:
+                    print("failed for operation: {}".format(operation.__name__))
+                    raise
 
-            assert value is not None
+                assert value is not None
