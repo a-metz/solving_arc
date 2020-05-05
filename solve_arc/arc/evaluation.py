@@ -29,7 +29,7 @@ def evaluate(debug, args, **kwargs):
         if args[0] == "solved":
             logger.info("evaluating performance on known solved tasks")
             _evaluate(_get_tasks(SOLVED_TASK_IDS), **kwargs)
-        if args[0] == "unsolved":
+        elif args[0] == "unsolved":
             logger.info("evaluating performance on unsolved tasks")
             _evaluate(_get_all_tasks(except_task_ids=SOLVED_TASK_IDS), **kwargs)
         elif args[0] == "regression":
