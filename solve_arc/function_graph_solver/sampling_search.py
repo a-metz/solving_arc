@@ -71,7 +71,7 @@ class Statistics(namedtuple("Statistics", ["depth", "branching_factor", "nodes_c
     @classmethod
     def from_graph(cls, node, graph):
         statistics = cls(
-            depth=node.depth(),
+            depth=node.depth,
             branching_factor=branching_factor(graph),
             nodes_count=len(graph.nodes),
         )
@@ -83,9 +83,13 @@ class Statistics(namedtuple("Statistics", ["depth", "branching_factor", "nodes_c
 
 def branching_factor(graph):
     children = defaultdict(set)
+
     for node in graph.nodes:
         if isinstance(node, Function):
             for parent in node.args:
                 children[parent].add(node)
+
+    if len(children) == 0:
+        return 0
 
     return mean(len(c) for c in children.values())

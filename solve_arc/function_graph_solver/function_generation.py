@@ -76,7 +76,7 @@ class Graph:
     def _process(self, new_nodes):
         self.nodes |= new_nodes
         self.expandable_nodes |= {
-            node for node in new_nodes if is_valid(node()) and node.depth() < self.max_depth
+            node for node in new_nodes if is_valid(node()) and node.depth < self.max_depth
         }
         logger.debug(
             "total expandable: %d, total nodes: %d", len(self.expandable_nodes), len(self.nodes),

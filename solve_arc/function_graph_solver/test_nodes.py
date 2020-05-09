@@ -58,6 +58,37 @@ def test_function__evaluation_of_chained_function():
     assert function() == 2 + (3 * 5)
 
 
+def test_function__depth():
+    depth_0 = Constant(2)
+    assert depth_0.depth == 0
+
+    def func(*args):
+        return 0
+
+    depth_1 = Function(func, depth_0)
+    assert depth_1.depth == 1
+
+    depth_2 = Function(func, depth_0, depth_1)
+    assert depth_2.depth == 2
+
+
+def test_function__usages():
+    a = Constant(2)
+    assert a.usages == 0
+
+    def func(*args):
+        return 0
+
+    b = Function(func, a)
+    assert a.usages == 1
+    assert b.usages == 0
+
+    c = Function(func, a, b)
+    assert a.usages == 2
+    assert b.usages == 1
+    assert c.usages == 0
+
+
 def test_constant__hash():
     assert hash(Constant(0)) != hash(Constant(1))
 

@@ -1,7 +1,11 @@
 class _Node:
+    def __init__(self):
+        self.usages = 0
+
     def __call__(self, use_cache=True):
         raise NotImplementedError()
 
+    @property
     def depth(self):
         raise NotImplementedError()
 
@@ -24,8 +28,12 @@ class Function(_Node):
     """cached partial application"""
 
     def __init__(self, operation, *args):
+        super().__init__()
         self.operation = operation
         self.args = args
+
+        for arg in self.args:
+            arg.usages += 1
 
     def __call__(self, use_cache=True):
         """evaluate function with evaluated args, use cached values if possible and use_cache is True"""
@@ -35,9 +43,10 @@ class Function(_Node):
 
         return self.value
 
+    @property
     def depth(self):
         if not hasattr(self, "_depth"):
-            self._depth = 1 + max(arg.depth() for arg in self.args)
+            self._depth = 1 + max(arg.depth for arg in self.args)
 
         return self._depth
 
@@ -58,11 +67,13 @@ class Function(_Node):
 
 class Constant(_Node):
     def __init__(self, value):
+        super().__init__()
         self.value = value
 
     def __call__(self, use_cache=True):
         return self.value
 
+    @property
     def depth(self):
         return 0
 

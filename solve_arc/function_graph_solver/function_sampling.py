@@ -29,7 +29,7 @@ class Graph:
         try:
             node = self.function_sampler()
 
-            if node.depth() < self.max_depth:
+            if node.depth < self.max_depth:
                 self.nodes.add(node)
 
             if node() == self.target:

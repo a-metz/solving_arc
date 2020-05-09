@@ -5,7 +5,7 @@ from .vectorize import *
 
 
 def loss(node, target, expanded_count):
-    depth_loss = 0.1 * (node.depth() + 1)
+    depth_loss = 0.1 * (node.depth + 1)
     distance_loss = mean(distance(node(), target))
     expanded_count_loss = 0.2 * (expanded_count + 1)
     return depth_loss * distance_loss * expanded_count_loss
