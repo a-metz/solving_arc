@@ -1,11 +1,11 @@
 from copy import copy
-from itertools import count
 from collections import defaultdict, namedtuple
 from statistics import mean
 import logging
 
 
-from .function_generation import *
+from .function_sampling import Graph as sampling_search_graph
+from .function_generation import Graph as full_search_graph
 from .nodes import *
 from .vectorize import repeat_once, Vector
 
@@ -14,27 +14,20 @@ logger = logging.getLogger(__name__)
 Constraint = namedtuple("Constraint", ["source", "target"])
 
 
-def solve(constraints, max_depth, max_expansions):
+def solve(constraints, graph_factory=full_search_graph, **kwargs):
     target = Vector(constraint.target for constraint in constraints)
     source_node = Source(Vector(constraint.source for constraint in constraints))
 
     if source_node() == target:
         return Solution(source_node, source_node)
 
-    graph = Graph({source_node}, target, max_depth, max_expansions)
+    graph = graph_factory({source_node}, target, **kwargs)
+    solution = graph.solve()
 
-    try:
-        for step in count():
-            # only consider nodes not yet in graph
-            solution = graph.expand()
-
-            if solution is not None:
-                statistics = Statistics.from_graph(solution, graph)
-                logger.debug("found solution, statistics: %s", str(statistics))
-                return Solution(solution, source_node, statistics)
-
-    except NoExpandableNodes:
-        logger.debug("no futher graph expansion possible")
+    if solution is not None:
+        statistics = Statistics.from_graph(solution, graph)
+        logger.debug("found solution, statistics: %s", str(statistics))
+        return Solution(solution, source_node, statistics)
 
     return None
 

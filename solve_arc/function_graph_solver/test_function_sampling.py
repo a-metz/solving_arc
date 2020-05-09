@@ -11,82 +11,61 @@ from .node_collection import *
 epsilon = sys.float_info.epsilon
 
 
-@pytest.fixture
-def example_source():
-    return Vector([Grid.from_string("0 1"), Grid.from_string("0 1 0"), Grid.from_string("1 4")])
-
-
-@pytest.fixture
-def example_selection():
-    return Vector(
-        [Selection.from_string(". #"), Selection.from_string(". # ."), Selection.from_string("# .")]
-    )
-
-
-@pytest.fixture
-def example_target():
-    return Vector([Grid.from_string("0 2"), Grid.from_string("0 2 0"), Grid.from_string("2 4")])
-
-
-@pytest.fixture
-def initial_nodes(example_source):
-    return {Constant(example_source)}
-
-
-@pytest.fixture
-def graph(example_source, example_target):
-    return Graph(initial_nodes={Constant(example_source)}, target=example_target, max_expansions=10)
-
-
-def test_graph_create(graph, initial_nodes):
-    assert graph.nodes == initial_nodes
-
-
-def test_graph_expand__once(graph, initial_nodes):
+def test_graph_step__once():
+    source = Vector([Grid.from_string("1 2 3 4 5")])
+    target = Vector([Grid.from_string("6 7 8 9 0")])
+    initial_nodes = {Constant(source)}
+    graph = Graph(initial_nodes, target, max_steps=1)
     graph.function_sampler.operation_probs = {map_color: 1.0}
-    graph.expand()
+    graph.solve()
 
     # expect one new node
-    expanded_nodes = graph.nodes - initial_nodes
-    assert len(expanded_nodes) == 1
-    expanded_node = next(iter(expanded_nodes))
+    created_nodes = graph.nodes - initial_nodes
+    assert len(created_nodes) == 1
+    created_node = next(iter(created_nodes))
 
     # expect node node to be a function with inital nodes as argument
-    assert isinstance(expanded_node, Function)
-    assert set(expanded_node.args) > set(initial_nodes)
+    assert isinstance(created_node, Function)
+    assert set(created_node.args) > set(initial_nodes)
 
 
-def test_graph_expand__max_expansions(initial_nodes, example_target):
-    max_expansions = 10
-    graph = Graph(initial_nodes, target=example_target, max_expansions=max_expansions)
+def test_graph_step__max_steps():
+    source = Vector([Grid.from_string("1 2 3 4 5")])
+    target = Vector([Grid.from_string("6 7 8 9 0")])
+    initial_nodes = {Constant(source)}
+    graph = Graph({Constant(source)}, target, max_steps=3)
 
-    for _ in range(max_expansions):
-        graph.expand()
+    graph.function_sampler.operation_probs = {map_color: 1.0}
+    graph.solve()
 
-    with pytest.raises(NoRemainingExpansions):
-        graph.expand()
+    created_nodes = graph.nodes - initial_nodes
+    assert len(created_nodes) == 3
 
 
-def test_graph_expand__find_target(example_source, example_target):
-    source_node = Constant(example_source)
-    graph = Graph({source_node}, target=example_target)
+def test_graph_solve__find_target():
+    source = Vector([Grid.from_string("0 1"), Grid.from_string("3 1 4")])
+    target = Vector([Grid.from_string("0 2"), Grid.from_string("3 2 4")])
+    initial_nodes = {Constant(source)}
+    graph = Graph(initial_nodes, target, max_depth=1, max_steps=10)
 
-    # todo replace operation for which args exist in initial nodes
-    graph.function_sampler.operation_probs = {map_color_in_selection: 1.0}
-    solution = graph.expand()
+    graph.function_sampler.operation_probs = {rotate_90: 1.0}
+    solution = graph.solve()
 
     assert solution is None
 
     graph.function_sampler.operation_probs = {map_color: 1.0}
-    solution = graph.expand()
+    solution = graph.solve()
 
     assert solution == Function(
-        vectorize(map_color), source_node, Constant(repeat(Color(1))), Constant(repeat(Color(2)))
+        vectorize(map_color),
+        Constant(source),
+        Constant(repeat(Color(1))),
+        Constant(repeat(Color(2))),
     )
 
 
 @pytest.fixture
-def all_args(example_source, example_selection):
+def all_args():
     return {
         # scalar grid
         Constant(Vector([Grid.from_string("0 1"), Grid.from_string("0 1 2")])),
@@ -139,6 +118,11 @@ def all_args(example_source, example_selection):
     }
 
 
+@pytest.fixture
+def dummy_target():
+    return Vector([Grid.from_string("0 2"), Grid.from_string("0 2 0"), Grid.from_string("2 4")])
+
+
 @pytest.mark.parametrize(
     "types",
     [
@@ -151,9 +135,9 @@ def all_args(example_source, example_selection):
     ],
 )
 @pytest.mark.parametrize("replace", [True, False])
-def test_function_sampler__sample_matching_shape_args(all_args, types, replace):
+def test_function_sampler__sample_matching_shape_args(all_args, dummy_target, types, replace):
     repetitions = 100
-    graph = Graph(all_args)
+    graph = Graph(all_args, dummy_target)
     function_sampler = FunctionSampler(graph)
     assert len(function_sampler.nodes.with_type(Grid)) == 8
 
@@ -172,9 +156,9 @@ def test_function_sampler__sample_matching_shape_args(all_args, types, replace):
             assert len(set(nodes)) == len(nodes)
 
 
-def test_function_sampler__all_functions_smoketest(all_args, example_target):
+def test_function_sampler__all_functions_smoketest(all_args, dummy_target):
     repetitions = 100
-    graph = Graph(all_args, target=example_target)
+    graph = Graph(all_args, dummy_target)
     function_sampler = FunctionSampler(graph)
 
     for operation in function_sampler.operation_probs.keys():

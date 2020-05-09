@@ -1,5 +1,5 @@
 from collections import defaultdict, Counter
-from itertools import product, combinations, combinations_with_replacement, permutations
+from itertools import product, combinations, combinations_with_replacement, permutations, count
 from statistics import mean
 import logging
 import random
@@ -13,10 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 class Graph:
-    def __init__(self, initial_nodes, target, max_depth, max_expansions, expand_batch_size=1000):
+    def __init__(
+        self, initial_nodes, target, max_depth, max_expansions_per_node=10, expand_batch_size=1000
+    ):
         self.target = target
         self.max_depth = max_depth
-        self.max_expansions = max_expansions
+        self.max_expansions = max_expansions_per_node
         self.expand_batch_size = expand_batch_size
 
         self.random = random.Random(0)  # seed for determinism
@@ -29,7 +31,20 @@ class Graph:
 
         self._process(initial_nodes)
 
-    def expand(self):
+    def solve(self):
+        try:
+            for _ in count():
+                solution = self._expand()
+
+                if solution is not None:
+                    return solution
+
+        except NoExpandableNodes:
+            logger.debug("no futher graph expansion possible")
+
+        return None
+
+    def _expand(self):
         candidates, likelihoods = self._get_sample_candidates_with_likelihoods()
         sample_size = min(len(candidates), self.expand_batch_size)
         expand_next = NodeCollection(

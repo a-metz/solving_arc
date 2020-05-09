@@ -1,5 +1,7 @@
 import random
+import logging
 from collections import Counter
+from itertools import count
 
 import numpy as np
 
@@ -9,40 +11,44 @@ from .nodes import *
 from .node_collection import *
 
 
-# TODO: extend to replace function_generation.Graph
+logger = logging.getLogger(__name__)
+
+
 class Graph:
-    def __init__(self, initial_nodes, target=None, max_depth=None, max_expansions=None):
+    def __init__(self, initial_nodes, target, max_depth=None, max_steps=None):
         self.target = target
         self.max_depth = max_depth if max_depth is not None else float("inf")
-        self.max_expansions = max_expansions if max_expansions else float("inf")
+        self.steps = range(max_steps) if max_steps else count()
 
         self.nodes = NodeCollection(initial_nodes)
         self.function_sampler = FunctionSampler(self)
         self.expansion_count = 0
 
-    def expand(self):
-        if self.expansion_count >= self.max_expansions:
-            raise NoRemainingExpansions()
+    def solve(self):
+        for step in self.steps:
+            try:
+                node = self.function_sampler()
 
-        self.expansion_count += 1
+                if node.depth < self.max_depth:
+                    self.nodes.add(node)
 
-        try:
-            node = self.function_sampler()
+                if node() == self.target:
+                    return node
 
-            if node.depth < self.max_depth:
-                self.nodes.add(node)
+            except NoSample:
+                pass
 
-            if node() == self.target:
-                return node
-
-        except NoSample:
-            pass
-
+        logger.debug("max steps reached")
         return None
 
+    def expand(self):
+        node = self.function_sampler()
 
-class NoRemainingExpansions(Exception):
-    pass
+        if node.depth < self.max_depth:
+            self.nodes.add(node)
+
+        if node() == self.target:
+            return node
 
 
 DISABLED = 0
@@ -213,8 +219,8 @@ class FunctionSampler:
         node = sample_uniform(self.nodes.with_type(Grid))
         # TODO: sample colors based on updated probabilities
         target_colors = used_colors(self.target)
-        from_color = sample_uniform(used_colors(node()) - target_colors)
-        to_color = sample_uniform(target_colors - {from_color})
+        to_color = sample_uniform(target_colors)
+        from_color = sample_uniform(used_colors(node()) - {to_color})
         return node, Constant(repeat(from_color)), Constant(repeat(to_color))
 
     def sample_map_color_in_selection_args(self):
@@ -227,7 +233,7 @@ class FunctionSampler:
     def sample_set_selected_to_color_args(self):
         grid_node, selection_node = self.sample_matching_shape_args(Grid, Selection)
         # TODO: sample to_color higher prob for used_colors(target)
-        color = sample(self.color_probs)
+        color = sample_uniform(used_colors(self.target))
         return grid_node, selection_node, Constant(repeat(color))
 
     def sample_extract_args(self):
@@ -321,7 +327,6 @@ class FunctionSampler:
             self.nodes.with_type(Selection) & self.nodes.with_shape(shape(grid_node()))
         )
 
-    # TODO: extend to include height / width
     def sample_matching_shape_args(self, *types, replace=True):
         if replace:
             num_required = {type_: 1 for type_ in types}
@@ -351,6 +356,9 @@ class FunctionSampler:
             sampled_nodes.append(sample_uniform(candidates))
 
         return tuple(sampled_nodes)
+
+    def sample_node(self, nodes):
+        pass
 
 
 def sample_uniform(iterable):
