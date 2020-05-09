@@ -4,10 +4,10 @@ from ..language import *
 from .vectorize import *
 
 
-def loss(node, target, expanded_count):
+def loss(node, target):
     depth_loss = 0.1 * (node.depth + 1)
     distance_loss = mean(distance(node(), target))
-    expanded_count_loss = 0.2 * (expanded_count + 1)
+    expanded_count_loss = 0.2 * (node.usages + 1)
     return depth_loss * distance_loss * expanded_count_loss
 
 

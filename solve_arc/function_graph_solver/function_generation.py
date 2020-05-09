@@ -25,7 +25,6 @@ class Graph:
         self.nodes = set()
 
         # count nodes that have already been expanded
-        self.expanded_count = Counter()
         self.expandable_nodes = set()
 
         self._process(initial_nodes)
@@ -46,7 +45,6 @@ class Graph:
         )
 
         new_nodes = generate_functions(expand_next, self) - self.nodes
-        self.expanded_count.update(expand_next)
 
         logger.debug(
             "new nodes: %d", len(new_nodes),
@@ -55,18 +53,14 @@ class Graph:
         return self._process(new_nodes)
 
     def _get_sample_candidates_with_likelihoods(self):
-        candidates = [
-            node
-            for node in self.expandable_nodes
-            if self.expanded_count[node] <= self.max_expansions
-        ]
+        candidates = [node for node in self.expandable_nodes if node.usages <= self.max_expansions]
 
         if len(candidates) == 0:
             raise NoExpandableNodes()
 
         def likelihood(node):
             min_likelihood = 0.1
-            return min_likelihood + (1 / loss(node, self.target, self.expanded_count[node]))
+            return min_likelihood + (1 / loss(node, self.target))
 
         likelihoods = [likelihood(node) for node in candidates]
         assert not np.isinf(likelihoods).any()

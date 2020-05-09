@@ -26,31 +26,38 @@ def test_loss__monotonic_with_depth(example_target):
     node_depth_0 = Constant(repeat_once(example_source))
     node_depth_1 = Function(lambda x: x, node_depth_0)
     node_depth_2 = Function(lambda x: x, node_depth_1)
+    # ensure all nodes have same number of usages
+    Function(lambda x: x, node_depth_2)
 
     assert (
         0
-        <= loss(node_depth_0, repeat_once(example_target), expanded_count=1)
-        < loss(node_depth_1, repeat_once(example_target), expanded_count=1)
-        < loss(node_depth_2, repeat_once(example_target), expanded_count=1)
+        <= loss(node_depth_0, repeat_once(example_target))
+        < loss(node_depth_1, repeat_once(example_target))
+        < loss(node_depth_2, repeat_once(example_target))
         <= 1
     )
 
 
-def test_loss__monotonic_with_expanded_count(example_target):
+def test_loss__monotonic_with_usages(example_target):
     example_source = Grid.from_string(
         """
         3 2 1
         1 2 3
         """
     )
-    node = Function(lambda x: x, Constant(repeat_once(example_source)))
+    node_usages_0 = Constant(repeat_once(example_source))
+    node_usages_1 = Constant(repeat_once(example_source))
+    Function(lambda x: x, node_usages_1)
+    node_usages_2 = Constant(repeat_once(example_source))
+    Function(lambda x: x, node_usages_2)
+    Function(lambda x: x, node_usages_2)
     target = repeat_once(example_target)
 
     assert (
         0
-        <= loss(node, target, expanded_count=0)
-        < loss(node, target, expanded_count=1)
-        < loss(node, target, expanded_count=2)
+        <= loss(node_usages_0, target)
+        < loss(node_usages_1, target)
+        < loss(node_usages_2, target)
         <= 1
     )
 
