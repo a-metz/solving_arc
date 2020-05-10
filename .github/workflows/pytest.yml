@@ -25,6 +25,3 @@ jobs:
     - name: Fast tests with pytest
       run: |
         pytest
-    - name: All tests with pytest
-      run: |
-        pytest --runslow
