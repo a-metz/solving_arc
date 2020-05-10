@@ -1,6 +1,6 @@
 import pytest
 
-from .function_generation import *
+from .full_search import *
 from .vectorize import *
 from .nodes import Constant
 

@@ -8,7 +8,7 @@ import click
 
 from .loader import training_tasks, evaluation_tasks
 from .task_ids import SOLVED_TASK_IDS, REGRESSION_TASK_IDS
-from ..function_graph_solver.sampling_search import solve, Constraint, Statistics
+from ..function_graph_solver.solver import solve, Constraint, Statistics
 
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
@@ -18,8 +18,10 @@ logger = logging.getLogger(__name__)
 @click.command()
 @click.option("--debug/--no-debug", default=False)
 @click.option("--max-seconds-per-task", default=10.0)
-@click.option("--max-search-depth", default=5)
-@click.option("--max-expansions-per-node", default=10)
+@click.option("--search-strategy", default="sampling")
+@click.option("--max-depth", default=5)
+@click.option("--max-usages", default=10)
+@click.option("--max-steps", default=50000)
 @click.argument("args", nargs=-1)
 def evaluate(debug, args, **kwargs):
     if debug:
@@ -62,7 +64,7 @@ def _get_all_tasks(except_task_ids=tuple()):
     return [(task_id, all_tasks[task_id]) for task_id in task_ids]
 
 
-def _evaluate(tasks, max_seconds_per_task=10, max_search_depth=5, max_expansions_per_node=10):
+def _evaluate(tasks, max_seconds_per_task=10, **kwargs):
     score = 0
     solved = []
     statistics = []
@@ -73,9 +75,7 @@ def _evaluate(tasks, max_seconds_per_task=10, max_search_depth=5, max_expansions
 
         try:
             solution = timeout(
-                timeout=max_seconds_per_task,
-                func=solve,
-                args=(constraints, max_search_depth, max_expansions_per_node),
+                timeout=max_seconds_per_task, func=solve, args=(constraints,), kwargs=kwargs
             )
             if solution is not None:
                 statistics.append(solution.statistics)
@@ -107,11 +107,11 @@ def reduce_statistics(statistics, func):
     )
 
 
-def timeout(timeout, func, args):
+def timeout(timeout, func, args, kwargs):
     if timeout:
-        return func_timeout(timeout, func, args)
+        return func_timeout(timeout=timeout, func=func, args=args, kwargs=kwargs)
     else:
-        return func(*args)
+        return func(*args, **kwargs)
 
 
 def check_solution(solution, subtasks):

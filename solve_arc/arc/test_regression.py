@@ -10,9 +10,10 @@ from .task_ids import SOLVED_TASK_IDS, REGRESSION_TASK_IDS
 @pytest.fixture
 def default_kwargs():
     return {
-        "max_search_depth": 5,
         "max_seconds_per_task": 20,
-        "max_expansions_per_node": 20,
+        "max_depth": 5,
+        "max_usages": 20,
+        "expand_batch_size": 10000,
     }
 
 

@@ -26,9 +26,8 @@ def test_format_results():
 @pytest.fixture
 def default_kwargs():
     return {
-        "max_search_depth": 5,
         "max_seconds_per_task": 20,
-        "max_expansions_per_node": 20,
+        "max_depth": 5,
     }
 
 

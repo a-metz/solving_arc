@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class Graph:
-    def __init__(self, initial_nodes, target, max_depth=None, max_steps=None):
+    def __init__(self, initial_nodes, target, max_depth=5, max_steps=10000, **kwargs):
         self.target = target
         self.max_depth = max_depth if max_depth is not None else float("inf")
         self.steps = range(max_steps) if max_steps else count()

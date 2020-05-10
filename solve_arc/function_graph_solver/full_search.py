@@ -14,11 +14,11 @@ logger = logging.getLogger(__name__)
 
 class Graph:
     def __init__(
-        self, initial_nodes, target, max_depth, max_expansions_per_node=10, expand_batch_size=1000
+        self, initial_nodes, target, max_depth=10, max_usages=10, expand_batch_size=1000, **kwargs
     ):
         self.target = target
         self.max_depth = max_depth
-        self.max_expansions = max_expansions_per_node
+        self.max_usages = max_usages
         self.expand_batch_size = expand_batch_size
 
         self.random = random.Random(0)  # seed for determinism
@@ -68,7 +68,7 @@ class Graph:
         return self._process(new_nodes)
 
     def _get_sample_candidates_with_likelihoods(self):
-        candidates = [node for node in self.expandable_nodes if node.usages <= self.max_expansions]
+        candidates = [node for node in self.expandable_nodes if node.usages <= self.max_usages]
 
         if len(candidates) == 0:
             raise NoExpandableNodes()

@@ -4,8 +4,7 @@ from itertools import product
 
 import pytest
 
-from . import function_sampling
-from .function_sampling import *
+from .sampling_search import *
 from .node_collection import *
 
 epsilon = sys.float_info.epsilon

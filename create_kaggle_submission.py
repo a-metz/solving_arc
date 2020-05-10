@@ -2,13 +2,17 @@
 import os
 import git
 
-parameters = {
-    "max_search_depth": 10,
+submission_parameters = {
     "max_seconds_per_task": 90,
-    "max_expansions_per_node": 20,
     "max_score": None,
     "task_range": slice(None, None, None),
     "data_path": "/kaggle/input/abstraction-and-reasoning-challenge/test",
+}
+
+search_parameters = {
+    "search_strategy": "sampling",
+    "max_depth": 7,
+    "max_steps": 50000,
 }
 
 filename_regex = r"^(?!(test_))[a-z_]+\.py\$"
@@ -29,18 +33,19 @@ header = """
 # original code available at https://github.com/wahtak/solving_arc (publicly accessable after competition)
 # commit hash {}
 
-parameters = {!r}
+submission_parameters = {!r}
+search_parameters = {!r}
 
 """
 
 footer = """
 from solve_arc.kaggle.submission import generate_submission
-generate_submission(**parameters)
+generate_submission(**submission_parameters)
 """
 
 filename = "kaggle_submission_{}.py".format(commit_hash[:7])
 with open(filename, "w") as submission:
-    submission.write(header.format(commit_hash, parameters))
+    submission.write(header.format(commit_hash, submission_parameters, search_parameters))
     submission.write(open(tmp_file, "r").read())
     submission.write(footer)
 

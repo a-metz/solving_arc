@@ -4,8 +4,8 @@ from statistics import mean
 import logging
 
 
-from .function_sampling import Graph as sampling_search_graph
-from .function_generation import Graph as full_search_graph
+from . import sampling_search
+from . import full_search
 from .nodes import *
 from .vectorize import repeat_once, Vector
 
@@ -14,14 +14,17 @@ logger = logging.getLogger(__name__)
 Constraint = namedtuple("Constraint", ["source", "target"])
 
 
-def solve(constraints, graph_factory=full_search_graph, **kwargs):
+_graph_factories = {"full": full_search.Graph, "sampling": sampling_search.Graph}
+
+
+def solve(constraints, search_strategy="full", **kwargs):
     target = Vector(constraint.target for constraint in constraints)
     source_node = Source(Vector(constraint.source for constraint in constraints))
 
     if source_node() == target:
         return Solution(source_node, source_node)
 
-    graph = graph_factory({source_node}, target, **kwargs)
+    graph = _graph_factories[search_strategy]({source_node}, target, **kwargs)
     solution = graph.solve()
 
     if solution is not None:
