@@ -41,15 +41,6 @@ class Graph:
         logger.debug("max steps reached")
         return None
 
-    def expand(self):
-        node = self.function_sampler()
-
-        if node.depth < self.max_depth:
-            self.nodes.add(node)
-
-        if node() == self.target:
-            return node
-
 
 DISABLED = 0
 
