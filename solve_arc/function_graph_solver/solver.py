@@ -24,6 +24,7 @@ def solve(constraints, search_strategy="full", **kwargs):
     if source_node() == target:
         return Solution(source_node, source_node)
 
+    logger.debug("solving with: %s search", search_strategy)
     graph = _graph_factories[search_strategy]({source_node}, target, **kwargs)
     solution = graph.solve()
 

@@ -15,7 +15,7 @@ def test_graph_step__once():
     target = Vector([Grid.from_string("6 7 8 9 0")])
     initial_nodes = {Constant(source)}
     graph = Graph(initial_nodes, target, max_steps=1)
-    graph.function_sampler.operation_probs = {map_color: 1.0}
+    graph.function_sampler.operation_weights = {map_color: 1.0}
     graph.solve()
 
     # expect one new node
@@ -34,7 +34,7 @@ def test_graph_step__max_steps():
     initial_nodes = {Constant(source)}
     graph = Graph({Constant(source)}, target, max_steps=3)
 
-    graph.function_sampler.operation_probs = {map_color: 1.0}
+    graph.function_sampler.operation_weights = {map_color: 1.0}
     graph.solve()
 
     created_nodes = graph.nodes - initial_nodes
@@ -47,12 +47,12 @@ def test_graph_solve__find_target():
     initial_nodes = {Constant(source)}
     graph = Graph(initial_nodes, target, max_depth=1, max_steps=10)
 
-    graph.function_sampler.operation_probs = {rotate_90: 1.0}
+    graph.function_sampler.operation_weights = {rotate_90: 1.0}
     solution = graph.solve()
 
     assert solution is None
 
-    graph.function_sampler.operation_probs = {map_color: 1.0}
+    graph.function_sampler.operation_weights = {map_color: 1.0}
     solution = graph.solve()
 
     assert solution == Function(
@@ -160,9 +160,7 @@ def test_function_sampler__all_functions_smoketest(all_args, dummy_target):
     graph = Graph(all_args, dummy_target)
     function_sampler = FunctionSampler(graph)
 
-    for operation in function_sampler.operation_probs.keys():
-        sample_args = function_sampler.sample_args[operation]
-
+    for operation, sample_args in function_sampler.sample_args.items():
         if sample_args is not None:
             for _ in range(repetitions):
                 try:

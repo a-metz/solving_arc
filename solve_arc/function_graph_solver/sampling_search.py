@@ -50,22 +50,20 @@ class FunctionSampler:
         self.nodes = graph.nodes
         self.target = graph.target
 
-        # prior probabilities all colors
-        self.color_probs = {
-            Color.BLACK: 0.55,
-            Color.BLUE: 0.05,
-            Color.RED: 0.05,
-            Color.GREEN: 0.05,
-            Color.YELLOW: 0.05,
-            Color.GRAY: 0.05,
-            Color.PINK: 0.05,
-            Color.ORANGE: 0.05,
-            Color.AZURE: 0.05,
-            Color.CRIMSON: 0.05,
+        self.color_weights = {
+            Color.BLACK: 1.0,
+            Color.BLUE: 1.0,
+            Color.RED: 1.0,
+            Color.GREEN: 1.0,
+            Color.YELLOW: 1.0,
+            Color.GRAY: 1.0,
+            Color.PINK: 1.0,
+            Color.ORANGE: 1.0,
+            Color.AZURE: 1.0,
+            Color.CRIMSON: 1.0,
         }
 
-        # prior probabilities all operations
-        self.operation_probs = {
+        self.operation_weights = {
             # color
             switch_color: 1.0,
             map_color: 1.0,
@@ -193,52 +191,57 @@ class FunctionSampler:
         }
 
     def __call__(self):
-        operation = sample(self.operation_probs)
+        operation = self.sample_operation()
         args = self.sample_args[operation]()
         # vectorize operation to as nodes contain all values for all constraints
         return Function(vectorize(operation), *args)
 
+    def sample_operation(self):
+        operations = list(self.operation_weights.keys())
+        weights = list(self.operation_weights.values())
+        return _py_random.choices(operations, weights=weights)[0]
+
     def sample_swap_color_args(self):
-        node = sample_uniform(self.nodes.with_type(Grid))
+        node = self.sample_node(self.nodes.with_type(Grid))
         # TODO: sample colors based on updated probabilities
         color_candidates = used_colors(node())
-        from_color = sample_uniform(color_candidates)
-        to_color = sample_uniform(color_candidates - {from_color})
+        from_color = self.sample_color(color_candidates)
+        to_color = self.sample_color(color_candidates - {from_color})
         return node, Constant(repeat(from_color)), Constant(repeat(to_color))
 
     def sample_map_color_args(self):
-        node = sample_uniform(self.nodes.with_type(Grid))
+        node = self.sample_node(self.nodes.with_type(Grid))
         # TODO: sample colors based on updated probabilities
         target_colors = used_colors(self.target)
-        to_color = sample_uniform(target_colors)
-        from_color = sample_uniform(used_colors(node()) - {to_color})
+        to_color = self.sample_color(target_colors)
+        from_color = self.sample_color(used_colors(node()) - {to_color})
         return node, Constant(repeat(from_color)), Constant(repeat(to_color))
 
     def sample_map_color_in_selection_args(self):
         grid_node, selection_node = self.sample_matching_shape_args(Grid, Selection)
         target_colors = used_colors(self.target)
-        from_color = sample_uniform(used_colors(grid_node()) - target_colors)
-        to_color = sample_uniform(target_colors - {from_color})
+        from_color = self.sample_color(used_colors(grid_node()) - target_colors)
+        to_color = self.sample_color(target_colors - {from_color})
         return grid_node, selection_node, Constant(repeat(from_color)), Constant(repeat(to_color))
 
     def sample_set_selected_to_color_args(self):
         grid_node, selection_node = self.sample_matching_shape_args(Grid, Selection)
         # TODO: sample to_color higher prob for used_colors(target)
-        color = sample_uniform(used_colors(self.target))
+        color = self.sample_color(used_colors(self.target))
         return grid_node, selection_node, Constant(repeat(color))
 
     def sample_extract_args(self):
         # TODO: sample all, but same shape as target with less prob
-        node = sample_uniform(
+        node = self.sample_node(
             self.nodes.with_type(Grid) - self.nodes.with_shape(shape(self.target))
         )
         # TODO: sample from_color only from used_colors(node)
-        color = sample_uniform(used_colors(node()))
+        color = self.sample_color(used_colors(node()))
         return node, Constant(repeat(color))
 
     def sample_logic_args(self):
         # TODO: rely on take functions and use scalar grids instead of sequence
-        sample_matching_shape_grids = sample_uniform(
+        sample_matching_shape_grids = self.sample_node(
             self.nodes.with_type(Grids)
             & self.nodes.with_length(2)
             & self.nodes.with_shape.matching_sequences
@@ -249,12 +252,12 @@ class FunctionSampler:
         )
 
     def sample_select_color_args(self):
-        node = sample_uniform(self.nodes.with_type(Grid))
-        color = sample_uniform(used_colors(node()))
+        node = self.sample_node(self.nodes.with_type(Grid))
+        color = self.sample_color(used_colors(node()))
         return node, Constant(repeat(color))
 
     def sample_merge_selection_args(self):
-        node = sample_uniform(
+        node = self.sample_node(
             self.nodes.with_type(Selections) & self.nodes.with_shape.matching_sequences
         )
         return (node,)
@@ -278,43 +281,43 @@ class FunctionSampler:
         if width_segments > 1:
             candidates &= nodes_with_splittable_dimension(self.nodes.with_width, width_segments)
 
-        return (sample_uniform(candidates),)
+        return (self.sample_node(candidates),)
 
     def sample_concatenate_top_bottom_args(self):
         # TODO: sample with higher prob when not target shape
         # TODO: sample with lower prob when concatentate same node
         candidates = self.nodes.with_type(Grid)
-        top_node = sample_uniform(candidates)
-        bottom_node = sample_uniform(candidates & self.nodes.with_width(width(top_node())))
+        top_node = self.sample_node(candidates)
+        bottom_node = self.sample_node(candidates & self.nodes.with_width(width(top_node())))
         return top_node, bottom_node
 
     def sample_concatenate_left_right_args(self):
         # TODO: sample with higher prob when not target shape
         # TODO: sample with lower prob when concatentate same node
         candidates = self.nodes.with_type(Grid)
-        top_node = sample_uniform(candidates)
-        bottom_node = sample_uniform(candidates & self.nodes.with_height(height(top_node())))
-        return top_node, bottom_node
+        left_node = self.sample_node(candidates)
+        right_node = self.sample_node(candidates & self.nodes.with_height(height(left_node())))
+        return left_node, right_node
 
     def sample_concatenate_top_to_bottom_args(self):
         # TODO: sample with higher prob when not target shape
         candidates = self.nodes.with_type(Grids) & self.nodes.with_width.matching_sequences
-        return (sample_uniform(candidates),)
+        return (self.sample_node(candidates),)
 
     def sample_concatenate_left_to_right_args(self):
         # TODO: sample with higher prob when not target shape
         candidates = self.nodes.with_type(Grids) & self.nodes.with_height.matching_sequences
-        return (sample_uniform(candidates),)
+        return (self.sample_node(candidates),)
 
     def sample_type_args(self, *types):
         if len(types) > 1:
             candidates = union(self.nodes.with_type(type_) for type_ in types)
         else:
             candidates = self.nodes.with_type(types[0])
-        return (sample_uniform(candidates),)
+        return (self.sample_node(candidates),)
 
     def sample_matching_selection_node(self, grid_node):
-        return sample_uniform(
+        return self.sample_node(
             self.nodes.with_type(Selection) & self.nodes.with_shape(shape(grid_node()))
         )
 
@@ -338,33 +341,34 @@ class FunctionSampler:
             raise NoSample()
 
         sampled_nodes = []
-        sampled_nodes.append(sample_uniform(candidates_by_type[0]))
+        sampled_nodes.append(self.sample_node(candidates_by_type[0]))
         nodes_with_matching_shape = self.nodes.with_shape(shape(sampled_nodes[0]()))
         for candidates in candidates_by_type[1:]:
             candidates &= nodes_with_matching_shape
             if not replace:
                 candidates -= set(sampled_nodes)
-            sampled_nodes.append(sample_uniform(candidates))
+            sampled_nodes.append(self.sample_node(candidates))
 
         return tuple(sampled_nodes)
 
     def sample_node(self, nodes):
-        pass
+        nodes = list(nodes)
+        if len(nodes) == 0:
+            raise NoSample()
 
+        def weight(node):
+            return 1 / ((0.1 * node.usages) + (0.1 * node.depth) + 1)
 
-def sample_uniform(iterable):
-    if len(iterable) == 0:
-        raise NoSample()
+        weights = [weight(node) for node in nodes]
+        return _py_random.choices(nodes, weights=weights)[0]
 
-    return _py_random.choice(list(iterable))
+    def sample_color(self, colors):
+        colors = list(colors)
+        if len(colors) == 0:
+            raise NoSample()
 
-
-def sample(probs):
-    return _py_random.choices(list(probs.keys()), weights=list(probs.values()))[0]
-
-
-def sample_permutation(probs, size):
-    return _np_random.choice(list(probs.keys()), size=size, replace=False, p=list(probs.values()))
+        weights = [self.color_weights[color] for color in colors]
+        return _py_random.choices(colors, weights=weights)[0]
 
 
 def union(iterable):
