@@ -76,7 +76,7 @@ def format_results(task_id, results):
 def format_grid(grid):
     state = grid.state
     assert np.all(np.mod(state, 1) == 0)
-    state = state.astype(np.int)
+    state = state.astype(int)
     assert np.all(0 <= state) and np.all(state <= 9)
 
     row_string = "|".join("".join(str(element) for element in row) for row in state)

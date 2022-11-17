@@ -81,11 +81,11 @@ class Grid(_Base):
 
     @classmethod
     def empty(cls, shape):
-        return cls(np.zeros(shape=shape, dtype=np.int))
+        return cls(np.zeros(shape=shape, dtype=int))
 
     @classmethod
     def filled(cls, shape, color):
-        return cls(np.full(shape=shape, fill_value=color, dtype=np.int))
+        return cls(np.full(shape=shape, fill_value=color, dtype=int))
 
     @classmethod
     def from_string(cls, string):
@@ -107,7 +107,7 @@ class Selection(_Base):
 
     @classmethod
     def empty(cls, shape):
-        return cls(np.zeros(shape=shape, dtype=np.bool))
+        return cls(np.zeros(shape=shape, dtype=bool))
 
     @classmethod
     def from_indices(cls, shape, indices):
@@ -115,7 +115,7 @@ class Selection(_Base):
         num_colums = shape[1]
         # assignment by indices can only be done on flat array (numpy limitation)
         flat_indices = np.dot(np.array(indices), np.array([num_colums, 1]))
-        flat_state = np.zeros(shape=num_rows * num_colums, dtype=np.bool)
+        flat_state = np.zeros(shape=num_rows * num_colums, dtype=bool)
         flat_state[flat_indices] = True
         return Selection(flat_state.reshape(shape))
 
