@@ -1,9 +1,4 @@
-from itertools import islice
-import time
-
-import click
 import numpy as np
-
 
 from ..function_graph_solver.solver import solve, Constraint
 from ..language import Grid
@@ -26,7 +21,6 @@ def generate_submission(
         score = 0
         for task_id, task in tasks.items():
             print(task_id, end=": ")
-            subtasks = task["train"]
             constraints = [
                 Constraint(Grid(subtask["input"]), Grid(subtask["output"]))
                 for subtask in task["train"]
