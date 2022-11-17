@@ -1,0 +1,7 @@
+{
+  "name": "solving-arc-devcontainer",
+  "image": "mcr.microsoft.com/devcontainers/python:3",
+  "features": {
+    "ghcr.io/meaningful-ooo/devcontainer-features/fish:1": {}
+  }
+}
