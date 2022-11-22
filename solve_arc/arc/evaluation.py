@@ -54,14 +54,12 @@ def evaluate(debug, args, **kwargs):
 
 
 def _get_tasks(task_ids):
-    all_tasks = {**training_tasks(), **evaluation_tasks()}
-    return [(task_id, all_tasks[task_id]) for task_id in task_ids]
+    return [(task_id, all_tasks()[task_id]) for task_id in task_ids]
 
 
 def _get_all_tasks(except_task_ids=tuple()):
-    all_tasks = {**training_tasks(), **evaluation_tasks()}
-    task_ids = set(all_tasks.keys()) - set(except_task_ids)
-    return [(task_id, all_tasks[task_id]) for task_id in task_ids]
+    task_ids = set(all_tasks().keys()) - set(except_task_ids)
+    return [(task_id, all_tasks()[task_id]) for task_id in task_ids]
 
 
 def _evaluate(tasks, max_seconds_per_task=10, **kwargs):

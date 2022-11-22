@@ -6,3 +6,4 @@ func_timeout
 click
 gitpython
 black
+tensorflow

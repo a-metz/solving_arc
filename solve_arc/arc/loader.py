@@ -20,3 +20,7 @@ def evaluation_tasks():
         _evaluation_tasks = load_tasks("dataset/data/evaluation")
 
     return _evaluation_tasks
+
+
+def all_tasks():
+    return {**training_tasks(), **evaluation_tasks()}

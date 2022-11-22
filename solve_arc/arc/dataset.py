@@ -29,7 +29,7 @@ def load_tasks(path):
     files_in_path = sorted(os.listdir(path))
 
     tasks = {}
-    for file in sorted(os.listdir(path)):
+    for file in files_in_path:
         file_root, file_extension = os.path.splitext(file)
 
         if file_extension == ".json":
