@@ -2,37 +2,43 @@
 
 ![Pytest badge](https://github.com/wahtak/solving_arc/workflows/Pytest/badge.svg)
 
+## Setup
+
+Install requirements:
+```
+pip install --user -r requirements.txt
+```
 
 ## Usage
 
 Run tests:
 ```
-cd <repository root dir>
 pytest
 ```
 
 Run tests including slow test:
 ```
-cd <repository root dir>
 pytest --runslow
 ```
 
 Print help:
 ```
-cd <repository root dir>
 python -m solve_arc --help
 ```
 
 Run on known solved tasks:
 ```
-cd <repository root dir>
 python -m solve_arc solved
 ```
 
 Generate code for kaggle submission to `kaggle_submission.py`:
 ```
-cd <repository root dir>
-./create_kaggle_submission.sh
+./create_kaggle_submission.py
+```
+
+Format code:
+```
+black .
 ```
 
 

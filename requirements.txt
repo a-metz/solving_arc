@@ -5,3 +5,4 @@ kagglize-module
 func_timeout
 click
 gitpython
+black
