@@ -51,7 +51,9 @@ class Function(_Node):
         return self._depth
 
     def __str__(self):
-        return "{}({})".format(self.operation.__name__, ", ".join(str(arg) for arg in self.args))
+        return "{}({})".format(
+            self.operation.__name__, ", ".join(str(arg) for arg in self.args)
+        )
 
     def __repr__(self):
         return "{}({})".format(

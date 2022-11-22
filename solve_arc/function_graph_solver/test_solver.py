@@ -103,8 +103,14 @@ def test_solve__single_colorswap__multiple_contraints(search_strategy):
 
 def test_solve__single_xor__multiple_contraints(search_strategy):
     constraints = [
-        Constraint(source=Grids([Grid([[1, 0, 0]]), Grid([[1, 1, 0]])]), target=Grid([[0, 1, 0]])),
-        Constraint(source=Grids([Grid([[0, 1, 1]]), Grid([[1, 1, 0]])]), target=Grid([[1, 0, 1]])),
+        Constraint(
+            source=Grids([Grid([[1, 0, 0]]), Grid([[1, 1, 0]])]),
+            target=Grid([[0, 1, 0]]),
+        ),
+        Constraint(
+            source=Grids([Grid([[0, 1, 1]]), Grid([[1, 1, 0]])]),
+            target=Grid([[1, 0, 1]]),
+        ),
     ]
 
     solution = solve(constraints, search_strategy, max_depth=2)
@@ -118,7 +124,9 @@ def test_solve__single_xor__multiple_contraints(search_strategy):
 # some solution cases:
 
 
-def test_solve__select_color_and_extract_selected_area__multiple_contraints(search_strategy):
+def test_solve__select_color_and_extract_selected_area__multiple_contraints(
+    search_strategy,
+):
     constraints = [
         Constraint(source=Grid([[1, 2, 1]]), target=Grid([[2]])),
         Constraint(source=Grid([[2, 2, 1]]), target=Grid([[2, 2]])),

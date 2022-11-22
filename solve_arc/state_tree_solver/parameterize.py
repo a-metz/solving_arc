@@ -23,8 +23,12 @@ def parameterize_segmentation(grid):
     return extract_islands_functions + extract_color_patches_functions
 
 
-_elementwise_equal_and = expect_tuple(length=2, on_error_return=None)(elementwise_equal_and)
-_elementwise_equal_or = expect_tuple(length=2, on_error_return=None)(elementwise_equal_or)
+_elementwise_equal_and = expect_tuple(length=2, on_error_return=None)(
+    elementwise_equal_and
+)
+_elementwise_equal_or = expect_tuple(length=2, on_error_return=None)(
+    elementwise_equal_or
+)
 _elementwise_xor = expect_tuple(length=2, on_error_return=None)(elementwise_xor)
 
 
@@ -54,7 +58,13 @@ def parameterize_color(grid):
         for target_color in valid_colors:
             if source_color == target_color:
                 continue
-            parameterized.append(partial(_switch_color, a=source_color, b=target_color,))
+            parameterized.append(
+                partial(
+                    _switch_color,
+                    a=source_color,
+                    b=target_color,
+                )
+            )
 
     return parameterized
 

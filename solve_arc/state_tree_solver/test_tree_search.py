@@ -71,10 +71,14 @@ def test_solve_and_transfer():
 
 def test_solve_multiple_constraints_and_transfer():
     # undefined / no color swap
-    constraint_1 = Constraint(source=Grid([[1, 0], [2, 2], [1, 0]]), target=Grid([[0, 0]]))
+    constraint_1 = Constraint(
+        source=Grid([[1, 0], [2, 2], [1, 0]]), target=Grid([[0, 0]])
+    )
 
     # undefined logical operation (or|xor)
-    constraint_2 = Constraint(source=Grid([[1, 0], [2, 2], [0, 0]]), target=Grid([[3, 0]]))
+    constraint_2 = Constraint(
+        source=Grid([[1, 0], [2, 2], [0, 0]]), target=Grid([[3, 0]])
+    )
 
     solution = solve([constraint_1, constraint_2], max_depth=3)
 

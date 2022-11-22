@@ -10,7 +10,11 @@ DEFAULT_RESULT = Grid.empty((2, 2))
 
 
 def generate_submission(
-    data_path, max_seconds_per_task, max_score=None, task_range=slice(None, None, None), **kwargs,
+    data_path,
+    max_seconds_per_task,
+    max_score=None,
+    task_range=slice(None, None, None),
+    **kwargs,
 ):
     with open("submission.csv", "w") as submission:
         submission.write("output_id,output\n")
@@ -45,11 +49,17 @@ def generate_submission(
                 results = [None] * len(task["test"])
                 print("no solution")
 
-            results = [result if result is not None else DEFAULT_RESULT for result in results]
+            results = [
+                result if result is not None else DEFAULT_RESULT for result in results
+            ]
             for row_string in format_results(task_id, results):
                 submission.write(row_string + "\n")
 
-    print("score: {}/{} (kaggle score: {})".format(score, len(tasks), (1 - score / len(tasks))))
+    print(
+        "score: {}/{} (kaggle score: {})".format(
+            score, len(tasks), (1 - score / len(tasks))
+        )
+    )
 
 
 def format_results(task_id, results):

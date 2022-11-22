@@ -1,5 +1,11 @@
 from collections import defaultdict, Counter
-from itertools import product, combinations, combinations_with_replacement, permutations, count
+from itertools import (
+    product,
+    combinations,
+    combinations_with_replacement,
+    permutations,
+    count,
+)
 from statistics import mean
 import logging
 import random
@@ -14,7 +20,13 @@ logger = logging.getLogger(__name__)
 
 class Graph:
     def __init__(
-        self, initial_nodes, target, max_depth=10, max_usages=10, expand_batch_size=1000, **kwargs
+        self,
+        initial_nodes,
+        target,
+        max_depth=10,
+        max_usages=10,
+        expand_batch_size=1000,
+        **kwargs
     ):
         self.target = target
         self.max_depth = max_depth
@@ -62,13 +74,16 @@ class Graph:
         new_nodes = generate_functions(expand_next, self) - self.nodes
 
         logger.debug(
-            "new nodes: %d", len(new_nodes),
+            "new nodes: %d",
+            len(new_nodes),
         )
 
         return self._process(new_nodes)
 
     def _get_sample_candidates_with_likelihoods(self):
-        candidates = [node for node in self.expandable_nodes if node.usages <= self.max_usages]
+        candidates = [
+            node for node in self.expandable_nodes if node.usages <= self.max_usages
+        ]
 
         if len(candidates) == 0:
             raise NoExpandableNodes()
@@ -85,10 +100,14 @@ class Graph:
     def _process(self, new_nodes):
         self.nodes |= new_nodes
         self.expandable_nodes |= {
-            node for node in new_nodes if is_valid(node()) and node.depth < self.max_depth
+            node
+            for node in new_nodes
+            if is_valid(node()) and node.depth < self.max_depth
         }
         logger.debug(
-            "total expandable: %d, total nodes: %d", len(self.expandable_nodes), len(self.nodes),
+            "total expandable: %d, total nodes: %d",
+            len(self.expandable_nodes),
+            len(self.nodes),
         )
 
         # check for solution
@@ -182,7 +201,9 @@ def map_color_in_selection_functions(nodes, graph):
             Constant(repeat(0)),
             Constant(repeat(color)),
         )
-        for grid_node, selection_node in product(nodes.of_type(Grid), nodes.of_type(Selection))
+        for grid_node, selection_node in product(
+            nodes.of_type(Grid), nodes.of_type(Selection)
+        )
         if shape(grid_node()) == shape(selection_node())
         # heuristic: only map to colors used in target
         for color in used_colors(graph.target)
@@ -191,9 +212,13 @@ def map_color_in_selection_functions(nodes, graph):
 
 def switch_color_functions(nodes, graph):
     return {
-        Function(vectorize(switch_color), node, Constant(repeat(a)), Constant(repeat(b)))
+        Function(
+            vectorize(switch_color), node, Constant(repeat(a)), Constant(repeat(b))
+        )
         for node in nodes.of_type(Grid)
-        if not (isinstance(node, Function) and node.operation == vectorize(switch_color))
+        if not (
+            isinstance(node, Function) and node.operation == vectorize(switch_color)
+        )
         for a, b in combinations(used_colors(node()), 2)
     }
 
@@ -201,9 +226,14 @@ def switch_color_functions(nodes, graph):
 def set_selected_to_color_functions(nodes, graph):
     return {
         Function(
-            vectorize(set_selected_to_color), grid_node, selection_node, Constant(repeat(color))
+            vectorize(set_selected_to_color),
+            grid_node,
+            selection_node,
+            Constant(repeat(color)),
         )
-        for grid_node, selection_node in product(nodes.of_type(Grid), nodes.of_type(Selection))
+        for grid_node, selection_node in product(
+            nodes.of_type(Grid), nodes.of_type(Selection)
+        )
         if shape(grid_node()) == shape(selection_node())
         for color in used_colors(graph.target)
     }
@@ -231,8 +261,12 @@ def split_selection_into_connected_areas_functions(nodes, graph):
     functions = set()
     for node in nodes.of_type(Selection):
         functions.add(Function(vectorize(split_selection_into_connected_areas), node))
-        functions.add(Function(vectorize(split_selection_into_connected_areas_no_diagonals), node))
-        functions.add(Function(vectorize(split_selection_into_connected_areas_skip_gaps), node))
+        functions.add(
+            Function(vectorize(split_selection_into_connected_areas_no_diagonals), node)
+        )
+        functions.add(
+            Function(vectorize(split_selection_into_connected_areas_skip_gaps), node)
+        )
     return functions
 
 
@@ -269,7 +303,9 @@ def extend_selections_to_bounds_functions(nodes, graph):
 def extract_selected_area_functions(nodes, graph):
     return {
         Function(vectorize(extract_selected_area), grid_node, selection_node)
-        for grid_node, selection_node in product(nodes.of_type(Grid), nodes.of_type(Selection))
+        for grid_node, selection_node in product(
+            nodes.of_type(Grid), nodes.of_type(Selection)
+        )
         if shape(grid_node()) == shape(selection_node())
         # heuristic: if target has different shape
         and shape(grid_node()) != shape(graph.target)
@@ -279,7 +315,9 @@ def extract_selected_area_functions(nodes, graph):
 def extract_selected_areas_functions(nodes, graph):
     return {
         Function(vectorize(extract_selected_areas), grid_node, selections_node)
-        for grid_node, selections_node in product(nodes.of_type(Grid), nodes.of_type(Selections))
+        for grid_node, selections_node in product(
+            nodes.of_type(Grid), nodes.of_type(Selections)
+        )
         # can only process nodes ofs length 2 further
         if is_matching_shape(append(selections_node(), grid_node()))
         # heuristic: if target has different shape
@@ -328,7 +366,9 @@ def concatenate_functions(nodes, graph):
     )
     for top_node, bottom_node in combinations_with_replacement(half_height, 2):
         if width(top_node()) == width(bottom_node()):
-            functions.add(Function(vectorize(concatenate_top_bottom), top_node, bottom_node))
+            functions.add(
+                Function(vectorize(concatenate_top_bottom), top_node, bottom_node)
+            )
 
     # heuristic: only do concatenations for half target width
     half_width = (
@@ -338,7 +378,9 @@ def concatenate_functions(nodes, graph):
     )
     for left_node, right_node in combinations_with_replacement(half_width, 2):
         if height(left_node()) == height(right_node()):
-            functions.add(Function(vectorize(concatenate_left_right), left_node, right_node))
+            functions.add(
+                Function(vectorize(concatenate_left_right), left_node, right_node)
+            )
 
     return functions
 
@@ -404,14 +446,28 @@ def symmetry_functions(nodes, graph):
         functions.add(Function(vectorize(rotate_180), node))
         functions.add(Function(vectorize(rotate_270), node))
 
-    for grid_node, selection_node in product(nodes.of_type(Grid), nodes.of_type(Selection)):
+    for grid_node, selection_node in product(
+        nodes.of_type(Grid), nodes.of_type(Selection)
+    ):
         if shape(grid_node()) != shape(selection_node()):
             continue
-        functions.add(Function(vectorize(flip_up_down_within_bounds), grid_node, selection_node))
-        functions.add(Function(vectorize(flip_left_right_within_bounds), grid_node, selection_node))
-        functions.add(Function(vectorize(rotate_90_within_bounds), grid_node, selection_node))
-        functions.add(Function(vectorize(rotate_180_within_bounds), grid_node, selection_node))
-        functions.add(Function(vectorize(rotate_270_within_bounds), grid_node, selection_node))
+        functions.add(
+            Function(vectorize(flip_up_down_within_bounds), grid_node, selection_node)
+        )
+        functions.add(
+            Function(
+                vectorize(flip_left_right_within_bounds), grid_node, selection_node
+            )
+        )
+        functions.add(
+            Function(vectorize(rotate_90_within_bounds), grid_node, selection_node)
+        )
+        functions.add(
+            Function(vectorize(rotate_180_within_bounds), grid_node, selection_node)
+        )
+        functions.add(
+            Function(vectorize(rotate_270_within_bounds), grid_node, selection_node)
+        )
 
     return functions
 

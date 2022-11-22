@@ -76,8 +76,12 @@ def all_args():
         Constant(Vector([Grid.from_string("0\n1"), Grid.from_string("0\n1\n2\n3")])),
         Constant(Vector([Grid.from_string("0\n1\n2"), Grid.from_string("1\n2\n3")])),
         # scalar selection
-        Constant(Vector([Selection.from_string(". #"), Selection.from_string(". # #")])),
-        Constant(Vector([Selection.from_string(". # #"), Selection.from_string(". # #")])),
+        Constant(
+            Vector([Selection.from_string(". #"), Selection.from_string(". # #")])
+        ),
+        Constant(
+            Vector([Selection.from_string(". # #"), Selection.from_string(". # #")])
+        ),
         # matching shape grids
         Constant(
             Vector(
@@ -100,8 +104,12 @@ def all_args():
         Constant(
             Vector(
                 [
-                    Selections([Selection.from_string(". #"), Selection.from_string("# #")]),
-                    Selections([Selection.from_string(". # #"), Selection.from_string("# # #")]),
+                    Selections(
+                        [Selection.from_string(". #"), Selection.from_string("# #")]
+                    ),
+                    Selections(
+                        [Selection.from_string(". # #"), Selection.from_string("# # #")]
+                    ),
                 ]
             )
         ),
@@ -109,8 +117,12 @@ def all_args():
         Constant(
             Vector(
                 [
-                    Selections([Selection.from_string(". #"), Selection.from_string("# # .")]),
-                    Selections([Selection.from_string("# #"), Selection.from_string(". # #")]),
+                    Selections(
+                        [Selection.from_string(". #"), Selection.from_string("# # .")]
+                    ),
+                    Selections(
+                        [Selection.from_string("# #"), Selection.from_string(". # #")]
+                    ),
                 ]
             )
         ),
@@ -119,7 +131,9 @@ def all_args():
 
 @pytest.fixture
 def dummy_target():
-    return Vector([Grid.from_string("0 2"), Grid.from_string("0 2 0"), Grid.from_string("2 4")])
+    return Vector(
+        [Grid.from_string("0 2"), Grid.from_string("0 2 0"), Grid.from_string("2 4")]
+    )
 
 
 @pytest.mark.parametrize(
@@ -134,7 +148,9 @@ def dummy_target():
     ],
 )
 @pytest.mark.parametrize("replace", [True, False])
-def test_function_sampler__sample_matching_shape_args(all_args, dummy_target, types, replace):
+def test_function_sampler__sample_matching_shape_args(
+    all_args, dummy_target, types, replace
+):
     repetitions = 100
     graph = Graph(all_args, dummy_target)
     function_sampler = FunctionSampler(graph)

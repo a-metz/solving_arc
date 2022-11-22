@@ -34,7 +34,8 @@ def default_kwargs():
 @pytest.mark.slow
 def test_generate_submission_smoketest(default_kwargs):
     generate_submission(
-        "solve_arc/kaggle/test_data", **default_kwargs,
+        "solve_arc/kaggle/test_data",
+        **default_kwargs,
     )
 
     submission = open("submission.csv", "r").readlines()
@@ -50,7 +51,9 @@ def test_generate_submission_smoketest(default_kwargs):
 @pytest.mark.slow
 def test_generate_submission__only_selected_range(default_kwargs):
     generate_submission(
-        "solve_arc/kaggle/test_data", task_range=slice(2, None), **default_kwargs,
+        "solve_arc/kaggle/test_data",
+        task_range=slice(2, None),
+        **default_kwargs,
     )
 
     submission = open("submission.csv", "r").readlines()
@@ -66,7 +69,9 @@ def test_generate_submission__only_selected_range(default_kwargs):
 @pytest.mark.slow
 def test_generate_submission__finish_after_max_score_reached(default_kwargs):
     generate_submission(
-        "solve_arc/kaggle/test_data", max_score=1, **default_kwargs,
+        "solve_arc/kaggle/test_data",
+        max_score=1,
+        **default_kwargs,
     )
 
     submission = open("submission.csv", "r").readlines()

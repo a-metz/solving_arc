@@ -64,7 +64,9 @@ class Solution:
         return "Solution({}, {})".format(repr(self.function), repr(self.source))
 
 
-class Statistics(namedtuple("Statistics", ["depth", "branching_factor", "nodes_count"])):
+class Statistics(
+    namedtuple("Statistics", ["depth", "branching_factor", "nodes_count"])
+):
     @classmethod
     def from_graph(cls, node, graph):
         statistics = cls(
@@ -75,7 +77,9 @@ class Statistics(namedtuple("Statistics", ["depth", "branching_factor", "nodes_c
         return statistics
 
     def __str__(self):
-        return ", ".join("{}: {:.2f}".format(field, getattr(self, field)) for field in self._fields)
+        return ", ".join(
+            "{}: {:.2f}".format(field, getattr(self, field)) for field in self._fields
+        )
 
 
 def branching_factor(graph):

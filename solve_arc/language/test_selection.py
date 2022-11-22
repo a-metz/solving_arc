@@ -136,8 +136,12 @@ def example_selection__with_large_gaps():
     )
 
 
-def test_split_selection_into_connected_areas_skip_gaps(example_selection__with_large_gaps):
-    areas = split_selection_into_connected_areas_skip_gaps(example_selection__with_large_gaps)
+def test_split_selection_into_connected_areas_skip_gaps(
+    example_selection__with_large_gaps,
+):
+    areas = split_selection_into_connected_areas_skip_gaps(
+        example_selection__with_large_gaps
+    )
 
     assert set(areas) == {
         Selection.from_string(
@@ -167,7 +171,7 @@ def test_split_selection_into_connected_areas_skip_gaps(example_selection__with_
 
 @pytest.fixture
 def connected_areas_selections(example_selection):
-    """ A sequence of selections with some connected areas
+    """A sequence of selections with some connected areas
     - without diagonal connection
     - with and without bordering the selection edge
     """
@@ -285,4 +289,6 @@ def test_extend_selections_to_bounds(example_selection):
         """
     )
 
-    assert merge_selections(extend_selections_to_bounds(selections)) == expected_selection
+    assert (
+        merge_selections(extend_selections_to_bounds(selections)) == expected_selection
+    )

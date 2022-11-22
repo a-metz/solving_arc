@@ -90,7 +90,9 @@ def test_flip_up_down_within_bounds(grid_with_island, selected_island):
     assert flip_up_down_within_bounds(grid_with_island, selected_island) == expected
 
 
-def test_flip_left_right_within_bounds__incomplete_selection(grid_with_island, selected_incomplete):
+def test_flip_left_right_within_bounds__incomplete_selection(
+    grid_with_island, selected_incomplete
+):
     expected = Grid.from_string(
         """
         0 0 0
@@ -99,7 +101,9 @@ def test_flip_left_right_within_bounds__incomplete_selection(grid_with_island, s
         """
     )
 
-    assert flip_left_right_within_bounds(grid_with_island, selected_incomplete) == expected
+    assert (
+        flip_left_right_within_bounds(grid_with_island, selected_incomplete) == expected
+    )
 
 
 def test_rotate_90_within_bounds(grid_with_island, selected_island):

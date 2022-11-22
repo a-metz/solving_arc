@@ -134,7 +134,9 @@ def test_selection_any():
 
 
 def test_selection_create_from_indices():
-    selection = Selection.from_indices(shape=(3, 2), indices=[(0, 0), (0, 1), (1, 1), (2, 0)])
+    selection = Selection.from_indices(
+        shape=(3, 2), indices=[(0, 0), (0, 1), (1, 1), (2, 0)]
+    )
 
     assert selection.shape == (3, 2)
     assert selection == Selection([[True, True], [False, True], [True, False]])

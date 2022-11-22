@@ -142,7 +142,9 @@ def test_function__equality():
     assert arg == reference
 
 
-@pytest.mark.skip("only valid when using hash calculation based on callable and argument values")
+@pytest.mark.skip(
+    "only valid when using hash calculation based on callable and argument values"
+)
 def test_function__hash_equality():
     def func(*args):
         pass
@@ -155,7 +157,9 @@ def test_function__hash_equality():
     assert hash(Function(func, arg)) == hash(Function(func, arg))
 
 
-@pytest.mark.skip("only valid when using hash calculation based on callable and argument values")
+@pytest.mark.skip(
+    "only valid when using hash calculation based on callable and argument values"
+)
 def test_function__hash_inequality():
     def func_a(*args):
         pass
@@ -171,7 +175,9 @@ def test_function__hash_inequality():
     assert hash(Function(func_a, arg_a, arg_b)) != hash(Function(func_b, arg_b, arg_a))
 
 
-@pytest.mark.skip("only valid when using hash calculation based on callable and argument values")
+@pytest.mark.skip(
+    "only valid when using hash calculation based on callable and argument values"
+)
 def test_function__hash_of_chained_functions():
     def add(a, b):
         return a + b
@@ -185,15 +191,21 @@ def test_function__hash_of_chained_functions():
     reference = Function(add, arg_a, Function(multiply, arg_b, arg_c))
 
     # same function instantiated twice
-    assert hash(Function(add, arg_a, Function(multiply, arg_b, arg_c))) == hash(reference)
+    assert hash(Function(add, arg_a, Function(multiply, arg_b, arg_c))) == hash(
+        reference
+    )
 
     # different inner function
     assert hash(Function(add, arg_a, Function(add, arg_b, arg_c))) != hash(reference)
 
     # different inner value
-    assert hash(Function(add, arg_a, Function(multiply, arg_a, arg_c))) != hash(reference)
+    assert hash(Function(add, arg_a, Function(multiply, arg_a, arg_c))) != hash(
+        reference
+    )
 
     # different inner function but same resulting value
     arg_d = Constant(1)
     arg_e = Constant(15)
-    assert hash(Function(add, arg_a, Function(multiply, arg_d, arg_e))) == hash(reference)
+    assert hash(Function(add, arg_a, Function(multiply, arg_d, arg_e))) == hash(
+        reference
+    )

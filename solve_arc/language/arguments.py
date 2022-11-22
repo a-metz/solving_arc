@@ -68,11 +68,13 @@ class _Base:
         )
 
     def __repr__(self):
-        return "{}(<{}, {}>)".format(self.__class__.__name__, self.shape[0], self.shape[1])
+        return "{}(<{}, {}>)".format(
+            self.__class__.__name__, self.shape[0], self.shape[1]
+        )
 
 
 class Grid(_Base):
-    """ main representation of pixel grids for arc dataset inputs and outputs """
+    """main representation of pixel grids for arc dataset inputs and outputs"""
 
     def __init__(self, state):
         super().__init__(state)
@@ -98,7 +100,7 @@ class Grid(_Base):
 
 
 class Selection(_Base):
-    """ representation of boolean masks for intermediate selections """
+    """representation of boolean masks for intermediate selections"""
 
     def __init__(self, state):
         super().__init__(state)
@@ -121,7 +123,9 @@ class Selection(_Base):
 
     @classmethod
     def from_string(cls, string):
-        elements = [[char == "#" for char in line] for line in filtered_elements(string)]
+        elements = [
+            [char == "#" for char in line] for line in filtered_elements(string)
+        ]
         return cls(elements)
 
     def any(self):
@@ -133,11 +137,13 @@ class Selection(_Base):
 
 
 def filtered_elements(string):
-    return (line.strip().split() for line in string.splitlines() if len(line.strip()) > 0)
+    return (
+        line.strip().split() for line in string.splitlines() if len(line.strip()) > 0
+    )
 
 
 class _Sequence(tuple):
-    """ base class for sequences of grids / selections for operations resulting in mutiple values """
+    """base class for sequences of grids / selections for operations resulting in mutiple values"""
 
     def append(self, element):
         return self.__class__(self + (element,))
@@ -147,7 +153,7 @@ class _Sequence(tuple):
 
     @property
     def shape(self):
-        """ shape of elements in sequence if identical, else None"""
+        """shape of elements in sequence if identical, else None"""
         shapes = {element.shape for element in self}
         if len(shapes) != 1:
             return None
@@ -156,7 +162,7 @@ class _Sequence(tuple):
 
     @property
     def height(self):
-        """ height of elements in sequence if identical, else None"""
+        """height of elements in sequence if identical, else None"""
         heights = {element.height for element in self}
         if len(heights) != 1:
             return None
@@ -165,7 +171,7 @@ class _Sequence(tuple):
 
     @property
     def width(self):
-        """ width of elements in sequence if identical, else None"""
+        """width of elements in sequence if identical, else None"""
         widths = {element.width for element in self}
         if len(widths) != 1:
             return None

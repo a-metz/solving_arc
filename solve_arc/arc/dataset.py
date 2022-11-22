@@ -12,10 +12,16 @@ Subtask = collections.namedtuple("Subtask", ["input", "output"])
 
 grid_schema = Schema(And([[int]], Use(Grid)))
 subtask_schema = Schema(
-    And({"input": grid_schema, "output": grid_schema}, Use(lambda dict_: Subtask(**dict_)))
+    And(
+        {"input": grid_schema, "output": grid_schema},
+        Use(lambda dict_: Subtask(**dict_)),
+    )
 )
 task_schema = Schema(
-    And({"train": [subtask_schema], "test": [subtask_schema]}, Use(lambda dict_: Task(**dict_)))
+    And(
+        {"train": [subtask_schema], "test": [subtask_schema]},
+        Use(lambda dict_: Task(**dict_)),
+    )
 )
 
 

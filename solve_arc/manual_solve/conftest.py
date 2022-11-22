@@ -21,7 +21,10 @@ def pytest_generate_tests(metafunc):
         task_id = match.group(0)
         metafunc.parametrize(
             ["input_", "expected"],
-            [(subtask.input, subtask.output) for subtask in train_and_test_subtasks(task_id)],
+            [
+                (subtask.input, subtask.output)
+                for subtask in train_and_test_subtasks(task_id)
+            ],
         )
     else:
         warnings.warn("Could not parse task id for test '{}'.".format(test_name))

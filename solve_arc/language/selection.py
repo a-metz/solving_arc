@@ -33,7 +33,9 @@ def _split_selection_into_connected_areas(selection, get_neighbors):
 
     areas = []
     while len(unassigned) > 0:
-        connected, unassigned = _connected_indices(unassigned.pop(), unassigned, get_neighbors)
+        connected, unassigned = _connected_indices(
+            unassigned.pop(), unassigned, get_neighbors
+        )
         area = Selection.from_indices(selection.shape, list(connected))
         areas.append(area)
 
@@ -144,7 +146,9 @@ def filter_selections_touching_edge(selections):
 
 def filter_selections_not_touching_edge(selections):
     selections = Selections(
-        selection for selection in selections if not _is_selection_touching_edge(selection)
+        selection
+        for selection in selections
+        if not _is_selection_touching_edge(selection)
     )
 
     if len(selections) == 0:
@@ -163,4 +167,6 @@ def merge_selections(selections):
     if selections.shape == None:
         return None
 
-    return Selection(reduce(np.logical_or, (selection.state for selection in selections)))
+    return Selection(
+        reduce(np.logical_or, (selection.state for selection in selections))
+    )

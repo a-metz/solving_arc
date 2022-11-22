@@ -30,7 +30,7 @@ if return_value != 0:
 
 header = """
 # submission generated with kagglize-module
-# original code available at https://github.com/wahtak/solving_arc (publicly accessable after competition)
+# original code available at https://github.com/wahtak/solving_arc
 # commit hash {}
 
 submission_parameters = {!r}
@@ -45,7 +45,9 @@ generate_submission(**submission_parameters)
 
 filename = "kaggle_submission_{}.py".format(commit_hash[:7])
 with open(filename, "w") as submission:
-    submission.write(header.format(commit_hash, submission_parameters, search_parameters))
+    submission.write(
+        header.format(commit_hash, submission_parameters, search_parameters)
+    )
     submission.write(open(tmp_file, "r").read())
     submission.write(footer)
 

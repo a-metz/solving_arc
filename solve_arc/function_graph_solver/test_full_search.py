@@ -118,10 +118,22 @@ def selections_node():
 
 
 def test_node_collections(
-    invalid_node, grid_node, grids_node, selection_node_1, selection_node_2, selections_node
+    invalid_node,
+    grid_node,
+    grids_node,
+    selection_node_1,
+    selection_node_2,
+    selections_node,
 ):
     nodes = NodeCollection(
-        [invalid_node, grid_node, grids_node, selection_node_1, selection_node_2, selections_node]
+        [
+            invalid_node,
+            grid_node,
+            grids_node,
+            selection_node_1,
+            selection_node_2,
+            selections_node,
+        ]
     )
 
     assert len(nodes) == 6
@@ -146,7 +158,9 @@ def graph():
     return Graph()
 
 
-def test_extract_selected_area_functions(graph, grid_node, selection_node_1, selection_node_2):
+def test_extract_selected_area_functions(
+    graph, grid_node, selection_node_1, selection_node_2
+):
     nodes = NodeCollection([grid_node, selection_node_1, selection_node_2])
     functions = extract_selected_area_functions(nodes, graph)
 
@@ -156,21 +170,35 @@ def test_extract_selected_area_functions(graph, grid_node, selection_node_1, sel
     }
 
 
-def test_set_selected_to_color_functions(graph, grid_node, selection_node_1, selection_node_2):
+def test_set_selected_to_color_functions(
+    graph, grid_node, selection_node_1, selection_node_2
+):
     nodes = NodeCollection([grid_node, selection_node_1, selection_node_2])
     functions = set_selected_to_color_functions(nodes, graph)
 
     assert functions == {
         Function(
-            vectorize(set_selected_to_color), grid_node, selection_node_1, Constant(repeat_once(1)),
+            vectorize(set_selected_to_color),
+            grid_node,
+            selection_node_1,
+            Constant(repeat_once(1)),
         ),
         Function(
-            vectorize(set_selected_to_color), grid_node, selection_node_2, Constant(repeat_once(1)),
+            vectorize(set_selected_to_color),
+            grid_node,
+            selection_node_2,
+            Constant(repeat_once(1)),
         ),
         Function(
-            vectorize(set_selected_to_color), grid_node, selection_node_1, Constant(repeat_once(2)),
+            vectorize(set_selected_to_color),
+            grid_node,
+            selection_node_1,
+            Constant(repeat_once(2)),
         ),
         Function(
-            vectorize(set_selected_to_color), grid_node, selection_node_2, Constant(repeat_once(2)),
+            vectorize(set_selected_to_color),
+            grid_node,
+            selection_node_2,
+            Constant(repeat_once(2)),
         ),
     }

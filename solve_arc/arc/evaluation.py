@@ -75,7 +75,10 @@ def _evaluate(tasks, max_seconds_per_task=10, **kwargs):
 
         try:
             solution = timeout(
-                timeout=max_seconds_per_task, func=solve, args=(constraints,), kwargs=kwargs
+                timeout=max_seconds_per_task,
+                func=solve,
+                args=(constraints,),
+                kwargs=kwargs,
             )
             if solution is not None:
                 statistics.append(solution.statistics)
@@ -103,7 +106,10 @@ def _evaluate(tasks, max_seconds_per_task=10, **kwargs):
 
 def reduce_statistics(statistics, func):
     return Statistics(
-        *[func(element) for element in zip(*[stat for stat in statistics if stat is not None])]
+        *[
+            func(element)
+            for element in zip(*[stat for stat in statistics if stat is not None])
+        ]
     )
 
 

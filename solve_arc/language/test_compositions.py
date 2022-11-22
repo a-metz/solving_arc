@@ -11,7 +11,7 @@ def filled_grid():
 
 @pytest.fixture
 def islands_grid():
-    """ A grid with some islands
+    """A grid with some islands
     - with diagonal connection
     - with different and same values
     - without overlapping bounding boxes
@@ -67,7 +67,7 @@ def test_extract_islands(islands_grid):
 
 @pytest.fixture
 def patches_grid():
-    """ A grid with some color_patches
+    """A grid with some color_patches
     - discontinuous patches
     - neighboring other colors
     - without overlapping bounding boxes

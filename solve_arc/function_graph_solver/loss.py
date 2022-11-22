@@ -18,14 +18,20 @@ def distance(value, target):
 
     if isinstance(value, Grids):
         wrong_type_penalty = 0.1
-        return wrong_type_penalty + mean([grid_distance(grid, target) for grid in value])
+        return wrong_type_penalty + mean(
+            [grid_distance(grid, target) for grid in value]
+        )
 
     return 1
 
 
 def grid_distance(grid, target):
     return mean(
-        [shape_distance(grid, target), color_distance(grid, target), cells_distance(grid, target)]
+        [
+            shape_distance(grid, target),
+            color_distance(grid, target),
+            cells_distance(grid, target),
+        ]
     )
 
 

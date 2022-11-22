@@ -146,9 +146,13 @@ class FunctionSampler:
             selection_elementwise_not: None,
             # segmentation
             # TODO: sample with highter prob for shape != shape(target)
-            extract_selected_areas: lambda: self.sample_matching_shape_args(Grid, Selections),
+            extract_selected_areas: lambda: self.sample_matching_shape_args(
+                Grid, Selections
+            ),
             # TODO: sample with highter prob for shape != shape(target)
-            extract_selected_area: lambda: self.sample_matching_shape_args(Grid, Selection),
+            extract_selected_area: lambda: self.sample_matching_shape_args(
+                Grid, Selection
+            ),
             split_left_right: lambda: self.sample_split_args(width_segments=2),
             split_left_middle_right: lambda: self.sample_split_args(width_segments=3),
             split_top_bottom: lambda: self.sample_split_args(height_segments=2),
@@ -157,7 +161,9 @@ class FunctionSampler:
             concatenate_left_right: self.sample_concatenate_left_right_args,
             concatenate_top_to_bottom: self.sample_concatenate_top_to_bottom_args,
             concatenate_left_to_right: self.sample_concatenate_left_to_right_args,
-            merge_grids_with_mask: lambda: self.sample_matching_shape_args(Grid, Grid, Selection),
+            merge_grids_with_mask: lambda: self.sample_matching_shape_args(
+                Grid, Grid, Selection
+            ),
             take_first: lambda: self.sample_type_args(Grids, Selections),
             take_last: lambda: self.sample_type_args(Grids, Selections),
             sort_by_area: lambda: self.sample_type_args(Grids, Selections),
@@ -165,7 +171,9 @@ class FunctionSampler:
             # selection
             select_color: self.sample_select_color_args,
             select_all_colors: self.sample_select_color_args,
-            split_selection_into_connected_areas: lambda: self.sample_type_args(Selection),
+            split_selection_into_connected_areas: lambda: self.sample_type_args(
+                Selection
+            ),
             split_selection_into_connected_areas_no_diagonals: lambda: self.sample_type_args(
                 Selection
             ),
@@ -175,7 +183,9 @@ class FunctionSampler:
             extend_selections_to_bounds: lambda: self.sample_type_args(Selections),
             extend_selection_to_bounds: lambda: self.sample_type_args(Selection),
             filter_selections_touching_edge: lambda: self.sample_type_args(Selections),
-            filter_selections_not_touching_edge: lambda: self.sample_type_args(Selections),
+            filter_selections_not_touching_edge: lambda: self.sample_type_args(
+                Selections
+            ),
             merge_selections: self.sample_merge_selection_args,
             # symmetry
             flip_up_down: lambda: self.sample_type_args(Grid),
@@ -183,11 +193,21 @@ class FunctionSampler:
             rotate_90: lambda: self.sample_type_args(Grid),
             rotate_180: lambda: self.sample_type_args(Grid),
             rotate_270: lambda: self.sample_type_args(Grid),
-            flip_up_down_within_bounds: lambda: self.sample_matching_shape_args(Grid, Selection),
-            flip_left_right_within_bounds: lambda: self.sample_matching_shape_args(Grid, Selection),
-            rotate_90_within_bounds: lambda: self.sample_matching_shape_args(Grid, Selection),
-            rotate_180_within_bounds: lambda: self.sample_matching_shape_args(Grid, Selection),
-            rotate_270_within_bounds: lambda: self.sample_matching_shape_args(Grid, Selection),
+            flip_up_down_within_bounds: lambda: self.sample_matching_shape_args(
+                Grid, Selection
+            ),
+            flip_left_right_within_bounds: lambda: self.sample_matching_shape_args(
+                Grid, Selection
+            ),
+            rotate_90_within_bounds: lambda: self.sample_matching_shape_args(
+                Grid, Selection
+            ),
+            rotate_180_within_bounds: lambda: self.sample_matching_shape_args(
+                Grid, Selection
+            ),
+            rotate_270_within_bounds: lambda: self.sample_matching_shape_args(
+                Grid, Selection
+            ),
         }
 
     def __call__(self):
@@ -222,7 +242,12 @@ class FunctionSampler:
         target_colors = used_colors(self.target)
         from_color = self.sample_color(used_colors(grid_node()) - target_colors)
         to_color = self.sample_color(target_colors - {from_color})
-        return grid_node, selection_node, Constant(repeat(from_color)), Constant(repeat(to_color))
+        return (
+            grid_node,
+            selection_node,
+            Constant(repeat(from_color)),
+            Constant(repeat(to_color)),
+        )
 
     def sample_set_selected_to_color_args(self):
         grid_node, selection_node = self.sample_matching_shape_args(Grid, Selection)
@@ -270,16 +295,23 @@ class FunctionSampler:
             splittable_dimensions = {
                 dimension
                 for dimension in nodes_with_dimension.values
-                if all(element is not None and element % num_segments == 0 for element in dimension)
+                if all(
+                    element is not None and element % num_segments == 0
+                    for element in dimension
+                )
             }
             if len(splittable_dimensions) == 0:
                 raise NoSample()
             return union(nodes_with_dimension(dim) for dim in splittable_dimensions)
 
         if height_segments > 1:
-            candidates &= nodes_with_splittable_dimension(self.nodes.with_height, height_segments)
+            candidates &= nodes_with_splittable_dimension(
+                self.nodes.with_height, height_segments
+            )
         if width_segments > 1:
-            candidates &= nodes_with_splittable_dimension(self.nodes.with_width, width_segments)
+            candidates &= nodes_with_splittable_dimension(
+                self.nodes.with_width, width_segments
+            )
 
         return (self.sample_node(candidates),)
 
@@ -288,7 +320,9 @@ class FunctionSampler:
         # TODO: sample with lower prob when concatentate same node
         candidates = self.nodes.with_type(Grid)
         top_node = self.sample_node(candidates)
-        bottom_node = self.sample_node(candidates & self.nodes.with_width(width(top_node())))
+        bottom_node = self.sample_node(
+            candidates & self.nodes.with_width(width(top_node()))
+        )
         return top_node, bottom_node
 
     def sample_concatenate_left_right_args(self):
@@ -296,17 +330,23 @@ class FunctionSampler:
         # TODO: sample with lower prob when concatentate same node
         candidates = self.nodes.with_type(Grid)
         left_node = self.sample_node(candidates)
-        right_node = self.sample_node(candidates & self.nodes.with_height(height(left_node())))
+        right_node = self.sample_node(
+            candidates & self.nodes.with_height(height(left_node()))
+        )
         return left_node, right_node
 
     def sample_concatenate_top_to_bottom_args(self):
         # TODO: sample with higher prob when not target shape
-        candidates = self.nodes.with_type(Grids) & self.nodes.with_width.matching_sequences
+        candidates = (
+            self.nodes.with_type(Grids) & self.nodes.with_width.matching_sequences
+        )
         return (self.sample_node(candidates),)
 
     def sample_concatenate_left_to_right_args(self):
         # TODO: sample with higher prob when not target shape
-        candidates = self.nodes.with_type(Grids) & self.nodes.with_height.matching_sequences
+        candidates = (
+            self.nodes.with_type(Grids) & self.nodes.with_height.matching_sequences
+        )
         return (self.sample_node(candidates),)
 
     def sample_type_args(self, *types):
@@ -331,9 +371,14 @@ class FunctionSampler:
 
         for shape_ in self.nodes.with_shape.values:
             nodes_for_shape = self.nodes.with_shape(shape_)
-            nodes_by_type = [self.nodes.with_type(type_) & nodes_for_shape for type_ in types]
+            nodes_by_type = [
+                self.nodes.with_type(type_) & nodes_for_shape for type_ in types
+            ]
 
-            if all(len(nodes) >= num_required[type_] for type_, nodes in zip(types, nodes_by_type)):
+            if all(
+                len(nodes) >= num_required[type_]
+                for type_, nodes in zip(types, nodes_by_type)
+            ):
                 for candidates, nodes in zip(candidates_by_type, nodes_by_type):
                     candidates |= nodes
 

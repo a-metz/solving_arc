@@ -8,7 +8,9 @@ import itertools
 
 class Vector(tuple):
     def __str__(self):
-        return "{}({})".format(self.__class__.__name__, ", ".join(str(element) for element in self))
+        return "{}({})".format(
+            self.__class__.__name__, ", ".join(str(element) for element in self)
+        )
 
     def __repr__(self):
         return "{}([{}])".format(
